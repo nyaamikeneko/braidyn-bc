@@ -3,7 +3,7 @@ from pathlib import Path
 import sys
 
 # nwbxなどのライブラリをインポート
-# import nwbx 
+import bdbc_nwb_explorer as nwbx
 
 # config.py をインポートするためにプロジェクトルートをsys.pathに追加
 PROJECT_ROOT = Path(__file__).parent.parent.resolve()
@@ -33,11 +33,8 @@ def load_nwb_session(session_id: str, nwb_filename: str):
         return None
     
     print(f"NWB読み込み中: {filepath}")
-    # session = nwbx.read_nwb(filepath)
-    # return session
-    
-    # (nwbxが未インストールの場合のダミー)
-    return f"Loaded NWB Session: {filepath}"
+    session = nwbx.read_nwb(filepath)
+    return session
 
 def load_trials_csv(session_id: str, task_day_dir: str, csv_name: str = "trials_L1L2.csv"):
     """
