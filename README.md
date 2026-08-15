@@ -13,7 +13,7 @@
 3. **マルチモーダル検証** — 推定状態を皮質活動・表情特徴で再構成し、脳–身体カップリングを定量する。
 4. **ミス試行の分解** — 学習初期の「脳は従事しているが身体が追いつかない」ミスと、後期の「両者とも非従事」ミスを区別する。
 
-現在の実装中心は GLM-HMM の入力作成と 1 個体モデルです。要件は時間ビン単位（Ver.3）から試行単位（Ver.4）へ移行中です。
+現在の実装中心は GLM-HMM です。時間ビン単位（Ver.3、ノート `10`–`12`）に加え、試行単位（Ver.4、ノート `14`）がある。
 
 ## リポジトリ構成
 
@@ -22,17 +22,19 @@ braidyn-bc/
 ├── README.md                 # 本ファイル
 ├── config.py                 # データパス（ローカル / Colab）
 ├── src/
-│   └── data_loader.py        # NWB / CSV 読み込み
+│   ├── data_loader.py        # NWB / CSV 読み込み
+│   └── glmhmm_ver4.py        # Ver.4 試行抽出・学習・可視化
 ├── notebooks/                # 解析ノート（番号順）
 ├── docs/
 │   ├── catalog.md            # ノート・docs の説明
+│   ├── data.md               # データ配置と CSV バックアップ
 │   ├── RQ.md                 # 研究質問・仮説
 │   ├── requirements_glmhmm.md    # GLM-HMM 要件 Ver.3（時間ビン）
 │   └── requirements_ver4.md      # GLM-HMM 要件 Ver.4（試行単位）
 └── .gitignore
 ```
 
-生データ（NWB・CSV）はこのリポジトリには含まれません。Google Drive 上の共有フォルダを参照します。
+生データ（NWB・CSV）はこのリポジトリには含まれません。Google Drive 上の共有フォルダを参照します。配置と個人バックアップは [docs/data.md](docs/data.md) を見てください。
 
 ## データ
 
@@ -40,8 +42,9 @@ braidyn-bc/
 | :--- | :--- | :--- |
 | NWB | セッション単位の神経画像・試行・表情など | `config.DATA_NWB_ROOT` |
 | CSV | 30 Hz の行動時系列（`trials_L1L2.csv`） | `config.DATA_CSV_ROOT` |
+| CSV バックアップ | 上記 CSV のみの個人コピー | `config.DATA_CSV_BACKUP_ROOT`（`マイドライブ/braidyn-bc-backup/hackathon_data`） |
 
-対象は約 16 匹、課題日 Day 1–15 です。代表セッション例:
+対象は約 24 匹（CSV がある個体）、課題日 Day 1–15 です。代表セッション例:
 
 - マウス `VG1GC-105` / `task-day8`
 - マウス `VG1GC-66` / `task-day15`
@@ -64,7 +67,7 @@ CSV の主な列:
 2. 先頭セルを実行する（Drive マウント、本リポジトリの clone/pull、依存関係のインストール）。
 3. `config.py` は `COLAB_GPU` 環境変数を見て次のパスを使います。
    - NWB: `/content/drive/MyDrive/braidyn-bc/data`
-   - CSV: `/content/drive/MyDrive/hackathon_data`
+   - CSV: `/content/drive/MyDrive/hackathon_data`（無ければ `/content/drive/MyDrive/braidyn-bc-backup/hackathon_data`）
 
 ### ローカル
 
@@ -103,14 +106,16 @@ pip install -e .
 | 入力作成 | `notebooks/10_setup_GLM-HMM_input_data.ipynb` | 整形・ビン・履歴・ITI 分割 |
 | モデル | `notebooks/11_build_GLM-HMM_model_for1mouse.ipynb` | 1 個体学習と解釈 |
 | 表情拡張 | `notebooks/12_setup_input_data_ver2.ipynb` | ビデオ特徴を入力に追加 |
+| 試行単位 | `notebooks/14_glmhmm_ver4_trials.ipynb` | Ver.4。4 次元と 13 次元、K=3 |
 | 参考実装 | `notebooks/2b Input Driven Observations (GLM-HMM).ipynb` | Ashwood らの ssm チュートリアル |
 
 ## 主要モジュール
 
-- `config.py` — 実行環境に応じて `DATA_NWB_ROOT` と `DATA_CSV_ROOT` を定義する。
+- `config.py` — 実行環境に応じて `DATA_NWB_ROOT` と `DATA_CSV_ROOT` を定義する。共有 CSV が無いときはマイドライブのバックアップを使う。
 - `src/data_loader.py`
   - `load_nwb_session(session_id, nwb_filename)` — `bdbc_nwb_explorer` で NWB を読む。
   - `load_trials_csv(session_id, task_day_dir, csv_name="trials_L1L2.csv")` — 行動 CSV を読む。
+- `src/glmhmm_ver4.py` — Ver.4 の試行抽出、履歴、顔特徴、学習、可視化。
 
 ## ライセンス・出典
 
