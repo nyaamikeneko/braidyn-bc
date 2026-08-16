@@ -4,6 +4,8 @@
 
 一覧は [README.md の「参考文献」節](../README.md#参考文献) にも表示しています。各ファイルは書誌情報・要旨（日本語要約）・本研究との関連メモの3部構成です。全10本を1ファイルにまとめた [all_references.md](all_references.md) もあります。
 
+`#1` の Kondo et al. 2025（本リポジトリが解析対象とするデータセットの記述論文）のみ、全文PDF・Supplementary Information の原本を [sources/](sources/) に保存しています。
+
 ## 一覧
 
 | # | ファイル | タイトル | 著者（筆頭） | 誌名・年 |

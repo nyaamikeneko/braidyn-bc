@@ -22,6 +22,8 @@
 - 生の動画・画像も使う（顔・瞳孔・体の動画解析など）→ **AWS S3** から必要セッションのみ取得
 - NWB全体を再現性重視で厳密に扱う／正式引用 → **DANDI**
 
+**注**: 論文本文（Data Recordsセクション、[reference/kondo2025_braidynbc_dataset.md](../reference/kondo2025_braidynbc_dataset.md)）で明記されているのは DANDI と GIN の2つのみ。AWS S3 はプロジェクトサイトのみで案内されている（論文には記載なし）。またGINのNWBファイルは「軽量であることを意図しており、Raw imagingデータのエントリを含まない」ことが論文中に明記されている。
+
 ### GIN利用時の実務メモ（1ファイル約1GBの場合）
 
 ファイルサイズが1GB程度であれば、Google Colabの一時ディスクよりも、永続化できるローカル環境での作業を基本とする。理由: Colab無料枠のディスクはセッション終了でリセットされ、DataLad/git-annexでの再取得が繰り返し発生しやすく、GINのgit-annex経由の取得は小さなgitオブジェクトのやり取りが多いため、Colabの一時ストレージ・帯域と相性がよくない。探索段階で数ファイルだけ試したい場合、またはGoogle Driveをマウントして永続化する運用にする場合はColabも選択肢。
@@ -43,7 +45,7 @@ datalad get sub-01/ses-01/*.nwb    # 必要なsubject/sessionだけ実体を取�
 
 - GINリポジトリの正確な合計サイズ（サイト上に明記なし。取得前に`datalad status`で確認要）
 - Google Drive版NWBとDANDI/GIN版NWBの内容差分の有無（バージョン更新が反映されているか）
-- resting-state／sensory stimセッションのGIN収録範囲（論文では4セッションのresting-state記載あり）
+- ローカルの `trials_L1L2.csv` が、論文記載のNWB内 `downsampled/data_interfaces/trials` の派生物なのか、別途（ハッカソン等で）作成された抽出物なのかが未確認。列名（`state_lever` / `state_task`）は論文のNWBスキーマ（Table 4）と一致するが、CSV自体への言及は論文本文にない（詳細は [reference/kondo2025_braidynbc_dataset.md](../reference/kondo2025_braidynbc_dataset.md)）
 
 ### その他の関連リソース
 
