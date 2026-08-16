@@ -18,19 +18,19 @@
 
 ## 既知の落とし穴
 
-- **config値はモジュール属性として参照する**: `src/data_loader.py` と `src/glmhmm_ver4.py` は `from config import DATA_NWB_ROOT` ではなく `import config` して `config.DATA_NWB_ROOT` を都度参照する設計（2026-08-16修正）。理由: notebook側で `v4.DATA_NWB_ROOT = ...` のように上書きしても、`importlib.reload(v4)` すると `from import` していた場合は config.py の既定値で上書きが消えてしまう。新しいモジュールを追加するときも同じパターンを踏襲すること。
+- **config値はモジュール属性として参照する**: `src/data_loader.py` と `src/glmhmm_ver4.py` は `from config import DATA_NWB_ROOT` ではなく `import config` して `config.DATA_NWB_ROOT` を都度参照する設計。理由: notebook側で `v4.DATA_NWB_ROOT = ...` のように上書きしても、`importlib.reload(v4)` すると `from import` していた場合は config.py の既定値で上書きが消えてしまう。新しいモジュールを追加するときも同じパターンを踏襲すること。
 - **ssm ライブラリのキーワード引数は `inputs=`**: `model.log_likelihood()` / `model.log_probability()` は `input=x` ではなく `inputs=x`（複数形）を期待する。単数形で書くと `TypeError` になる。
 - **ssm は手動インストールが必要**: pip に無いので `git clone https://github.com/lindermanlab/ssm && cd ssm && pip install -e .` が要る（ノート `11` / `12` / `2b` に手順あり）。ローカルでは WSL 上に作った `.venv-wsl`（`ssm` / `bdbc_nwb_explorer` / `pynwb` インストール済み）を使えば Windows ネイティブでのビルド失敗を避けられる。
-- **NWBファイル名探索のフォールバックを部分一致にすると誤爆する**: `src/glmhmm_ver4.py` の `find_nwb_file()` は完全一致（`{mouse_id}_*_{task_day}.nwb`）が失敗すると `*{task_day}*.nwb` でフォールバック検索していたが、これは単純な部分文字列一致なので `task-day1` が `task-day15` にヒットしてしまっていた（day1用のNWBが存在しないのに、代わりにday15のNWBを誤って読み込む）。2026-08-16に、日番号の直後に数字が続かないことを保証する正規表現に修正した。日番号を含む文字列マッチを書くときは同じ罠に注意する。
+- **NWBファイル名探索のフォールバックを部分一致にすると誤爆する**: `src/glmhmm_ver4.py` の `find_nwb_file()` は完全一致（`{mouse_id}_*_{task_day}.nwb`）が失敗すると `*{task_day}*.nwb` でフォールバック検索する。単純な部分文字列一致にすると `task-day1` が `task-day15` にヒットしてしまう（day1用のNWBが存在しないのに、代わりにday15のNWBを誤って読み込む）ため、日番号の直後に数字が続かないことを保証する正規表現を使っている。日番号を含む文字列マッチを書くときは同じ罠に注意する。
 - **ノートブックのローカル実行はClaude Code経由が簡単**: Cursor/VS CodeでWSLカーネルに接続してセルを対話実行させる方法は、Cursorだと「インタープリタパスを入力」の選択肢がカーネルピッカーに出てこないことがある（拡張機能都合、原因未特定）。詰まったら `wsl -d Ubuntu -e bash -lc "cd /mnt/c/Users/<user>/braidyn-bc && <repo>/.venv-wsl/bin/python -m jupyter nbconvert --to notebook --execute --inplace --ExecutePreprocessor.timeout=1800 notebooks/XX.ipynb"` で直接実行するのが早い。出力（print・図）は `.ipynb` のJSONにインライン保存されるので、Cursor側はリモート接続なしで開くだけで見える。実行時間の目安: 複数日×複数モデルを学習するノート14で約6〜7分（`--ExecutePreprocessor.timeout` は余裕を持って1800秒程度に設定）。
 
 ## Claude作業ログの置き場所
 
-Claude Code が生成する作業ログ・変更メモは `.claude/changes/` に置く（2026-08-16に `docs/claude-changes/` → `claude-changes/` を経て移動）。研究成果物ではなくClaude自身の作業記録なので、リポジトリ直下ではなく `.claude/` 配下にまとめる。
+Claude Code が生成する作業ログ・変更メモは `.claude/changes/` に置く。研究成果物ではなくClaude自身の作業記録なので、リポジトリ直下ではなく `.claude/` 配下にまとめる。
 
 ## ドキュメント編集時の注意
 
-- `README.md` / `docs/*.md` / `reference/*.md` は常にその時点のスナップショットとして読めるように書く。「〜を追加した」「前回の未確認事項は解消した」のような変更履歴の語りは書かない（git log / git diff が担う）。取り消し線での修正履歴表示もしない。
+- `CLAUDE.md` / `README.md` / `docs/*.md` / `reference/*.md` は常にその時点のスナップショットとして読めるように書く（`.claude/changes/` の作業ログは対象外。あちらは変更履歴を記録する場所）。「〜を追加した」「前回の未確認事項は解消した」のような変更履歴の語りは書かない（git log / git diff が担う）。取り消し線での修正履歴表示もしない。
 - 事実として確定していることは、根拠を示した上で言い切る。「〜の可能性が高い」「ほぼ確実に」のような、確認済みの事実に対する冗長なヘッジは避ける。
 - データの存在確認など、鮮度が意味を持つ事実には確認日を添えてよい（例:「2026-08-16 存在確認済み」）。これは変更履歴の語りではなく、情報自体の一部。
 

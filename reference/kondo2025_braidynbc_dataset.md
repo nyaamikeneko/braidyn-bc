@@ -72,7 +72,7 @@
 
 処理済みデータは `analysis` / `processing` 以下に格納され、`processing/behavior/data_interfaces` にDLCキーポイント（`eye_video_keypoints` / `face_video_keypoints` / `body_video_keypoints`）と `eye_position` / `pupil_tracking`、`downsampled/data_interfaces/trials` に上記センサ値がイメージングフレームと同期した試行情報として格納される。
 
-論文本文には `trials_L1L2.csv` のような独立CSVファイルの記載はなく、試行情報はNWB内の `downsampled/data_interfaces/trials` に格納される設計になっている。ローカルで使っている `trials_L1L2.csv` がこのNWB由来の派生物なのか、別途（ハッカソン等で）作成された抽出物なのかは未確認（[docs/data.md](../docs/data.md) 参照）。
+論文本文には `trials_L1L2.csv` のような独立CSVファイルの記載はなく、試行情報はNWB内の `downsampled/data_interfaces/trials` に格納される設計になっている。ローカルで使っている `trials_L1L2.csv` はハッカソンで作成した抽出物で、音なし条件も含むすべてのレバー引き試行についてレバー引き時間を計算している（詳細は [docs/data.md](../docs/data.md)）。
 
 ### データ公開先（Data Records セクション）
 
@@ -83,7 +83,7 @@
 - Google Colab用のPythonチュートリアル一覧: https://drive.google.com/drive/folders/1QciTJd3tXkEGhz6782czB2dEO3fafm8M
 - 解析パイプラインのソースコード（MITライセンス）: https://github.com/BraiDyn-BC/bdbc-data-pipeline
 
-**AWS S3（`s3://braidyn-bc-buckets`）は論文本文には記載がなく、プロジェクトサイトのみで案内されている**（[docs/data.md](../docs/data.md) の「正式な公開先」表を参照）。
+プラットフォームごとの比較（AWS S3を含む）は [docs/data.md](../docs/data.md) の「正式な公開先」表を参照。
 
 ### 主要な検証結果（Technical Validation）
 
@@ -97,5 +97,5 @@
 
 本リポジトリが解析対象とする NWB / CSV データそのものの記述論文である。
 
-- セッション構成（2週間・15セッション）は、本リポジトリの `Day 1–15` という課題日レンジと一致する。ただし論文の正式なセッション体系には、本リポジトリのnotebookでは扱っていない `day 0`（プレトレーニング後resting-state）・`day 16`（sensory-mapping）も含まれる。
+- セッション構成（2週間・15セッション）は、本リポジトリの `Day 1–15` という課題日レンジと一致する。論文の正式なセッション体系にはこれ以外に `day 0`・`day 16` も含まれる（上記「動物・課題スケジュール」参照）。
 - データの取得元・前処理仕様（`merge_asof` でのCSV/NWB統合など、[docs/requirements_glmhmm.md](../docs/requirements_glmhmm.md) 3.2節）を理解する上で、この論文のMethodsを一次情報として参照する価値が高い。

@@ -4,7 +4,7 @@
 
 ## 0. 正式な公開先（DANDI / AWS S3 / GIN）
 
-以前は Google Drive 上の NWB を直接参照していたが、現在は正式な永続アーカイブとして DANDI Archive・AWS S3・GIN の3系統に再編されている。Google Drive の NWB フォルダ自体はプロジェクトサイト上にリンクが残っているが、正式なアーカイブではない。
+Google Drive の NWB フォルダ自体はプロジェクトサイト上にリンクが残っているが、正式なアーカイブではない。
 
 - プロジェクトサイト: https://nakaelab.github.io/braidyn-bc-database/index.html
 - 該当データセット解説ページ: https://nakaelab.github.io/braidyn-bc-database/pages/operant-conditioning-process.html
@@ -22,7 +22,7 @@
 - 生の動画・画像も使う（顔・瞳孔・体の動画解析など）→ **AWS S3** から必要セッションのみ取得
 - NWB全体を再現性重視で厳密に扱う／正式引用 → **DANDI**
 
-**注**: 論文本文（Data Recordsセクション、[reference/kondo2025_braidynbc_dataset.md](../reference/kondo2025_braidynbc_dataset.md)）で明記されているのは DANDI と GIN の2つのみ。AWS S3 はプロジェクトサイトのみで案内されている（論文には記載なし）。またGINのNWBファイルは「軽量であることを意図しており、Raw imagingデータのエントリを含まない」ことが論文中に明記されている。
+**注**: 論文本文（Data Recordsセクション、[reference/kondo2025_braidynbc_dataset.md](../reference/kondo2025_braidynbc_dataset.md)）で明記されているのは DANDI と GIN の2つのみ。AWS S3 はプロジェクトサイトのみで案内されている（論文には記載なし）。
 
 ### GIN利用時の実務メモ（1ファイル約1GBの場合）
 
@@ -39,13 +39,11 @@ find . -name "*.nwb"
 datalad get sub-01/ses-01/*.nwb    # 必要なsubject/sessionだけ実体を取得
 ```
 
-25匹×15セッション分あるため、全部を一度に取得すると数十〜百GB規模になり得る。事前に`datalad status`で構造を把握し、必要な範囲を絞ってから`get`することを推奨。
+25匹×15セッション分あるため、全部を一度に取得すると数十〜百GB規模になり得る。
 
 ### 未確認・要フォローアップ事項
 
-- GINリポジトリの正確な合計サイズ（サイト上に明記なし。取得前に`datalad status`で確認要）
 - Google Drive版NWBとDANDI/GIN版NWBの内容差分の有無（バージョン更新が反映されているか）
-- ローカルの `trials_L1L2.csv` が、論文記載のNWB内 `downsampled/data_interfaces/trials` の派生物なのか、別途（ハッカソン等で）作成された抽出物なのかが未確認。列名（`state_lever` / `state_task`）は論文のNWBスキーマ（Table 4）と一致するが、CSV自体への言及は論文本文にない（詳細は [reference/kondo2025_braidynbc_dataset.md](../reference/kondo2025_braidynbc_dataset.md)）
 
 ### その他の関連リソース
 
@@ -69,7 +67,7 @@ datalad get sub-01/ses-01/*.nwb    # 必要なsubject/sessionだけ実体を取�
 | CSV | 30 Hz 行動ログ `trials_L1L2.csv` | `/content/drive/MyDrive/hackathon_data` | `G:\.shortcut-targets-by-id\1fI6PWRHgihU6asA4OyW-_rN-JII33Fkj\hackathon_data`（2026-08-16 存在確認済み） |
 | NWB | 神経画像・公式試行・表情 | `/content/drive/MyDrive/nwb_manual`（手動配置分） | `G:\マイドライブ\nwb_manual`（2026-08-16確認。`VG1GC-66\VG1GC-66_2023-09-08_task-day15.nwb` の1件のみ存在） |
 
-CSV は 25 匹中 24 匹に `trials_L1L2.csv` がある（`VG1GC-48` のみ 0 日）。個体によって欠ける課題日がある。
+`trials_L1L2.csv` はハッカソンで作成した抽出物で、論文のNWBファイルそのものではない。音なし条件も含む、すべてのレバー引き試行についてレバー引き時間を計算している。CSV は 25 匹中 24 匹に `trials_L1L2.csv` がある（`VG1GC-48` のみ 0 日）。個体によって欠ける課題日がある。
 
 共有フォルダ本来の NWB 置き場（`...\braidyn-bc\data` のショートカット先）は `data/` も `.nwb` も無く空だが、手動で集めた `nwb_manual` フォルダは Colab・ローカル（WSL / Windows）のどちらからも `config.py` が優先的に見に行く（`src/glmhmm_ver4.py` の `find_nwb_file()`）。2026-08-16時点では `VG1GC-66` の `task-day15` のみが利用可能で、13 次元（顔特徴）学習はこの日に限られる。ローカル実行の手順は [README.md](../README.md) の「ローカル（WSL、動作確認済み）」を参照。
 

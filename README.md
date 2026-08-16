@@ -56,7 +56,7 @@ CSV の主な列:
 - `pull_onset`, `reaction_time`, `diff_value`, `first_diff`
 - `pull_duration_for_success`, `trial_outcome`
 
-`state_task` は 0（音なし）、1（音提示）、2（報酬フェーズ）です。
+`state_task` は 0（音なし）、1（音提示）、2（報酬フェーズ）です。`diff_value` は音なし条件も含むすべてのレバー引き試行のレバー引き時間、`pull_duration_for_success` は成功試行のみのレバー引き時間です。
 
 ## 環境
 
