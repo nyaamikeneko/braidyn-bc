@@ -101,6 +101,7 @@ pip install -e .
 - `config.py` は `WSL_DISTRO_NAME` 環境変数を見て `/mnt/g/マイドライブ/...` を使う分岐を持つ（[実行環境の分岐](#環境)参照）。
 - リポジトリ直下の `.venv-wsl` に `ssm` / `bdbc_nwb_explorer` / `pynwb` をインストール済み。WSL上でこの venv を Jupyter カーネルに選べば追加インストールなしで動く。
 - データも Google Drive デスクトップ経由でローカルから見えることを確認済み: NWB は `G:\マイドライブ\nwb_manual\VG1GC-66\`（`task-day15` の1件）、CSV は `G:\.shortcut-targets-by-id\1fI6PWRHgihU6asA4OyW-_rN-JII33Fkj\hackathon_data`（`config.py` の Windows/WSL 分岐が指すパスと一致）。
+- Cursor で WSL リモート接続を試すと、カーネル選択で「インタープリタパスを入力」の項目が出てこないことがある（未解決）。その場合は Claude Code に `jupyter nbconvert --to notebook --execute --inplace` で `.venv-wsl` の Python を使って直接実行させ、出力込みの `.ipynb` を Cursor でそのまま開いて見る方法でも確認済み（2026-08-16、ノート `14` で動作確認）。
 
 ## 推奨する読み順
 
