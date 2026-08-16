@@ -14,11 +14,11 @@ Google Drive の NWB フォルダ自体はプロジェクトサイト上にリ�
 | :--- | :--- | :--- | :--- | :--- |
 | [DANDI Archive](https://dandiarchive.org/dandiset/001425/)（Dandiset 001425, v0.250705.0947, CC-BY-4.0） | NWB形式の全データ（Raw画像含む） | 8.1 TB（1838ファイル） | 10.48324/dandi.001425/0.250705.0947 | NWB標準ツール（dandi CLI／Python API／fsspecストリーミング）で全データを再現性高く扱う。論文の付随データとして正式引用する場合もこちら |
 | AWS S3（バケット `s3://braidyn-bc-buckets`、[ブラウザ表示](https://braidyn-bc-buckets.s3.amazonaws.com/index.html)、[CLIガイド](https://nakaelab.github.io/braidyn-bc-database/pages/aws-cli-guide.html)） | Rawデータ（動画・TIFF等の未加工ファイル）中心。NWBも同梱 | 約1700 GB | なし | 認証不要（`--no-sign-request`）。AWS CLI／boto3で顔・瞳孔・体の動画など生データを直接取得する |
-| [GIN](https://gin.g-node.org/BraiDyn-BC/Kondo2025_CuedLeverPullNWB)（G-Node Infrastructure） | NWB形式のみ。Raw imagingデータを除いた軽量版 | 数十GB規模（未確認。取得前に`datalad status`で確認） | 10.12751/g-node.zbh16l | DataLad／git-annexで、軽量にNWBのみ・行動データや前処理済み信号を扱う。公式サイトのトップ・チュートリアルページには明記がなく、論文本文（Scientific Data誌）で確認できる情報 |
+| [GIN](https://gin.g-node.org/BraiDyn-BC/Kondo2025_CuedLeverPullNWB)（G-Node Infrastructure） | NWB形式のみ。Raw imagingデータを除いた軽量版 | 1ファイルあたり約1.7GB（実測、詳細は下記）。25匹×15セッション全体では数十GB規模 | 10.12751/g-node.zbh16l | DataLad／git-annexで、軽量にNWBのみ・行動データや前処理済み信号を扱う。公式サイトのトップ・チュートリアルページには明記がなく、論文本文（Scientific Data誌）で確認できる情報 |
 
 選び方の目安:
 
-- 神経活動の信号解析のみ（dF/F・行動タイムスタンプ等）→ **GIN**（軽量）
+- 神経活動の信号解析のみ（dF/F・行動タイムスタンプ等）→ **GIN**（軽量。ΔF/Fは1ファイルあたり58MB程度、詳細は下記）
 - 生の動画・画像も使う（顔・瞳孔・体の動画解析など）→ **AWS S3** から必要セッションのみ取得
 - NWB全体を再現性重視で厳密に扱う／正式引用 → **DANDI**
 
@@ -41,9 +41,57 @@ datalad get sub-01/ses-01/*.nwb    # 必要なsubject/sessionだけ実体を取�
 
 25匹×15セッション分あるため、全部を一度に取得すると数十〜百GB規模になり得る。
 
-### 未確認・要フォローアップ事項
+### NWBファイルの内部構造とサイズ内訳（実測）
 
-- Google Drive版NWBとDANDI/GIN版NWBの内容差分の有無（バージョン更新が反映されているか）
+`nwb_manual/VG1GC-66/VG1GC-66_2023-09-08_task-day15.nwb`（GIN由来、ディスク上1.69GB）をh5pyで走査した内訳（2026-08-17確認）。
+
+| グループ | 論理サイズ | 割合 | 内容 |
+| :--- | ---: | ---: | :--- |
+| `acquisition` | 2333 MB | 82% | 16チャンネル分の生センサー波形 |
+| `processing` | 499 MB | 18% | 解析で使う処理済みデータ（内訳は下表） |
+
+`acquisition`（1GBの主因）: `tone`/`lever`/`reward`/`lick`/`motion`/`pull_duration`/`state_lever`/`state_task`/`air_pressure`/`CO2_level`/`humidity`/`room_temp`/`LED_B`/`LED_V`/`img_acquisition`/`video_trig` の16チャンネルが、各約5kHz×30分（909万サンプル）の `data`+`timestamps` で1チャンネルあたり145.5MB。動画・イメージングのトリガ/フレームカウンタ（`body_video`/`eye_video`/`face_video`/`widefield_UV`/`widefield_blue`）もここに含まれるが、いずれも1.5MB以下で画素データそのものは含まれない。GINが除外している「Raw imaging」は動画・画素データを指し、この5kHz生波形自体はGIN版にも残っている。
+
+`processing` は3つのモジュールに分かれる: `behavior`（DLCキーポイント等、動画のネイティブレート）、`downsampled`（imagingフレームレート30Hzに揃えた版）、`ophys`（神経活動）。imaging frame rate（30Hz）の実体は `ophys/DfOverF` 自身のサンプリングレートで、`downsampled` 配下の全チャンネルはこれと同じ54000サンプル（30分×30Hz）に揃えてある。
+
+#### `processing/behavior`（動画のネイティブレート、約100.8Hz＝181,451サンプル/30分）
+
+DLCで追跡したキーポイントごとに `data`(x, y)・`confidence`・`timestamps` を持つグループが並ぶ。ノード数は論文Table記載の点数と一致（確認済み）。
+
+| サブグループ | サイズ | ノード数と内容 |
+| :--- | ---: | :--- |
+| `eye_video_keypoints` | 186 MB | 32点: `medialcorner`/`lateralcorner`（目頭・目尻）＋ `pupiledge01`〜`30`（瞳孔輪郭、楕円フィッティング用） |
+| `face_video_keypoints` | 81 MB | 14点: `earlateral`/`earroot`/`eartip`/`eyelateral`/`eyemedial`/`leftpawcenter`/`lickport`/`lowerjaw`/`nosebottom`/`noseright`/`noseroot`/`nosetip`/`rightpawcenter`/`tonguetip` |
+| `body_video_keypoints` | 29 MB | 5点: `leftbartip`/`leftpawcenter`/`lickport`/`rightbartip`/`rightpawcenter` |
+| `eye_position` | 4.35 MB | `center_x`/`center_y`（瞳孔中心、`eye_video_keypoints`から楕円フィッティングした派生値） |
+| `pupil_tracking` | 2.18 MB | `diameter`（瞳孔径、同じく楕円フィッティングの派生値） |
+
+#### `processing/downsampled`（30Hz＝imaging frame rate、54000サンプル/30分）
+
+キーポイント系は `behavior` と同じノード構成を30Hzに間引いたもの。ただし各ノードの `confidence` だけはネイティブレート（181,451サンプル）のまま残っており、サイズが単純な30/100.8倍にならない一因になっている。
+
+| サブグループ | サイズ | 内容 |
+| :--- | ---: | :--- |
+| `eye_video_keypoints` | 74 MB | `behavior/eye_video_keypoints` の30Hz版（32点、`confidence`のみ元レート） |
+| `face_video_keypoints` | 32 MB | 同、`face_video_keypoints`の30Hz版（14点） |
+| `body_video_keypoints` | 12 MB | 同、`body_video_keypoints`の30Hz版（5点） |
+| `eye_position` | 1.30 MB | `center_x`/`center_y`の30Hz版 |
+| `pupil_tracking` | 0.65 MB | `diameter`の30Hz版 |
+| `CO2_level`/`air_pressure`/`humidity`/`lever`/`lick`/`lick_rate`/`motion`/`reward`/`room_temp`/`state_lever`/`state_task`/`tone` | 各0.86 MB（計10.3 MB） | `acquisition`の同名チャンネルを30Hzに間引いたもの |
+| `trials` | 0.01 MB | 163試行×7フィールド（`id`/`pull_duration_for_success`/`pull_onset`/`reaction_time`/`start_time`/`stop_time`/`trial_outcome`）。`src/glmhmm_ver4.py`が読む試行情報の本体 |
+
+#### `processing/ophys`（30Hz、54000サンプル/30分）
+
+| サブグループ | サイズ | 内容 |
+| :--- | ---: | :--- |
+| `DfOverF` | 58 MB | ROIごとのΔF/F。`dFF`（ヘモダイナミクス補正済み本体）/`dFF_B`（470nm生）/`dFF_V`（405nm生）の3系統、各`(54000, 44)`＝44 ROI（片半球22×両半球） |
+| `ImageSegmentation` | 7 MB | 44 ROIのマスク・座標定義 |
+
+`src/glmhmm_ver4.py` の13次元モデル（顔特徴＋pupil）と神経活動（`ophys/DfOverF`）はいずれも`processing`側（500MB程度）に収まる。`acquisition`側の5kHz生波形（1ファイルの大半を占める）は前処理前の生ログであり、同じ内容が`processing/downsampled`に30Hz版として既に入っているため、モデル入力を作る段階では読む必要がない。
+
+### GIN版とGoogle Drive版NWBの関係
+
+`nwb_manual` にあるNWBファイルはGIN版を取得して手動配置したもの。したがって両者の内容差分を別途確認する必要はない。
 
 ### その他の関連リソース
 
@@ -65,7 +113,7 @@ datalad get sub-01/ses-01/*.nwb    # 必要なsubject/sessionだけ実体を取�
 | 種別 | 中身 | Colab | ローカル（このマシン） |
 | :--- | :--- | :--- | :--- |
 | CSV | 30 Hz 行動ログ `trials_L1L2.csv` | `/content/drive/MyDrive/hackathon_data` | `G:\.shortcut-targets-by-id\1fI6PWRHgihU6asA4OyW-_rN-JII33Fkj\hackathon_data`（2026-08-16 存在確認済み） |
-| NWB | 神経画像・公式試行・表情 | `/content/drive/MyDrive/nwb_manual`（手動配置分） | `G:\マイドライブ\nwb_manual`（2026-08-16確認。`VG1GC-66\VG1GC-66_2023-09-08_task-day15.nwb` の1件のみ存在） |
+| NWB | 神経画像・公式試行・表情 | `/content/drive/MyDrive/nwb_manual`（GIN版を取得して手動配置） | `G:\マイドライブ\nwb_manual`（2026-08-16確認。`VG1GC-66\VG1GC-66_2023-09-08_task-day15.nwb` の1件のみ存在。内部構造は[上記](#gin利用時の実務メモ1ファイル約1gbの場合)を参照） |
 
 `trials_L1L2.csv` はハッカソンで作成した抽出物で、論文のNWBファイルそのものではない。音なし条件も含む、すべてのレバー引き試行についてレバー引き時間を計算している。CSV は 25 匹中 24 匹に `trials_L1L2.csv` がある（`VG1GC-48` のみ 0 日）。個体によって欠ける課題日がある。
 

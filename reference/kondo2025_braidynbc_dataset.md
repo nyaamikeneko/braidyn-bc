@@ -72,6 +72,8 @@
 
 処理済みデータは `analysis` / `processing` 以下に格納され、`processing/behavior/data_interfaces` にDLCキーポイント（`eye_video_keypoints` / `face_video_keypoints` / `body_video_keypoints`）と `eye_position` / `pupil_tracking`、`downsampled/data_interfaces/trials` に上記センサ値がイメージングフレームと同期した試行情報として格納される。
 
+上記は論文本文（Table 4）記載の設計仕様。実ファイル（GIN由来の1件）を開いて計測したグループ別サイズ内訳・実サンプル数・DLCノード名の実測結果は [docs/data.md](../docs/data.md) の「NWBファイルの内部構造とサイズ内訳（実測）」を参照。
+
 論文本文には `trials_L1L2.csv` のような独立CSVファイルの記載はなく、試行情報はNWB内の `downsampled/data_interfaces/trials` に格納される設計になっている。ローカルで使っている `trials_L1L2.csv` はハッカソンで作成した抽出物で、音なし条件も含むすべてのレバー引き試行についてレバー引き時間を計算している（詳細は [docs/data.md](../docs/data.md)）。
 
 ### データ公開先（Data Records セクション）
