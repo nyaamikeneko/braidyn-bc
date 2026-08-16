@@ -12,6 +12,10 @@
 - **DOI**: [10.1038/s41597-025-05482-y](https://doi.org/10.1038/s41597-025-05482-y)
 - **個別ファイル**: [kondo2025_braidynbc_dataset.md](kondo2025_braidynbc_dataset.md)
 
+![Figure 1](images/kondo2025_braidynbc_dataset_fig1.jpg)
+
+*出典: Kondo et al. (2025) Scientific Data, [10.1038/s41597-025-05482-y](https://doi.org/10.1038/s41597-025-05482-y)（個人の研究メモ用途での引用）*
+
 ### 要約
 
 頭部固定したマウスがレバーを引いて水報酬を得るオペラント課題を、2週間・15セッションにわたって訓練しながら、広視野カルシウムイメージングによる大脳皮質全体の神経活動と、身体・表情・眼球運動の高速ビデオグラフィ、環境パラメータを同時に記録したマルチモーダルデータセット。NWB (Neurodata Without Borders) 形式に整形されており、FAIR原則に準拠する。運動学習に伴う神経メカニズム、セッション内の急速な学習効果、長期的な行動適応、神経回路ダイナミクスを調べるためのリソースとして提供されている。本リポジトリが解析対象とする NWB / CSV データそのものの記述論文である可能性が高い。
@@ -25,6 +29,10 @@
 - **雑誌**: Nature Neuroscience, 25, 201–212 (2022)
 - **DOI**: [10.1038/s41593-021-01007-z](https://doi.org/10.1038/s41593-021-01007-z)
 - **個別ファイル**: [ashwood2022_discrete_strategies.md](ashwood2022_discrete_strategies.md)
+
+![Figure 1](images/ashwood2022_discrete_strategies_fig1.jpg)
+
+*出典: Ashwood et al. (2022) Nature Neuroscience, [10.1038/s41593-021-01007-z](https://doi.org/10.1038/s41593-021-01007-z)（個人の研究メモ用途での引用）*
 
 ### 要約
 
@@ -40,6 +48,10 @@
 - **DOI**: [10.1101/2024.11.30.626182](https://doi.org/10.1101/2024.11.30.626182)
 - **個別ファイル**: [cuturela2024_internal_states_early.md](cuturela2024_internal_states_early.md)
 
+![Figure 1](images/cuturela2024_internal_states_early_fig1.jpg)
+
+*出典: Cuturela et al. (2024) bioRxiv preprint, [10.1101/2024.11.30.626182](https://doi.org/10.1101/2024.11.30.626182)（個人の研究メモ用途での引用）*
+
 ### 要約
 
 近年の研究により、動物は知覚意思決定課題の遂行中、複数の内部状態（戦略）の間を頻繁に切り替えることが示されているが、これらの状態が学習のいつ、どのように出現するかは未解明だった。本研究は動的な潜在状態モデルを、マウスが視覚性意思決定課題を学習する過程の訓練データに適用した。結果、マウスは学習の非常に早い段階から既に明確な「Engaged」状態と「Biased」状態を示し、2セッション目以降で複数の状態が確認された。さらにモデルは、訓練を通じた成績の緩やかな向上が (1) 全ての状態で刺激への感度が増加すること、(2) 正答率の高い Engaged 状態で過ごす時間の割合がバイアス状態に対して相対的に増加すること、の2要因の組み合わせから生じることを明らかにした。
@@ -53,6 +65,10 @@
 - **雑誌**: Nature Neuroscience, 29, 186–194 (2026年1月号 / 2025年12月30日オンライン公開)
 - **DOI**: [10.1038/s41593-025-02130-x](https://doi.org/10.1038/s41593-025-02130-x)
 - **個別ファイル**: [bruijns2025_infinite_hmm.md](bruijns2025_infinite_hmm.md)
+
+![Figure 1](images/bruijns2025_infinite_hmm_fig1.jpg)
+
+*出典: Bruijns et al. (2025) Nature Neuroscience, [10.1038/s41593-025-02130-x](https://doi.org/10.1038/s41593-025-02130-x)（個人の研究メモ用途での引用）*
 
 ### 要約
 
@@ -68,6 +84,10 @@
 - **DOI**: [10.1038/s41467-025-66738-0](https://doi.org/10.1038/s41467-025-66738-0)
 - **個別ファイル**: [mohammadi2025_internal_state_switches.md](mohammadi2025_internal_state_switches.md)
 
+![Figure 1](images/mohammadi2025_internal_state_switches_fig1.jpg)
+
+*出典: Mohammadi et al. (2025) Nature Communications, [10.1038/s41467-025-66738-0](https://doi.org/10.1038/s41467-025-66738-0)。CC BY 4.0。*
+
 ### 要約
 
 マウスは知覚意思決定の際に単一で安定した戦略に依存するのではなく、1セッション内で複数の戦略を切り替えることが近年示されているが、この切り替え行動は非定常な環境下ではまだ特徴づけられておらず、切り替えを支配する要因も不明だった。本研究は、入力依存の遷移を持つ内部状態モデル（状態ごとの選択を表す Bernoulli GLM 群と、状態間の入力依存遷移を表す multinomial GLM を組み合わせた HMM）でこの問いに取り組む。刺激統計が非定常な IBL のデータセットに適用した結果、マウスの行動は4状態モデル（左右にわずかなバイアスを持つ2つの Engaged 状態と、より大きなバイアスを持つ2つの Disengaged 状態）で精度良く説明できた。過去の選択・刺激がバイアス方向の状態間遷移を、過去の報酬が Engaged/Disengaged 間の遷移を、それぞれ予測すること、特に過去の報酬が多いほど Disengaged 状態への遷移が起きやすく満腹（satiety）と関連する可能性があることを示した。
@@ -81,6 +101,10 @@
 - **雑誌**: Nature Neuroscience, 26(5), 840–849 (2023)
 - **DOI**: [10.1038/s41593-023-01305-8](https://doi.org/10.1038/s41593-023-01305-8)
 - **個別ファイル**: [cazettes2023_foraging_reservoir.md](cazettes2023_foraging_reservoir.md)
+
+![Figure 1](images/cazettes2023_foraging_reservoir_fig1.jpg)
+
+*出典: Cazettes et al. (2023) Nature Neuroscience, [10.1038/s41593-023-01305-8](https://doi.org/10.1038/s41593-023-01305-8)（個人の研究メモ用途での引用）*
 
 ### 要約
 
@@ -96,6 +120,10 @@
 - **DOI**: [10.1038/s41593-025-02071-5](https://doi.org/10.1038/s41593-025-02071-5)
 - **個別ファイル**: [cazettes2025_facial_expressions.md](cazettes2025_facial_expressions.md)
 
+![Figure 1](images/cazettes2025_facial_expressions_fig1.jpg)
+
+*出典: Cazettes et al. (2025) Nature Neuroscience, [10.1038/s41593-025-02071-5](https://doi.org/10.1038/s41593-025-02071-5)（bioRxivプレプリント版より取得。個人の研究メモ用途での引用）*
+
 ### 要約
 
 脳活動は適応的行動を制御する一方、意図しない付随的な（incidental）身体運動も引き起こす。こうした付随運動は内部の認知変数を読み出す手がかりになり得るが、それが単に身体の生体力学的な結合によって課題関連反応と連動しているだけの可能性を排除する必要がある。本研究は、複数の意思決定変数が同時に符号化されながらもある時点では1つしか使われないマウスの採食課題でこの課題に取り組んだ。顔の特徴的なパターンは、現在使用中の意思決定変数だけでなく、その時点では表出されていない独立した意思決定変数までも同時に符号化しており、これらの表情特徴の一部は二次運動皮質（M2）の神経活動に由来することを示した。顔面運動は課題要求に直接関連する範囲を超えた進行中の計算を反映しており、非侵襲的モニタリングによって潜在的な認知状態を明らかにできる可能性を実証している。本研究の Main RQ「皮質活動（中枢）と表情（末梢）の結合」を直接支持する、最も重要な先行研究の一つ。
@@ -109,6 +137,10 @@
 - **雑誌**: Nature Communications, 16, Article 5168 (2025)
 - **DOI**: [10.1038/s41467-025-60296-1](https://doi.org/10.1038/s41467-025-60296-1)
 - **個別ファイル**: [tlaie2025_facial_features_mice_monkeys.md](tlaie2025_facial_features_mice_monkeys.md)
+
+![Figure 1](images/tlaie2025_facial_features_mice_monkeys_fig1.jpg)
+
+*出典: Tlaie et al. (2025) Nature Communications, [10.1038/s41467-025-60296-1](https://doi.org/10.1038/s41467-025-60296-1)。CC BY 4.0。*
 
 ### 要約
 
@@ -124,6 +156,10 @@
 - **DOI**: [10.1038/s41586-022-05611-2](https://doi.org/10.1038/s41586-022-05611-2)
 - **個別ファイル**: [markowitz2023_spontaneous_behaviour.md](markowitz2023_spontaneous_behaviour.md)
 
+![Figure 1](images/markowitz2023_spontaneous_behaviour_fig1.jpg)
+
+*出典: Markowitz et al. (2023) Nature, [10.1038/s41586-022-05611-2](https://doi.org/10.1038/s41586-022-05611-2)（個人の研究メモ用途での引用）*
+
 ### 要約
 
 課題構造・感覚手がかり・外因性報酬が一切ない自由行動下でも、マウスの自発的な行動（モーションモジュール列）はドパミン変動によって体系的に構造化されることを示した研究。背側線条体（DLS）のドパミン変動は行動モジュールの使用頻度・出現順序を変化させ、後続の行動選択を予測できた。光遺伝学的操作により、ドパミンが特定の行動モジュールを強化し、行動配列の多様性を増加させることを確認。強化学習モデルによる解析から、ドパミン変動が報酬信号の代替として機能し、線条体が行動モジュールを動的に組み立てていることが示唆された。著者に本リポジトリが使う `ssm` ライブラリの開発者 Scott W. Linderman が含まれる。
@@ -137,6 +173,10 @@
 - **雑誌**: PLOS ONE, 20(8), e0329367 (2025)
 - **DOI**: [10.1371/journal.pone.0329367](https://doi.org/10.1371/journal.pone.0329367)
 - **個別ファイル**: [shuto2025_hmm_depth_locomotion.md](shuto2025_hmm_depth_locomotion.md)
+
+![Figure 1](images/shuto2025_hmm_depth_locomotion_fig1.jpg)
+
+*出典: Shuto et al. (2025) PLOS ONE, [10.1371/journal.pone.0329367](https://doi.org/10.1371/journal.pone.0329367)。CC BY 4.0。*
 
 ### 要約
 
