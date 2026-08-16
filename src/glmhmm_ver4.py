@@ -12,7 +12,7 @@ import numpy as np
 import pandas as pd
 from scipy.stats import zscore
 
-from config import DATA_CSV_ROOT, DATA_NWB_ROOT
+import config
 import src.data_loader as dl
 
 GAP_FILL_LIMIT = 2
@@ -429,7 +429,7 @@ def trials_to_arrays(trial_df: pd.DataFrame, input_cols: list[str]):
 
 
 def find_nwb_file(mouse_id: str, task_day: str) -> Path | None:
-    root = DATA_NWB_ROOT / mouse_id
+    root = config.DATA_NWB_ROOT / mouse_id
     if not root.exists():
         return None
     matches = sorted(root.glob(f"{mouse_id}_*_{task_day}.nwb"))
@@ -440,7 +440,7 @@ def find_nwb_file(mouse_id: str, task_day: str) -> Path | None:
 
 
 def list_task_days(mouse_id: str) -> list[str]:
-    mouse_dir = DATA_CSV_ROOT / mouse_id
+    mouse_dir = config.DATA_CSV_ROOT / mouse_id
     if not mouse_dir.exists():
         return []
     days = []
@@ -470,7 +470,7 @@ def process_session(
         nwb_path = find_nwb_file(mouse_id, task_day)
         nwb_filename = nwb_path.name if nwb_path is not None else None
     if nwb_filename:
-        session = dl.load_nwb_session(mouse_id, nwb_filename, nwb_root=DATA_NWB_ROOT)
+        session = dl.load_nwb_session(mouse_id, nwb_filename, nwb_root=config.DATA_NWB_ROOT)
 
     cleaned = clean_lever_30hz(csv)
     cleaned = attach_reward_flags(cleaned, session)

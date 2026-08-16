@@ -10,13 +10,16 @@ PROJECT_ROOT = Path(__file__).parent.parent.resolve()
 sys.path.append(str(PROJECT_ROOT))
 
 try:
-    # config.py から定義したパスをインポート
-    from config import DATA_NWB_ROOT, DATA_CSV_ROOT
+    # config モジュールそのものを読み込む（`from config import X` で値を
+    # コピーすると、あとから `config.DATA_NWB_ROOT` を書き換えても
+    # ここでの X には反映されず、しかもこのモジュールを reload すると
+    # 書き換え自体が config.py の既定値で上書きされて消えてしまう）。
+    import config
 except ImportError:
     print("エラー: config.py がインポートできません。")
-    # フォールバック（インポート失敗時）
-    DATA_NWB_ROOT = Path('.') 
-    DATA_CSV_ROOT = Path('.')
+    config = None
+
+_FALLBACK_ROOT = Path('.')
 
 def load_nwb_session(session_id: str, nwb_filename: str, nwb_root: Path | None = None):
     """
@@ -26,11 +29,12 @@ def load_nwb_session(session_id: str, nwb_filename: str, nwb_root: Path | None =
     session_id = "VG1GC-105"
     nwb_filename = "VG1GC-105_2024-02-02_task-day8.nwb"
 
-    nwb_root を渡すと config.py の既定 DATA_NWB_ROOT の代わりにそちらを使う
-    （呼び出し元が `from config import DATA_NWB_ROOT` で束縛した名前を
-    書き換えても、このモジュールの DATA_NWB_ROOT には反映されないため）。
+    nwb_root を省略すると config.DATA_NWB_ROOT（Colab / ノートで上書き
+    可能）を都度参照する。明示的に渡した場合はそちらを優先する。
     """
-    root = nwb_root if nwb_root is not None else DATA_NWB_ROOT
+    root = nwb_root
+    if root is None:
+        root = config.DATA_NWB_ROOT if config is not None else _FALLBACK_ROOT
     filepath = root / session_id / nwb_filename
 
     if not filepath.exists():
@@ -49,7 +53,8 @@ def load_trials_csv(session_id: str, task_day_dir: str, csv_name: str = "trials_
     session_id = "VG1GC-105"
     task_day_dir = "task-day8"
     """
-    filepath = DATA_CSV_ROOT / session_id / task_day_dir / csv_name
+    root = config.DATA_CSV_ROOT if config is not None else _FALLBACK_ROOT
+    filepath = root / session_id / task_day_dir / csv_name
     
     if not filepath.exists():
         print(f"CSVファイルが見つかりません: {filepath}")
