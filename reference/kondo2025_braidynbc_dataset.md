@@ -5,6 +5,12 @@
 - **DOI**: [10.1038/s41597-025-05482-y](https://doi.org/10.1038/s41597-025-05482-y)
 - **リンク**: [Nature](https://www.nature.com/articles/s41597-025-05482-y) / [PMC](https://pmc.ncbi.nlm.nih.gov/articles/PMC12307678/) / [bioRxiv preprint](https://www.biorxiv.org/content/10.1101/2025.02.03.631599)
 
+## Figure 1
+
+![Figure 1](images/kondo2025_braidynbc_dataset_fig1.jpg)
+
+*出典: Kondo et al. (2025) Scientific Data, [10.1038/s41597-025-05482-y](https://doi.org/10.1038/s41597-025-05482-y)（個人の研究メモ用途での引用）*
+
 ## 要旨（要約）
 
 頭部固定したマウスがレバーを引いて水報酬を得るオペラント課題を、2週間・15セッションにわたって訓練しながら、広視野カルシウムイメージングによる大脳皮質全体の神経活動と、身体・表情・眼球運動の高速ビデオグラフィ、環境パラメータを同時に記録したマルチモーダルデータセット。NWB (Neurodata Without Borders) 形式に整形されており、FAIR原則に準拠する。運動学習に伴う神経メカニズム、セッション内の急速な学習効果、長期的な行動適応、神経回路ダイナミクスを調べるためのリソースとして提供されている。
