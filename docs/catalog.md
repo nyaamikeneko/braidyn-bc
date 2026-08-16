@@ -6,7 +6,7 @@
 
 ## 要件定義の2系統
 
-GLM-HMM の仕様は2つあります。**同じモデル名でも、1データポイントの取り方が違います。**
+GLM-HMM の仕様は2つあります。**同じモデル名でも、1データポイントの取り方が違います。**（さらに古い [Ver.2.2](requirements_glmhmm_legacy_v2.2.md) は Ver.3 に置き換えられたレガシー版として参考保存）
 
 | | [requirements_glmhmm.md](requirements_glmhmm.md) **Ver.3** | [requirements_ver4.md](requirements_ver4.md) **Ver.4** |
 | :--- | :--- | :--- |
