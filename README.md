@@ -35,7 +35,7 @@ braidyn-bc/
 └── .gitignore
 ```
 
-生データ（NWB・CSV）はこのリポジトリには含まれません。Google Drive 上の共有フォルダを参照します。配置と個人バックアップは [docs/data.md](docs/data.md) を見てください。
+生データ（NWB・CSV）はこのリポジトリには含まれません。ノートブック・`config.py` は現状 Google Drive 上の共有フォルダを参照しますが、正式な公開先は **DANDI Archive・AWS S3・GIN** の3系統です（2026-08-16確認）。配置・個人バックアップ・正式アーカイブの詳細は [docs/data.md](docs/data.md) を見てください。
 
 ## データ
 

@@ -127,4 +127,4 @@ ssm 公式チュートリアル。人工データ。`11` / `12` の API 参照�
 - `config.py` — Colab / ローカルで NWB・CSV のルートを切り替える。共有 CSV が無いときは `braidyn-bc-backup` を使う。
 - `src/data_loader.py` — `load_nwb_session`, `load_trials_csv`。
 - `src/glmhmm_ver4.py` — Ver.4 パイプライン。
-- [data.md](data.md) — 共有フォルダの場所と CSV バックアップの手順。
+- [data.md](data.md) — 正式な公開先（DANDI / AWS S3 / GIN）と、共有フォルダの場所・CSV バックアップの手順。

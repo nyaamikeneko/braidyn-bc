@@ -15,6 +15,10 @@
 
 頭部固定したマウスがレバーを引いて水報酬を得るオペラント課題を、2週間・15セッションにわたって訓練しながら、広視野カルシウムイメージングによる大脳皮質全体の神経活動と、身体・表情・眼球運動の高速ビデオグラフィ、環境パラメータを同時に記録したマルチモーダルデータセット。NWB (Neurodata Without Borders) 形式に整形されており、FAIR原則に準拠する。運動学習に伴う神経メカニズム、セッション内の急速な学習効果、長期的な行動適応、神経回路ダイナミクスを調べるためのリソースとして提供されている。
 
+## データの正式公開先
+
+この論文が記述するデータセットは、DANDI Archive（Dandiset [001425](https://dandiarchive.org/dandiset/001425/)）・AWS S3（`s3://braidyn-bc-buckets`）・GIN（[Kondo2025_CuedLeverPullNWB](https://gin.g-node.org/BraiDyn-BC/Kondo2025_CuedLeverPullNWB)）の3系統で公開されている。プラットフォームごとの違いと使い分けは [docs/data.md](../docs/data.md) を参照。
+
 ## この研究との関連
 
 **本リポジトリが解析対象とする NWB / CSV データそのものの記述論文である可能性が高い。**
