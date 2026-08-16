@@ -23,10 +23,37 @@ if 'COLAB_GPU' in os.environ:
         [GDRIVE_ROOT / 'hackathon_data', DATA_CSV_BACKUP_ROOT],
     )
 
+elif 'WSL_DISTRO_NAME' in os.environ:
+    print("環境: ローカル (WSL)")
+    GDRIVE_ROOT = Path('/mnt/g') / 'マイドライブ'
+    DATA_NWB_ROOT = _first_existing(
+        [
+            GDRIVE_ROOT / 'nwb_manual',
+            Path('/mnt/g/.shortcut-targets-by-id/1DtufNi90fhQp6kIcuS0MxtTz-Uk5LSS9/braidyn-bc/data'),
+        ],
+    )
+    DATA_CSV_BACKUP_ROOT = GDRIVE_ROOT / 'braidyn-bc-backup' / 'hackathon_data'
+    DATA_CSV_ROOT = _first_existing(
+        [
+            Path('/mnt/g/.shortcut-targets-by-id/1fI6PWRHgihU6asA4OyW-_rN-JII33Fkj/hackathon_data'),
+            DATA_CSV_BACKUP_ROOT,
+        ],
+    )
+
+    if not DATA_NWB_ROOT.exists():
+        print(f"警告: NWBデータパスが見つかりません: {DATA_NWB_ROOT}")
+    if not DATA_CSV_ROOT.exists():
+        print(f"警告: CSVデータパスが見つかりません: {DATA_CSV_ROOT}")
+
 else:
     print("環境: ローカル (Windows)")
     GDRIVE_ROOT = Path('G:/') / 'マイドライブ'
-    DATA_NWB_ROOT = Path(r'G:\.shortcut-targets-by-id\1DtufNi90fhQp6kIcuS0MxtTz-Uk5LSS9\braidyn-bc\data')
+    DATA_NWB_ROOT = _first_existing(
+        [
+            GDRIVE_ROOT / 'nwb_manual',
+            Path(r'G:\.shortcut-targets-by-id\1DtufNi90fhQp6kIcuS0MxtTz-Uk5LSS9\braidyn-bc\data'),
+        ],
+    )
     DATA_CSV_BACKUP_ROOT = GDRIVE_ROOT / 'braidyn-bc-backup' / 'hackathon_data'
     DATA_CSV_ROOT = _first_existing(
         [
