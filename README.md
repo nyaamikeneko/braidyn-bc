@@ -94,6 +94,14 @@ cd ssm
 pip install -e .
 ```
 
+### ローカル（WSL、動作確認済み）
+
+`ssm` は Windows ネイティブだとビルドに MSVC が必要で失敗しやすいので、WSL 上での実行を確認済み（2026-08-16）。
+
+- `config.py` は `WSL_DISTRO_NAME` 環境変数を見て `/mnt/g/マイドライブ/...` を使う分岐を持つ（[実行環境の分岐](#環境)参照）。
+- リポジトリ直下の `.venv-wsl` に `ssm` / `bdbc_nwb_explorer` / `pynwb` をインストール済み。WSL上でこの venv を Jupyter カーネルに選べば追加インストールなしで動く。
+- データも Google Drive デスクトップ経由でローカルから見えることを確認済み: NWB は `G:\マイドライブ\nwb_manual\VG1GC-66\`（`task-day15` の1件）、CSV は `G:\.shortcut-targets-by-id\1fI6PWRHgihU6asA4OyW-_rN-JII33Fkj\hackathon_data`（`config.py` の Windows/WSL 分岐が指すパスと一致）。
+
 ## 推奨する読み順
 
 | 段階 | ファイル | 内容 |
@@ -107,7 +115,7 @@ pip install -e .
 | 入力作成 | `notebooks/10_setup_GLM-HMM_input_data.ipynb` | 整形・ビン・履歴・ITI 分割 |
 | モデル | `notebooks/11_build_GLM-HMM_model_for1mouse.ipynb` | 1 個体学習と解釈 |
 | 表情拡張 | `notebooks/12_setup_input_data_ver2.ipynb` | ビデオ特徴を入力に追加 |
-| 試行単位 | `notebooks/14_glmhmm_ver4_trials.ipynb` | Ver.4。4 次元と 13 次元、K=3 |
+| 試行単位 | `notebooks/14_glmhmm_ver4_trials.ipynb` | Ver.4。日ごとに独立学習。4 次元は K=3、13 次元は K=2/K=3 |
 | 参考実装 | `notebooks/2b Input Driven Observations (GLM-HMM).ipynb` | Ashwood らの ssm チュートリアル |
 
 ## 主要モジュール

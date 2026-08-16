@@ -6,12 +6,12 @@
 
 | 種別 | 中身 | Colab | ローカル（このマシン） |
 | :--- | :--- | :--- | :--- |
-| CSV | 30 Hz 行動ログ `trials_L1L2.csv` | `/content/drive/MyDrive/hackathon_data` | `G:\.shortcut-targets-by-id\1fI6PWRHgihU6asA4OyW-_rN-JII33Fkj\hackathon_data` |
-| NWB | 神経画像・公式試行・表情 | `/content/drive/MyDrive/braidyn-bc/data` | 設定上は `...\1DtufNi90fhQp6kIcuS0MxtTz-Uk5LSS9\braidyn-bc\data` だが、このショートカット先に `data/` も `.nwb` も無い |
+| CSV | 30 Hz 行動ログ `trials_L1L2.csv` | `/content/drive/MyDrive/hackathon_data` | `G:\.shortcut-targets-by-id\1fI6PWRHgihU6asA4OyW-_rN-JII33Fkj\hackathon_data`（2026-08-16 存在確認済み） |
+| NWB | 神経画像・公式試行・表情 | `/content/drive/MyDrive/nwb_manual`（手動配置分） | `G:\マイドライブ\nwb_manual`（2026-08-16確認。`VG1GC-66\VG1GC-66_2023-09-08_task-day15.nwb` の1件のみ存在） |
 
 CSV は 25 匹中 24 匹に `trials_L1L2.csv` がある（`VG1GC-48` のみ 0 日）。個体によって欠ける課題日がある。
 
-NWB がローカルで読めないのはパス設定の問題で、読み込みコードの不具合ではない。13 次元（顔特徴）は NWB の `entries` が必要なので、NWB が見える環境（Colab など）で回す。
+共有フォルダ本来の NWB 置き場（`...\braidyn-bc\data` のショートカット先）は `data/` も `.nwb` も無く空だが、手動で集めた `nwb_manual` フォルダは Colab・ローカル（WSL / Windows）のどちらからも `config.py` が優先的に見に行く（`src/glmhmm_ver4.py` の `find_nwb_file()`）。2026-08-16時点では `VG1GC-66` の `task-day15` のみが利用可能で、13 次元（顔特徴）学習はこの日に限られる。ローカル実行の手順は [README.md](../README.md) の「ローカル（WSL、動作確認済み）」を参照。
 
 ## 個人バックアップ（CSV のみ）
 
