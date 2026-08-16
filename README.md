@@ -31,6 +31,7 @@ braidyn-bc/
 │   ├── RQ.md                 # 研究質問・仮説
 │   ├── requirements_glmhmm.md    # GLM-HMM 要件 Ver.3（時間ビン）
 │   └── requirements_ver4.md      # GLM-HMM 要件 Ver.4（試行単位）
+├── reference/                 # 先行文献の要約
 └── .gitignore
 ```
 
@@ -117,7 +118,24 @@ pip install -e .
   - `load_trials_csv(session_id, task_day_dir, csv_name="trials_L1L2.csv")` — 行動 CSV を読む。
 - `src/glmhmm_ver4.py` — Ver.4 の試行抽出、履歴、顔特徴、学習、可視化。
 
+## 参考文献
+
+本研究の背景となる先行文献は [reference/](reference/) にまとめています。各論文の要約は個別の md ファイル、または全10本をまとめた [reference/all_references.md](reference/all_references.md) を参照してください。
+
+| # | タイトル | 著者（筆頭） | 誌名・年 |
+| :-- | :--- | :--- | :--- |
+| 1 | [Multimodal dataset linking wide-field calcium imaging to behavior changes in operant lever-pull task in mice](reference/kondo2025_braidynbc_dataset.md) | Kondo, M. | Scientific Data, 2025 |
+| 2 | [Mice alternate between discrete strategies during perceptual decision-making](reference/ashwood2022_discrete_strategies.md) | Ashwood, Z. C. | Nature Neuroscience, 2022 |
+| 3 | [Internal states emerge early during learning of a perceptual decision-making task](reference/cuturela2024_internal_states_early.md) | Cuturela, L. I. (IBL) | bioRxiv, 2024 |
+| 4 | [Infinite hidden Markov models can dissect the complexities of learning](reference/bruijns2025_infinite_hmm.md) | Bruijns, S. A. (IBL) | Nature Neuroscience, 2025 |
+| 5 | [Identifying the factors governing internal state switches during nonstationary sensory decision-making](reference/mohammadi2025_internal_state_switches.md) | Mohammadi, Z. | Nature Communications, 2025 |
+| 6 | [A reservoir of foraging decision variables in the mouse brain](reference/cazettes2023_foraging_reservoir.md) | Cazettes, F. | Nature Neuroscience, 2023 |
+| 7 | [Facial expressions in mice reveal latent cognitive variables and their neural correlates](reference/cazettes2025_facial_expressions.md) | Cazettes, F. | Nature Neuroscience, 2025 |
+| 8 | [Inferring internal states across mice and monkeys using facial features](reference/tlaie2025_facial_features_mice_monkeys.md) | Tlaie, A. | Nature Communications, 2025 |
+| 9 | [Spontaneous behaviour is structured by reinforcement without explicit reward](reference/markowitz2023_spontaneous_behaviour.md) | Markowitz, J. E. | Nature, 2023 |
+| 10 | [Hidden Markov models reveal behavioral state dynamics in depth-related locomotion in mice](reference/shuto2025_hmm_depth_locomotion.md) | Shuto, H. | PLOS ONE, 2025 |
+
 ## ライセンス・出典
 
-- 課題データは BraiDyn-BC プロジェクトの共有データです。
+- 課題データは BraiDyn-BC プロジェクトの共有データです（[reference/kondo2025_braidynbc_dataset.md](reference/kondo2025_braidynbc_dataset.md)）。
 - GLM-HMM は Ashwood et al. (2022) および [ssm](https://github.com/lindermanlab/ssm) の Input Driven Observations に準拠します。

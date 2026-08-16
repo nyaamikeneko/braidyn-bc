@@ -435,7 +435,9 @@ def find_nwb_file(mouse_id: str, task_day: str) -> Path | None:
     matches = sorted(root.glob(f"{mouse_id}_*_{task_day}.nwb"))
     if matches:
         return matches[0]
-    matches = sorted(root.glob(f"*{task_day}*.nwb"))
+    # Fallback pattern must not let e.g. "task-day1" substring-match "task-day15".
+    pattern = re.compile(rf"^.*{re.escape(task_day)}(?!\d).*\.nwb$")
+    matches = sorted(p for p in root.glob("*.nwb") if pattern.match(p.name))
     return matches[0] if matches else None
 
 
