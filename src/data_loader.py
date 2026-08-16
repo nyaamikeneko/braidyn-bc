@@ -18,16 +18,21 @@ except ImportError:
     DATA_NWB_ROOT = Path('.') 
     DATA_CSV_ROOT = Path('.')
 
-def load_nwb_session(session_id: str, nwb_filename: str):
+def load_nwb_session(session_id: str, nwb_filename: str, nwb_root: Path | None = None):
     """
     指定されたセッションIDとファイル名からNWBデータを読み込む
-    
-    例: 
+
+    例:
     session_id = "VG1GC-105"
     nwb_filename = "VG1GC-105_2024-02-02_task-day8.nwb"
+
+    nwb_root を渡すと config.py の既定 DATA_NWB_ROOT の代わりにそちらを使う
+    （呼び出し元が `from config import DATA_NWB_ROOT` で束縛した名前を
+    書き換えても、このモジュールの DATA_NWB_ROOT には反映されないため）。
     """
-    filepath = DATA_NWB_ROOT / session_id / nwb_filename
-    
+    root = nwb_root if nwb_root is not None else DATA_NWB_ROOT
+    filepath = root / session_id / nwb_filename
+
     if not filepath.exists():
         print(f"NWBファイルが見つかりません: {filepath}")
         return None

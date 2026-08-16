@@ -470,7 +470,7 @@ def process_session(
         nwb_path = find_nwb_file(mouse_id, task_day)
         nwb_filename = nwb_path.name if nwb_path is not None else None
     if nwb_filename:
-        session = dl.load_nwb_session(mouse_id, nwb_filename)
+        session = dl.load_nwb_session(mouse_id, nwb_filename, nwb_root=DATA_NWB_ROOT)
 
     cleaned = clean_lever_30hz(csv)
     cleaned = attach_reward_flags(cleaned, session)
