@@ -4,7 +4,7 @@
 
 一覧は [README.md の「参考文献」節](../README.md#参考文献) にも表示しています。各ファイルは書誌情報・要旨（日本語要約）・本研究との関連メモの3部構成です。全10本を1ファイルにまとめた [all_references.md](all_references.md) もあります。
 
-`#1` の Kondo et al. 2025 のみ、全文PDF・Supplementary Information の原本を [sources/](sources/) に保存しています。
+`#1` Kondo et al. 2025（全文PDF・Supplementary Information）、`#2` Ashwood et al. 2022（bioRxiv preprint全文）、`#3` Cuturela et al. 2024（bioRxiv preprint全文）は、原本PDFを [sources/](sources/) に保存しています。
 
 ## 一覧
 

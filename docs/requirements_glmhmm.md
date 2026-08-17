@@ -3,7 +3,7 @@
 ## 1. プロジェクト概要 (Overview)
 * **目的**: マウスの聴覚Go/Wait課題データから、潜在的な内部状態（戦略）の遷移を説明するGLM-HMMモデルを構築する。
 * **分析対象**: 16匹のマウス、Day1-15の時系列行動データ。
-* **採用モデル**: Bernoulli GLM-HMM (Ashwood et al., 2022 準拠)。
+* **採用モデル**: Bernoulli GLM-HMM ([Ashwood et al., 2022](../reference/ashwood2022_discrete_strategies.md) 準拠)。
 * **観測モデル**: ベルヌーイ分布（行動の有無 0/1）。
 * **潜在状態**: 離散的な状態遷移（2～3状態を想定）。
 

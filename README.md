@@ -147,4 +147,4 @@ pip install -e .
 ## ライセンス・出典
 
 - 課題データは BraiDyn-BC プロジェクトの共有データです（[reference/kondo2025_braidynbc_dataset.md](reference/kondo2025_braidynbc_dataset.md)）。
-- GLM-HMM は Ashwood et al. (2022) および [ssm](https://github.com/lindermanlab/ssm) の Input Driven Observations に準拠します。
+- GLM-HMM は [Ashwood et al. (2022)](reference/ashwood2022_discrete_strategies.md) および [ssm](https://github.com/lindermanlab/ssm) の Input Driven Observations に準拠します。
