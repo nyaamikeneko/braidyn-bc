@@ -1,5 +1,6 @@
 # Mice alternate between discrete strategies during perceptual decision-making
 
+- **タイトル和訳**: マウスは知覚的意思決定の最中、離散的な複数の戦略を交互に切り替える
 - **著者**: Zoe C. Ashwood, Nicholas A. Roy, Iris R. Stone, International Brain Laboratory, Anne E. Urai, Anne K. Churchland, Alexandre Pouget, Jonathan W. Pillow
 - **誌名**: Nature Neuroscience, 25, 201–212 (2022)
 - **DOI**: [10.1038/s41593-021-01007-z](https://doi.org/10.1038/s41593-021-01007-z)
@@ -13,9 +14,14 @@
 
 *出典: Ashwood et al. (2022) Nature Neuroscience, [10.1038/s41593-021-01007-z](https://doi.org/10.1038/s41593-021-01007-z)（個人の研究メモ用途での引用）*
 
-## 要旨（Semantic Scholar 経由で取得した原文の要約訳）
+## 要旨（原文PDFに基づく）
 
-知覚意思決定の古典的モデルは、被験者が単一で一貫した戦略を使う、あるいは戦略が時間とともにゆっくり進化すると仮定してきた。本研究はこの通念が誤りであることを示す新しい解析を提示する。マウスとヒトの意思決定課題データを解析した結果、選択行動が複数の戦略の入れ替わり（interleaved）によって駆動されていることが分かった。これらの戦略は隠れマルコフモデル（HMM）の状態として特徴づけられ、数十〜数百試行にわたって持続したのち切り替わり、しばしば1セッション内で複数回切り替わる。マウス間で一貫して同定された戦略は、感覚刺激に強く依存する単一の「Engaged（従事）」状態と、頻繁に誤答する複数の「Biased（バイアス）」状態だった。この結果は、げっ歯類の行動実験でしばしば観察される「lapse（脱落）」現象に対する強力な代替説明を与え、標準的な成績指標が試行間の大きな戦略変化を覆い隠している可能性を示唆する。著者らは、マウスは lapse するのではなく、持続的な Engaged 状態と Disengaged 状態の間を切り替えると結論づけている。
+- **問題提起**: 知覚意思決定の古典的解析は、動物が単一で一貫した戦略を使う、あるいは戦略が時間とともに緩やかに進化すると仮定してきた。本研究は、これらの仮定を置かずに「離散的に切り替わる複数戦略の混在」を検出できる枠組みを提示し、げっ歯類実験で頻繁に観察される「lapse（脱落・不注意な誤答）」現象に対する代替説明を検証する。
+- **タスク**: International Brain Laboratory (IBL) の視覚検出課題。0〜100%のコントラストを持つGaborグレーティング刺激が画面の左右いずれかに提示され、マウスはホイールを回してどちら側かを報告する。正しい方向に回すと水報酬、誤ると音のノイズバースト＋1秒のタイムアウト。各セッション最初の90試行は刺激が左右等確率（0.5）で提示され、以降は一方の側に偏ったブロック構造（確率0.8、20〜100試行ごとにランダムに交代）になる。解析には、バイアスが入りにくい各セッション最初の90試行（等確率区間）のみを使用。同じ枠組みをヒトの類似課題データにも適用している。
+- **数理モデル**: Bernoulli GLMを観測モデルとするInput-Output HMM（GLM-HMM）。4次元デザイン行列（刺激コントラスト・バイアス項・前試行の選択・win-stay-lose-switch）を入力とし、状態ごとに異なるGLM重みで選択確率を予測する（定式化は下記「モデルの定義」節）。
+- **状態数の決定**: 5-fold cross-validationでtest set log-likelihoodを比較し、IBLマウス37匹のデータでは3状態でプラトーに達した。以降の解析はすべて3状態モデルで実施。
+- **結果**: 感覚刺激への重みが大きく正答率が高い単一の「Engaged」状態（例示個体で90%正答）と、刺激への重みが小さくbias重みが大きい2つの「Biased」状態（同58〜60%正答）が一貫して同定された。状態は数十〜数百試行にわたって持続し（期待滞在時間の中央値: Engagedで24試行、Biasedで12〜13試行）、しばしば1セッション内で複数回切り替わる（56セッション中71%で状態変化が発生）。マウスは全試行の69%をEngaged状態で、31%をBiased状態で過ごした（例示個体）。
+- **lapseモデルとの対比**: 状態の滞在時間はHMMの性質上、幾何分布 $p(\text{dwell}=t) = (1-A_{kk})A_{kk}^{t-1}$ に従う。古典的lapseモデル（lapse率20%と仮定）での期待滞在時間はわずか1.25試行であり、GLM-HMMが捉える「持続的な状態」がlapseモデルの想定と本質的に異なることを示す論拠となっている。著者らは、マウスはランダムにlapseするのではなく、持続的なEngaged状態とBiased（Disengaged）状態の間を切り替えると結論づけている。
 
 ## モデルの定義（Methods 4.1 より）
 
@@ -44,14 +50,3 @@
 - **Biased-left / Biased-right**: 刺激への重みが小さく、bias重みが大きい。正答率が低い（例示個体で58–60%）。期待滞在時間の中央値は12–13試行。
 
 状態の滞在時間（dwell time）はHMMの性質上、幾何分布 $p(\text{dwell}=t) = (1-A_{kk})A_{kk}^{t-1}$ に従う。古典的lapseモデル（lapse率20%と仮定）での期待滞在時間はわずか1.25試行であり、GLM-HMMが捉える「持続的な状態」がlapseモデルの想定と本質的に異なることを示す一つの論拠になっている。
-
-## この研究との関連
-
-**本リポジトリの GLM-HMM 実装（Ver.3 / Ver.4）が直接準拠する原著論文。**
-
-- [docs/requirements_glmhmm.md](../docs/requirements_glmhmm.md) 冒頭に「採用モデル: Bernoulli GLM-HMM (Ashwood et al., 2022 準拠)」と明記されている。
-- README.md の「ライセンス・出典」節で「GLM-HMM は Ashwood et al. (2022) および [ssm](https://github.com/lindermanlab/ssm) の Input Driven Observations に準拠します」と述べている。
-- 本研究の RQ1（[docs/RQ.md](../docs/RQ.md)）「内部状態（Engaged vs Random）の生物学的妥当性」は、この論文が定義した Engaged/Biased 状態の枠組みをそのまま踏襲している。
-- ssm ライブラリ（`lindermanlab/ssm`）の Input Driven Observations 実装は、この論文の著者グループ（Pillow Lab / Linderman Lab）が公開したもの。
-- **デザイン行列の対応**: `src/glmhmm_ver4.py` の `BEHAVIOR_COLS`（`x_bias` / `x_stim` / `x_hist` / `x_rew` の4列）は、上記「モデルの定義」節の4列（Bias / Stimulus / 前試行の選択 / win-stay-lose-switch）と同じ4カテゴリ（bias・刺激・行動履歴・報酬履歴）に対応する構成を取る。ただし `x_hist` / `x_rew` は1試行ラグの離散変数ではなく指数減衰する履歴変数（[docs/requirements_glmhmm.md](../docs/requirements_glmhmm.md) 4.2節に元の定義がある。同文書はVer.3＝時間ビン単位向けの要件定義だが、この履歴変数の設計自体はVer.4でも試行単位で踏襲されている）である点が Ashwood et al. の1ラグ共変量と異なる。
-- **状態数 $K$ の対応**: `src/glmhmm_ver4.py` の既定値 `NUM_STATES = 3` は、Ashwood et al. がIBLマウス37匹のcross-validationで選んだ $K=3$ と同じ値。本リポジトリの4次元入力モデルはこの既定値を踏襲し、13次元入力モデル（表情特徴込み）ではK=2とK=3を比較している（README.md「解析パイプライン」表を参照）。Ashwood et al. のような動物ごとの系統的なcross-validationによる$K$選択は行っていない。
