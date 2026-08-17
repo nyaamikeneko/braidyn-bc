@@ -4,6 +4,8 @@
 - **誌名**: Nature Neuroscience (2025)
 - **DOI**: [10.1038/s41593-025-02071-5](https://doi.org/10.1038/s41593-025-02071-5)
 - **リンク**: [Nature](https://www.nature.com/articles/s41593-025-02071-5) / [PubMed](https://pubmed.ncbi.nlm.nih.gov/41028294/) / [bioRxiv preprint](https://www.biorxiv.org/content/10.1101/2024.06.02.597005)
+- **原本**: bioRxiv preprint v1（2024-06-02投稿版、出版版と同じタイトル・著者）を [reference/sources/](sources/) に保存している。
+  - [cazettes2025_facial_expressions_biorxiv_v1.pdf](sources/cazettes2025_facial_expressions_biorxiv_v1.pdf)
 
 ## Figure 1
 
