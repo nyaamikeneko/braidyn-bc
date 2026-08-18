@@ -78,6 +78,21 @@
 | **Reward Alpha** ($\alpha_{rew}$) | ~0.94 | $\exp(\ln(0.1)/40)$, Window $\approx$ 4.0s |
 | **ITI Cut Threshold** | 10.0 s | Silence & No Action duration |
 
+### 4.3. 身体・顔部位特徴量の統合（オプション拡張）
+
+ノート `notebooks/12_setup_input_data_ver2.ipynb` で実装されている、ビデオトラッキングによる顔・身体部位の動きを入力変数に追加する拡張。標準の4変数（Bias, Stimulus, Action History, Reward History）に対し、以下の9変数を追加し計13次元とする。
+
+* **対象部位**: 耳先 (eartip)、目頭 (medialcorner)、鼻先 (nosetip)、下顎 (lowerjaw) の4部位、および瞳孔 (pupil)。データソースは `session.entries.data`（`bdbc_nwb_explorer` 経由でNWBから取得するビデオトラッキングデータ）。
+* **特徴量**:
+    * Position（4特徴量）: 各部位の座標とリックポート固定点（`face_video_lickport_x`/`_y`）とのユークリッド距離。
+    * Speed（4特徴量）: 各部位のフレーム間移動距離（座標差分のユークリッドノルム）。
+    * Pupil（1特徴量）: 瞳孔径（`face_video_pupildia` または `pupildia` 列）。
+* **欠損値処理**: 線形補間 (`interpolate(method='linear')`) の後、前方補完し、残りを0埋め。
+* **CSV/NWBデータとの結合**: 30Hzの行動データに対して `pandas.merge_asof(direction='nearest', tolerance=0.034)` で結合する（3.2節の結合と同一の許容誤差）。
+* **Binning時の集約則（3.3節への追加ルール）**: Position・Pupilは `median`（中央値）集約、Speedは `sum`（合計、ビン内の総移動量）集約とする。Binary変数（Stimulus/Action/Reward）の `max` 集約とは異なる。
+* **正規化**: ビデオ特徴量のみ、セッションごとに Z-score 正規化する（`scipy.stats.zscore`、NaNは0埋め）。Bias・Stimulus・History系の入力は正規化しない。
+* **ラグ処理**: Action History（4.2節）と同様に、必ず1ビンラグ ($t-1$) をずらして入力する（同時刻の運動情報の漏れ込み防止）。
+
 ## 6. 実装・解析フロー (Workflow)
 
 1.  **Load Data**: CSVおよびNWBデータの読み込み。
@@ -86,3 +101,7 @@
 4.  **Formatting (List)**: `split_data_by_iti` を実行。ITIでの切断と、ssmライブラリ用フォーマットへの変換。
 5.  **Train GLM-HMM**: モデル学習（初期値依存を避けるため複数シードで試行）。
 6.  **Decoding & Analysis**: 状態推定と解釈。
+
+## 変更履歴
+
+* 2026-08-18: ノート `12_setup_input_data_ver2.ipynb` を参照し、身体・顔部位のビデオ特徴量を入力変数として統合する方法を追記（4.3節）。

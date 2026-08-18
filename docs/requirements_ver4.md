@@ -59,6 +59,20 @@ CSV（行動）とNWB（報酬）を pandas.merge_asof を使用し、direction=
 定義: $r_k = Reward_{k-1} + \alpha_{rew} \cdot r_{k-1}$
 制約: 前の試行（$k-1$）が Success であったか（Reward=1）を参照する。
 
+### 4.3. 身体・顔部位特徴量の統合（オプション拡張）
+ノート `notebooks/12_setup_input_data_ver2.ipynb` で実装されている、ビデオトラッキングによる顔・身体部位の動きを、試行単位の入力変数として追加する拡張。標準の4変数（Bias, Stimulus, Action History, Reward History）に対し、以下の9変数を追加し計13次元とする。
+
+* **対象部位**: 耳先 (eartip)、目頭 (medialcorner)、鼻先 (nosetip)、下顎 (lowerjaw) の4部位、および瞳孔 (pupil)。データソースは `session.entries.data`（`bdbc_nwb_explorer` 経由でNWBから取得するビデオトラッキングデータ）。
+* **特徴量**:
+    * Position（4特徴量）: 各部位の座標とリックポート固定点（`face_video_lickport_x`/`_y`）とのユークリッド距離。
+    * Speed（4特徴量）: 各部位のフレーム間移動距離（座標差分のユークリッドノルム）。
+    * Pupil（1特徴量）: 瞳孔径（`face_video_pupildia` または `pupildia` 列）。
+* **欠損値処理**: 線形補間 (`interpolate(method='linear')`) の後、前方補完し、残りを0埋め。
+* **CSV/NWBデータとの結合**: 30Hzの行動データに対して `pandas.merge_asof(direction='nearest', tolerance=0.034)` で結合する（3.2節の結合と同一の許容誤差）。
+* **試行単位への集約**: 10Hzビニングを行わない代わりに、各試行 $k$ の時間範囲（2.1節の試行タイプ別Window）内のフレームに対して、Position・Pupilは `median`（中央値）、Speedは `sum`（合計、試行内の総移動量）で集約し、試行1件につき1つの値 $x_{video,k}$ とする。
+* **正規化**: ビデオ特徴量のみ、セッションごとに Z-score 正規化する（`scipy.stats.zscore`、NaNは0埋め）。Bias・Stimulus・History系の入力は正規化しない。
+* **ラグ処理**: Action History / Reward History（4.2節）と同様に、前の試行（$k-1$）の集約値を用いる。当該試行 $k$ 内の運動情報は含めない（同時刻の運動情報の漏れ込み防止）。
+
 ## 5. ハイパーパラメータ設定 (Parameters)
 
 | Parameter | Value | Logic / Note |
@@ -77,3 +91,7 @@ CSV（行動）とNWB（報酬）を pandas.merge_asof を使用し、direction=
 4. Feature Engineering: 試行順序に従い、$\alpha$ を用いた Action History および Reward History を計算。
 5. Train GLM-HMM: ssmライブラリ等を用い、試行系列データとして学習。
 6. Decoding & Analysis: 各試行の状態推定と行動戦略の解釈。
+
+## 変更履歴
+
+* 2026-08-18: ノート `12_setup_input_data_ver2.ipynb` を参照し、身体・顔部位のビデオ特徴量を試行単位で入力変数として統合する方法を追記（4.3節）。
