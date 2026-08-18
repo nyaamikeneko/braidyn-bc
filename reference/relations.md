@@ -1,6 +1,6 @@
 # 先行文献の関連マップ
 
-10本の先行文献（[all_references.md](all_references.md)）どうしの関係、および本リポジトリの研究計画（[docs/RQ.md](../docs/RQ.md)）との対応を1か所にまとめたもの。各論文の書誌情報・要旨は [all_references.md](all_references.md)、PDFが手元にある5本（#1, #2, #3, #7, #8）の詳細なモデル定義・メソッドは個別ファイルを参照。
+10本の先行文献（[all_references.md](all_references.md)）どうしの関係、および本リポジトリの研究計画（[docs/RQ.md](../docs/RQ.md)）との対応を1か所にまとめたもの。各論文の書誌情報・要旨は [all_references.md](all_references.md)、PDFが手元にある6本（#1, #2, #3, #4, #7, #8）の詳細なモデル定義・メソッドは個別ファイルを参照。
 
 ## 全体マップ
 
