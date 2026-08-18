@@ -14,10 +14,6 @@ Kondo, M. et al. — Scientific Data 12, 1264 (2025). DOI: [10.1038/s41597-025-0
 
 ![Figure 1](images/kondo2025_braidynbc_dataset_fig1.jpg)
 
-*出典: Kondo et al. (2025) Scientific Data, [10.1038/s41597-025-05482-y](https://doi.org/10.1038/s41597-025-05482-y)（個人の研究メモ用途での引用）*
-
-本リポジトリが解析対象とする NWB / CSV データそのものの記述論文。詳細は [kondo2025_braidynbc_dataset.md](kondo2025_braidynbc_dataset.md) を参照。
-
 ### 要約
 
 - **問題**
@@ -41,10 +37,6 @@ Kondo, M. et al. — Scientific Data 12, 1264 (2025). DOI: [10.1038/s41597-025-0
 Ashwood, Z. C. et al. (International Brain Laboratory) — Nature Neuroscience 25, 201–212 (2022). DOI: [10.1038/s41593-021-01007-z](https://doi.org/10.1038/s41593-021-01007-z) — 個別ファイル: [ashwood2022_discrete_strategies.md](ashwood2022_discrete_strategies.md)（原本PDFあり）
 
 ![Figure 1](images/ashwood2022_discrete_strategies_fig1.jpg)
-
-*出典: Ashwood et al. (2022) Nature Neuroscience, [10.1038/s41593-021-01007-z](https://doi.org/10.1038/s41593-021-01007-z)（個人の研究メモ用途での引用）*
-
-本リポジトリのGLM-HMM実装が直接準拠する原著論文。詳細は [ashwood2022_discrete_strategies.md](ashwood2022_discrete_strategies.md) を参照。
 
 ### 要約
 
@@ -70,10 +62,6 @@ Cuturela, L. I. et al. (International Brain Laboratory) — bioRxiv preprint (20
 
 ![Figure 1](images/cuturela2024_internal_states_early_fig1.jpg)
 
-*出典: Cuturela et al. (2024) bioRxiv preprint, [10.1101/2024.11.30.626182](https://doi.org/10.1101/2024.11.30.626182)（個人の研究メモ用途での引用）*
-
-Ashwood et al. (2022) のGLM-HMMを学習過程へ拡張した続報。詳細は [cuturela2024_internal_states_early.md](cuturela2024_internal_states_early.md) を参照。
-
 ### 要約
 
 - **問題**
@@ -94,8 +82,6 @@ Ashwood et al. (2022) のGLM-HMMを学習過程へ拡張した続報。詳細は
 Bruijns, S. A. et al. (International Brain Laboratory), Dayan, P. — Nature Neuroscience 29, 186–194 (2026年1月号 / 2025年12月30日オンライン公開). DOI: [10.1038/s41593-025-02130-x](https://doi.org/10.1038/s41593-025-02130-x) / [bioRxiv preprint](https://www.biorxiv.org/content/10.1101/2023.12.22.573001)
 
 ![Figure 1](images/bruijns2025_infinite_hmm_fig1.jpg)
-
-*出典: Bruijns et al. (2025) Nature Neuroscience, [10.1038/s41593-025-02130-x](https://doi.org/10.1038/s41593-025-02130-x)（個人の研究メモ用途での引用）*
 
 ### 要約
 
@@ -121,8 +107,6 @@ Bruijns, S. A. et al. (International Brain Laboratory), Dayan, P. — Nature Neu
 Mohammadi, Z., Ashwood, Z. C., Pillow, J. W. — Nature Communications (2025). DOI: [10.1038/s41467-025-66738-0](https://doi.org/10.1038/s41467-025-66738-0)
 
 ![Figure 1](images/mohammadi2025_internal_state_switches_fig1.jpg)
-
-*出典: Mohammadi et al. (2025) Nature Communications, [10.1038/s41467-025-66738-0](https://doi.org/10.1038/s41467-025-66738-0)。CC BY 4.0。*
 
 ### 要約
 
@@ -151,8 +135,6 @@ Cazettes, F. et al. — Nature Neuroscience 26(5), 840–849 (2023). DOI: [10.10
 
 ![Figure 1](images/cazettes2023_foraging_reservoir_fig1.jpg)
 
-*出典: Cazettes et al. (2023) Nature Neuroscience, [10.1038/s41593-023-01305-8](https://doi.org/10.1038/s41593-023-01305-8)（個人の研究メモ用途での引用）*
-
 ### 要約
 
 同グループによる [cazettes2025_facial_expressions.md](cazettes2025_facial_expressions.md)（表情側の報告）と対をなす、神経活動側の報告。
@@ -178,10 +160,6 @@ Cazettes, F. et al. — Nature Neuroscience (2025). DOI: [10.1038/s41593-025-020
 
 ![Figure 1](images/cazettes2025_facial_expressions_fig1.jpg)
 
-*出典: Cazettes et al. (2025) Nature Neuroscience, [10.1038/s41593-025-02071-5](https://doi.org/10.1038/s41593-025-02071-5)（bioRxivプレプリント版より取得。個人の研究メモ用途での引用）*
-
-本研究のMain RQ「HMM/状態空間モデルと身体データの統合方法」に対する中心的な参考文献。詳細は [cazettes2025_facial_expressions.md](cazettes2025_facial_expressions.md) を参照。
-
 ### 要約
 
 - **問題**
@@ -202,10 +180,6 @@ Tlaie, A. et al. — Nature Communications 16, 5168 (2025). DOI: [10.1038/s41467
 
 ![Figure 1](images/tlaie2025_facial_features_mice_monkeys_fig1.jpg)
 
-*出典: Tlaie et al. (2025) Nature Communications, [10.1038/s41467-025-60296-1](https://doi.org/10.1038/s41467-025-60296-1)。CC BY 4.0。*
-
-表情特徴を予測変数、行動指標を出力として状態依存回帰で結びつける点が、本リポジトリのGLM-HMM（表情特徴を選択GLMの入力共変量とする設計）と対照的。詳細は [tlaie2025_facial_features_mice_monkeys.md](tlaie2025_facial_features_mice_monkeys.md) を参照。
-
 ### 要約
 
 - **問題**
@@ -225,8 +199,6 @@ Tlaie, A. et al. — Nature Communications 16, 5168 (2025). DOI: [10.1038/s41467
 Markowitz, J. E. et al., Linderman, S. W., Datta, S. R. — Nature 614(7946), 108–117 (2023). DOI: [10.1038/s41586-022-05611-2](https://doi.org/10.1038/s41586-022-05611-2)
 
 ![Figure 1](images/markowitz2023_spontaneous_behaviour_fig1.jpg)
-
-*出典: Markowitz et al. (2023) Nature, [10.1038/s41586-022-05611-2](https://doi.org/10.1038/s41586-022-05611-2)（個人の研究メモ用途での引用）*
 
 ### 要約
 
@@ -250,8 +222,6 @@ Markowitz, J. E. et al., Linderman, S. W., Datta, S. R. — Nature 614(7946), 10
 Shuto, H. et al. — PLOS ONE 20(8), e0329367 (2025). DOI: [10.1371/journal.pone.0329367](https://doi.org/10.1371/journal.pone.0329367)
 
 ![Figure 1](images/shuto2025_hmm_depth_locomotion_fig1.jpg)
-
-*出典: Shuto et al. (2025) PLOS ONE, [10.1371/journal.pone.0329367](https://doi.org/10.1371/journal.pone.0329367)。CC BY 4.0。*
 
 ### 要約
 
