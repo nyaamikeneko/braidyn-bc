@@ -53,8 +53,8 @@
 
 - 離散潜在状態 $z_t \in \{0, \dots, S-1\}$ がマルコフ連鎖として遷移する（遷移行列はDirichlet事前分布）。
 - 入力（predictor）$x_t \in \mathbb{R}^M$: 試行 $t$ の**刺激提示前**の表情特徴（マウス9次元・サル18次元。各顔キーポイントの垂直・水平位置の中央値と速度）。
-- 出力（emission）$y_t \in \mathbb{R}^N$: 同じ試行の反応時間（RT、$N=1$）。
-- 状態 $z_t=s$ が与えられたときの emission 分布: $y_t \mid z_t=s, x_t \sim \mathcal{N}(W_s x_t + b_s,\ \Sigma_s)$、 $W_s \in \mathbb{R}^{N \times M}$（状態ごとの回帰重み）、$b_s \in \mathbb{R}^N$（バイアス）、$\Sigma_s \in \mathbb{R}^{N \times N}$（emission共分散）。
+- 出力（emission）$y_t \in \mathbb{R}^N$: 同じ試行の反応時間（RT、 $N=1$）。
+- 状態 $z_t=s$ が与えられたときの emission 分布: $y_t \mid z_t=s, x_t \sim \mathcal{N}(W_s x_t + b_s,\ \Sigma_s)$、 $W_s \in \mathbb{R}^{N \times M}$（状態ごとの回帰重み）、 $b_s \in \mathbb{R}^N$（バイアス）、 $\Sigma_s \in \mathbb{R}^{N \times N}$（emission共分散）。
 - つまり **「どの表情特徴がRTを予測するか」という回帰係数そのものが、隠れ状態によって切り替わる**モデル。ある状態では眉の動きがRTを予測し、別の状態では鼻のsniffingが予測する、といった対応を想定している。
 
 **学習**: EMアルゴリズムを50反復、パラメータ初期値を変えて10回リピートし最良解を採用。訓練:テスト = 80:20。セッションをまたぐ結合時は50試行分の予測変数・出力を0にする強制遷移を挟み、状態確率をリセットする。

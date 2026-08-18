@@ -105,7 +105,7 @@
 * 実装: **指数減衰 (Exponential Decay)**。
 * 定義: $r_t = Reward_{t-1} + \alpha_{rew} \cdot r_{t-1}$ （必ず1ラグずらすこと）
 * **重要**: $Reward_{t-1}=1$ となるのは **Success** の次時点のみ。
-* **Unrewarded Pull (Short / Second)** の場合、引いていても報酬は出ていないため、$Reward_{t-1}=0$ として処理される。
+* **Unrewarded Pull (Short / Second)** の場合、引いていても報酬は出ていないため、 $Reward_{t-1}=0$ として処理される。
 
 
 

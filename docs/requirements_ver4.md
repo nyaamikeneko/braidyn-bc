@@ -88,7 +88,7 @@ CSV（行動）とNWB（報酬）を pandas.merge_asof を使用し、direction=
 1. Load Data: CSVおよびNWBデータの読み込み。
 2. Clean & Flag (30Hz): 時系列整形と Onset / Reward フラグの確定。
 3. Trial Extraction: 試行定義に基づき、時系列から各試行区間を切り出し $y_k, x_{stim,k}, Reward_k$ を抽出。
-4. Feature Engineering: 試行順序に従い、$\alpha$ を用いた Action History および Reward History を計算。
+4. Feature Engineering: 試行順序に従い、 $\alpha$ を用いた Action History および Reward History を計算。
 5. Train GLM-HMM: ssmライブラリ等を用い、試行系列データとして学習。
 6. Decoding & Analysis: 各試行の状態推定と行動戦略の解釈。
 

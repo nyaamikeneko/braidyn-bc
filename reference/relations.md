@@ -88,7 +88,7 @@ flowchart TD
 - 本研究の RQ1「内部状態（Engaged vs Random）の生物学的妥当性」は、この論文が定義した Engaged/Biased 状態の枠組みをそのまま踏襲している。
 - ssm ライブラリ（`lindermanlab/ssm`）の Input Driven Observations 実装は、この論文の著者グループ（Pillow Lab / Linderman Lab）が公開したもの。
 - **デザイン行列の対応**: `src/glmhmm_ver4.py` の `BEHAVIOR_COLS`（`x_bias` / `x_stim` / `x_hist` / `x_rew` の4列）は、Ashwood et al. のデザイン行列4列（Bias / Stimulus / 前試行の選択 / win-stay-lose-switch）と同じ4カテゴリ（bias・刺激・行動履歴・報酬履歴）に対応する。ただし `x_hist` / `x_rew` は1試行ラグの離散変数ではなく指数減衰する履歴変数（[docs/requirements_glmhmm.md](../docs/requirements_glmhmm.md) 4.2節）である点がAshwood et al. の1ラグ共変量と異なる。
-- **状態数 $K$ の対応**: `src/glmhmm_ver4.py` の既定値 `NUM_STATES = 3` は、Ashwood et al. がIBLマウス37匹のcross-validationで選んだ $K=3$ と同じ値。本リポジトリはこの既定値を踏襲し、13次元入力モデル（表情特徴込み）ではK=2とK=3を比較しているが、動物ごとの系統的なcross-validationによる$K$選択は行っていない。
+- **状態数 $K$ の対応**: `src/glmhmm_ver4.py` の既定値 `NUM_STATES = 3` は、Ashwood et al. がIBLマウス37匹のcross-validationで選んだ $K=3$ と同じ値。本リポジトリはこの既定値を踏襲し、13次元入力モデル（表情特徴込み）ではK=2とK=3を比較しているが、動物ごとの系統的なcross-validationによる $K$選択は行っていない。
 
 **#3 Cuturela et al. 2024** — Ashwood et al. のGLM-HMM枠組みを学習過程（微分的なセッション進行）へ拡張した続報。
 
