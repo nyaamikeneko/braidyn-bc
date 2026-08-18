@@ -129,14 +129,14 @@ pip install -e .
 
 ## 参考文献
 
-本研究の背景となる先行文献は [reference/](reference/) にまとめています。全10本の書誌情報・要約は [reference/all_references.md](reference/all_references.md) に集約し、論文PDFを保存している5本（#1, #2, #3, #7, #8）は個別の md ファイルも持ちます。論文間・本リポジトリとの関連性は [reference/relations.md](reference/relations.md) を参照してください。
+本研究の背景となる先行文献は [reference/](reference/) にまとめています。全10本の書誌情報・要約は [reference/all_references.md](reference/all_references.md) に集約し、論文PDFを保存している6本（#1, #2, #3, #4, #7, #8）は個別の md ファイルも持ちます。論文間・本リポジトリとの関連性は [reference/relations.md](reference/relations.md) を参照してください。
 
 | # | タイトル | 著者（筆頭） | 誌名・年 |
 | :-- | :--- | :--- | :--- |
 | 1 | [Multimodal dataset linking wide-field calcium imaging to behavior changes in operant lever-pull task in mice](reference/kondo2025_braidynbc_dataset.md) | Kondo, M. | Scientific Data, 2025 |
 | 2 | [Mice alternate between discrete strategies during perceptual decision-making](reference/ashwood2022_discrete_strategies.md) | Ashwood, Z. C. | Nature Neuroscience, 2022 |
 | 3 | [Internal states emerge early during learning of a perceptual decision-making task](reference/cuturela2024_internal_states_early.md) | Cuturela, L. I. (IBL) | bioRxiv, 2024 |
-| 4 | [Infinite hidden Markov models can dissect the complexities of learning](reference/all_references.md#4-infinite-hidden-markov-models-can-dissect-the-complexities-of-learning) | Bruijns, S. A. (IBL) | Nature Neuroscience, 2025 |
+| 4 | [Infinite hidden Markov models can dissect the complexities of learning](reference/bruijns2025_infinite_hmm.md) | Bruijns, S. A. (IBL) | Nature Neuroscience, 2025 |
 | 5 | [Identifying the factors governing internal state switches during nonstationary sensory decision-making](reference/all_references.md#5-identifying-the-factors-governing-internal-state-switches-during-nonstationary-sensory-decision-making) | Mohammadi, Z. | Nature Communications, 2025 |
 | 6 | [A reservoir of foraging decision variables in the mouse brain](reference/all_references.md#6-a-reservoir-of-foraging-decision-variables-in-the-mouse-brain) | Cazettes, F. | Nature Neuroscience, 2023 |
 | 7 | [Facial expressions in mice reveal latent cognitive variables and their neural correlates](reference/cazettes2025_facial_expressions.md) | Cazettes, F. | Nature Neuroscience, 2025 |
