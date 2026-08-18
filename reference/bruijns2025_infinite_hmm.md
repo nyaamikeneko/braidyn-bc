@@ -38,7 +38,7 @@
   - マウス134匹の解析で、学習はほぼ全個体で3つの明確な段階（未分化で誤りがちな初期行動→片側のみの部分的理解→左右両方の完全な理解）を経て進行するが、各段階に要するセッション数・使用する状態の構成（個体あたり状態数は中央値6–8）は個体間で大きくばらつく。
   - 新規状態の導入（fast process）はセッション開始時に集中して起きやすく、訓練が進むにつれて頻度が減少する。感覚感度（コントラストへの重み）はfast/slow双方の過程で有意に変化するのに対し、バイアス重みは主にfast process（状態の切り替わり）でのみ変化し、同一状態内でのslow processではほぼ一定に保たれる。粘着性（perseveration）の重みは学習を通じて一貫して小さな役割にとどまる。
   - 個体が各学習段階に要するセッション数の間には相関がほとんどなく（Stage1–2間: Pearson's $r=0.21$、Stage1–3間: $r=0.04$、Stage2–3間: $r=0.14$）、学習初期のバイアス方向は後続段階のバイアス方向を予測しない。
-  - モデルは状態数の上限や事前分布のハイパーパラメータ（$\sigma$、持続時間分布の $r$の範囲、 $\alpha$・ $\gamma$の事前分布）に対して頑健で、交差検証・アブレーション実験・生成モデルからのリカバリー実験・posterior predictive checkによって妥当性が確認された（実際の行動より正答率をわずかに過大評価する傾向はあるが、これは主にコントラストのtanh変換に由来する既知のバイアス）。
+  - モデルは状態数の上限や事前分布のハイパーパラメータ（ $\sigma$、持続時間分布の $r$の範囲、 $\alpha$・ $\gamma$の事前分布）に対して頑健で、交差検証・アブレーション実験・生成モデルからのリカバリー実験・posterior predictive checkによって妥当性が確認された（実際の行動より正答率をわずかに過大評価する傾向はあるが、これは主にコントラストのtanh変換に由来する既知のバイアス）。
 
 ## モデルの定義（Methods より）
 
@@ -47,28 +47,28 @@
 **階層ディリクレ過程による状態遷移構造**（式2–7）:
 
 - 全体の状態出現頻度を表すベース測度 $\boldsymbol{\beta}\sim\mathrm{GEM}(\gamma)$（GEMはGriffiths–Engen–McCloskeyにちなむ、無限個の要素上の確率ベクトルを生成するstick-breaking過程）。濃度パラメータ $\gamma$が実質的に使われる状態数を決め、 $\gamma\sim\mathrm{Gamma}(0.01,0.01)$という緩い事前分布のもとでこれ自体も推論対象になる。
-- 各状態 $i$の遷移ベクトル $\boldsymbol{\pi}_i\sim\mathrm{DP}(\alpha,\boldsymbol{\beta})$、 $i=1,\dots,L$（$\alpha\sim\mathrm{Gamma}(0.01,0.01)$）。 $\boldsymbol{\beta}$が全体の状態人気度を、 $\alpha$が個々の遷移ベクトルがどれだけ $\boldsymbol{\beta}$に近いかを制御する。
+- 各状態 $i$の遷移ベクトル $\boldsymbol{\pi}_i\sim\mathrm{DP}(\alpha,\boldsymbol{\beta})$、 $i=1,\dots,L$（ $\alpha\sim\mathrm{Gamma}(0.01,0.01)$）。 $\boldsymbol{\beta}$が全体の状態人気度を、 $\alpha$が個々の遷移ベクトルがどれだけ $\boldsymbol{\beta}$に近いかを制御する。
 - 初期状態分布 $\boldsymbol{\pi}_0\sim\mathrm{GEM}(3)$（濃度3。セッション開始時に新状態が始まりにくいよう、既存状態からのバイアスをやや強めている）。
 - 推論では無限過程の代わりにweak-limit近似（上限 $L=15$）を用い、式(2)–(4)が式(5)–(7)のような $L$次元ディリクレ分布に帰着する: $\boldsymbol{\beta}\sim\mathrm{Dir}(\gamma/L,\dots,\gamma/L)$、 $\boldsymbol{\pi}_i\sim\mathrm{Dir}(\alpha\beta_1,\dots,\alpha\beta_L)$、 $\boldsymbol{\pi}_0\sim\mathrm{Dir}(3/L,\dots,3/L)$。実データでは12状態しか使われず、 $L=15$で十分。
 
 **セッション内の遷移とセミマルコフ構造**（式8–15）:
 
-- セッション $n$内の状態系列: $z_{n,1}\sim\boldsymbol{\pi}_0$、 $z_{n,s}\sim\boldsymbol{\pi}_{z_{n,s-1}}$（$s$はセッション内の状態カウンターであり試行番号ではない）。
+- セッション $n$内の状態系列: $z_{n,1}\sim\boldsymbol{\pi}_0$、 $z_{n,s}\sim\boldsymbol{\pi}_{z_{n,s-1}}$（ $s$はセッション内の状態カウンターであり試行番号ではない）。
 - 自己遷移を禁止し（データ拡張が必要な理由）、各状態の持続時間は幾何分布ではなく負の二項分布から生成: $r_i\sim U(5,6,7,\dots,704)$、 $p_i\sim\mathrm{Beta}(1,1)$、 $d_{n,s}\sim\mathrm{NB}(r_{z_{n,s}},\,p_{z_{n,s}})$。 $r$の下限を5に設定することで、実験者が提示する左右刺激パターンのごく短周期な統計ではなく、より長く持続する状態を捉えるようにしている。
 - 状態は指定された持続時間だけアクティブであり続け、その間は同一状態が観測を生成する: $t_n(s)=\sum_{k<s}d_{n,k}$（状態 $s$が開始する試行番号）、 $x_{n,\,t_n(s)+1:t_n(s)+d_{n,s}}=z_{n,s}$。
 - 観測モデル（ロジスティック回帰）: $P(y_{n,t}=R)=\mathrm{sig}(\mathbf{f}_{n,t}\times\mathbf{w}_{x_{n,t},n})$。 $y_{n,t}\in\{L,R\}$は試行 $t$の選択、 $\mathbf{f}_{n,t}$は入力特徴、 $\mathbf{w}_{x_{n,t},n}$はその試行で使われている状態のセッション $n$時点での重み。
 
 **入力特徴（Methods「Dynamic logistic regression prior and sampling」節）**:
 
-- 左コントラスト・右コントラストを別々の重みとして分離（左右で刺激への感度が異なりうるため）。実コントラスト $c$を $\hat{c}=\tanh(pc)/\tanh(p)$（$p=5$）で変換し、0%・6.25%・12.5%・25%・50%・100%を $(0,\,0.302,\,0.555,\,0.848,\,0.987,\,1)$へ写像することで、心理物理的な知覚しやすさの違い（50%と100%はほぼ等しく知覚されるが実数値は2倍差）を反映する。
-- 履歴依存の「粘着性（perseveration）」regressor: 過去の選択を指数重み付けした和 $\frac{1}{Z}\sum_{k=1}^{m-1}\exp(-0.25k)(2y_{n,m-k}-1)$（$Z$は正規化定数、減衰定数0.25はクロスバリデーションで選択、 $2y-1$は左を $-1$・右を $+1$に符号化）。報酬情報を使うwin-stay-lose-switch regressorは交差検証上の改善がなく不採用。
+- 左コントラスト・右コントラストを別々の重みとして分離（左右で刺激への感度が異なりうるため）。実コントラスト $c$を $\hat{c}=\tanh(pc)/\tanh(p)$（ $p=5$）で変換し、0%・6.25%・12.5%・25%・50%・100%を $(0,\,0.302,\,0.555,\,0.848,\,0.987,\,1)$へ写像することで、心理物理的な知覚しやすさの違い（50%と100%はほぼ等しく知覚されるが実数値は2倍差）を反映する。
+- 履歴依存の「粘着性（perseveration）」regressor: 過去の選択を指数重み付けした和 $\frac{1}{Z}\sum_{k=1}^{m-1}\exp(-0.25k)(2y_{n,m-k}-1)$（ $Z$は正規化定数、減衰定数0.25はクロスバリデーションで選択、 $2y-1$は左を $-1$・右を $+1$に符号化）。報酬情報を使うwin-stay-lose-switch regressorは交差検証上の改善がなく不採用。
 - バイアス項（定数1）。
 
 **状態内の重みの動的更新（slow process）**（式16–17）: 各状態 $s$の重み系列 $\mathbf{w}_n$は、初期分布 $\mathbf{w}_1\sim\mathcal{N}(0,8I)$ から、セッション境界ごとにガウシアンランダムウォーク $\mathbf{w}_{n+1}\sim\mathcal{N}(\mathbf{w}_n,\sigma I)$ に従って緩やかに変化する（交差検証で選ばれた segment間分散 $\sigma=0.04$）。あるセッションでその状態が使われなかった場合、重みは次の遷移まで固定される（長い不在期間中に重みが急激に変化するのを防ぐ）。
 
 **推論（Gibbsサンプリング）**:
 
-- ロジスティック回帰重みの推論にはPólya-Gamma data augmentationを用いる（二項尤度で共役事前分布が取れない問題を回避）。まず擬似観測 $\omega_n\sim\mathrm{PG}(b_n,\psi_n)$（$\psi_n=\mathbf{f}_n\times\mathbf{w}_n$、 $b_n$はそのセッション内でその特徴の組み合わせが観測された回数）をサンプルし、次に擬似観測 $\kappa_n=a_n-b_n/2$（$a_n$は右選択の回数）を用いて $\kappa_n/\omega_n\sim\mathcal{N}(\psi_n,1/\omega_n)$ とみなし、forward filter backward sample（カルマンフィルタに基づく）で $\mathbf{w}_n$の系列全体を一括更新する。
+- ロジスティック回帰重みの推論にはPólya-Gamma data augmentationを用いる（二項尤度で共役事前分布が取れない問題を回避）。まず擬似観測 $\omega_n\sim\mathrm{PG}(b_n,\psi_n)$（ $\psi_n=\mathbf{f}_n\times\mathbf{w}_n$、 $b_n$はそのセッション内でその特徴の組み合わせが観測された回数）をサンプルし、次に擬似観測 $\kappa_n=a_n-b_n/2$（ $a_n$は右選択の回数）を用いて $\kappa_n/\omega_n\sim\mathcal{N}(\psi_n,1/\omega_n)$ とみなし、forward filter backward sample（カルマンフィルタに基づく）で $\mathbf{w}_n$の系列全体を一括更新する。
 - その他の変数（状態割り当て・遷移ベクトル・持続時間パラメータ）は共役事前分布のもとで標準的なHMM/HDP-HMMのGibbs更新則に従う。
 - 実行設定: 16本のMCMCチェーンでチェーンあたり48,000サンプルを生成し、最初の4,000サンプルをburn-inとして破棄。収束は $\hat{R}$（fold化・rank-normalize化した変種を含む）で評価し、収束不良の個体12匹を除外。ハイパーパラメータは population全体でのクロスバリデーション（10-fold、held-out log-likelihood）により選択: 持続時間の粘着性減衰定数=0.25、 $\sigma=0.04$、 $r_i\sim U(5,6,\dots,704)$、 $\alpha,\gamma\sim\mathrm{Gamma}(0.01,0.01)$。
 

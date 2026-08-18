@@ -9,7 +9,7 @@
 * 分析単位: 1試行（1 Trial）を1データポイントとして扱う。
 
 ## 2. 試行定義とデータ抽出 (Trial Definitions)
-時系列データから以下の定義に基づき、各試行を抽出して1行のデータポイント（$y_k, x_k$）とする。
+時系列データから以下の定義に基づき、各試行を抽出して1行のデータポイント（ $y_k, x_k$）とする。
 
 ### 2.1. 試行タイプ別の時間範囲と変数
 各試行のラベル付けおよび変数の対応は以下の通りとする。
@@ -54,10 +54,10 @@ CSV（行動）とNWB（報酬）を pandas.merge_asof を使用し、direction=
 値: 試行 $k$ の時間範囲内に音刺激（state_task=1）が含まれる場合は 1、含まれない場合は 0。
 3. Action History ( $x_{hist,k}$)
 定義: $h_k = y_{k-1} + \alpha_{act} \cdot h_{k-1}$
-制約: 前の試行（$k-1$）までの結果を用い、当該試行 $k$ の行動は含めない。
+制約: 前の試行（ $k-1$）までの結果を用い、当該試行 $k$ の行動は含めない。
 4. Reward History ( $x_{rew,k}$)
 定義: $r_k = Reward_{k-1} + \alpha_{rew} \cdot r_{k-1}$
-制約: 前の試行（$k-1$）が Success であったか（Reward=1）を参照する。
+制約: 前の試行（ $k-1$）が Success であったか（Reward=1）を参照する。
 
 ### 4.3. 身体・顔部位特徴量の統合（オプション拡張）
 ノート `notebooks/12_setup_input_data_ver2.ipynb` で実装されている、ビデオトラッキングによる顔・身体部位の動きを、試行単位の入力変数として追加する拡張。標準の4変数（Bias, Stimulus, Action History, Reward History）に対し、以下の9変数を追加し計13次元とする。
@@ -71,7 +71,7 @@ CSV（行動）とNWB（報酬）を pandas.merge_asof を使用し、direction=
 * **CSV/NWBデータとの結合**: 30Hzの行動データに対して `pandas.merge_asof(direction='nearest', tolerance=0.034)` で結合する（3.2節の結合と同一の許容誤差）。
 * **試行単位への集約**: 10Hzビニングを行わない代わりに、各試行 $k$ の時間範囲（2.1節の試行タイプ別Window）内のフレームに対して、Position・Pupilは `median`（中央値）、Speedは `sum`（合計、試行内の総移動量）で集約し、試行1件につき1つの値 $x_{video,k}$ とする。
 * **正規化**: ビデオ特徴量のみ、セッションごとに Z-score 正規化する（`scipy.stats.zscore`、NaNは0埋め）。Bias・Stimulus・History系の入力は正規化しない。
-* **ラグ処理**: Action History / Reward History（4.2節）と同様に、前の試行（$k-1$）の集約値を用いる。当該試行 $k$ 内の運動情報は含めない（同時刻の運動情報の漏れ込み防止）。
+* **ラグ処理**: Action History / Reward History（4.2節）と同様に、前の試行（ $k-1$）の集約値を用いる。当該試行 $k$ 内の運動情報は含めない（同時刻の運動情報の漏れ込み防止）。
 
 ## 5. ハイパーパラメータ設定 (Parameters)
 

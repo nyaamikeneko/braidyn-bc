@@ -52,8 +52,8 @@
 **MSLR（Markov-Switching Linear Regression）** は、離散マルコフ連鎖の状態ごとに異なる線形回帰を対応させる状態空間モデル。実装には `ssm` ではなく [Dynamax](https://github.com/probml/dynamax)（JAX製の状態空間モデルライブラリ）を用いている。
 
 - 離散潜在状態 $z_t \in \{0, \dots, S-1\}$ がマルコフ連鎖として遷移する（遷移行列はDirichlet事前分布）。
-- 入力（predictor）$x_t \in \mathbb{R}^M$: 試行 $t$ の**刺激提示前**の表情特徴（マウス9次元・サル18次元。各顔キーポイントの垂直・水平位置の中央値と速度）。
-- 出力（emission）$y_t \in \mathbb{R}^N$: 同じ試行の反応時間（RT、 $N=1$）。
+- 入力（predictor） $x_t \in \mathbb{R}^M$: 試行 $t$ の**刺激提示前**の表情特徴（マウス9次元・サル18次元。各顔キーポイントの垂直・水平位置の中央値と速度）。
+- 出力（emission） $y_t \in \mathbb{R}^N$: 同じ試行の反応時間（RT、 $N=1$）。
 - 状態 $z_t=s$ が与えられたときの emission 分布: $y_t \mid z_t=s, x_t \sim \mathcal{N}(W_s x_t + b_s,\ \Sigma_s)$、 $W_s \in \mathbb{R}^{N \times M}$（状態ごとの回帰重み）、 $b_s \in \mathbb{R}^N$（バイアス）、 $\Sigma_s \in \mathbb{R}^{N \times N}$（emission共分散）。
 - つまり **「どの表情特徴がRTを予測するか」という回帰係数そのものが、隠れ状態によって切り替わる**モデル。ある状態では眉の動きがRTを予測し、別の状態では鼻のsniffingが予測する、といった対応を想定している。
 
@@ -63,6 +63,6 @@
 
 **状態数 $S$ の決定**: cross-validated $R^2$ が頭打ちになる点を、CV性能曲線の有限差分（finite difference）で検出して選択（Ashwood et al. 2022 のプラトー検出と同じ発想）。サルは $S=4$、マウスは $S=3$ が最適だった。
 
-**対照実験（ARHMM）**: 表情特徴の代わりに前試行のRT（$t-1$）のみを入力としたAuto-Regressive HMMを比較対象として学習し、facial-features版のMSLRが全状態でARHMMを上回ることを確認（表情が単なる試行履歴の代理変数ではないことの根拠）。
+**対照実験（ARHMM）**: 表情特徴の代わりに前試行のRT（ $t-1$）のみを入力としたAuto-Regressive HMMを比較対象として学習し、facial-features版のMSLRが全状態でARHMMを上回ることを確認（表情が単なる試行履歴の代理変数ではないことの根拠）。
 
 **GLM-HMMとの相互検証**: Discussionで、同じデータに対して個体・セッションごとにGLM-HMM（行動選択ベース、Ashwood et al. 2022と同じ枠組み）を学習しても類似した結果が得られたと報告している（本文参照文献73）。
