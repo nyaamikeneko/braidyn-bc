@@ -9,9 +9,9 @@
 
 ## 2. 実験パラダイムと行動定義 (Task & Behavior)
 * **タスク構造**:
-    * 音提示あり ($Stimulus=1$): `state_task=1` の区間のみを指す。
+    * 音提示あり ( $Stimulus=1$): `state_task=1` の区間のみを指す。
     * 報酬フェーズ (`state_task=2`): 音は停止しているため $Stimulus=0$ として扱う。
-    * 音提示なし ($Stimulus=0$): 上記以外。
+    * 音提示なし ( $Stimulus=0$): 上記以外。
 * **イベント定義**:
     * **Action (Onset)**: レバーが「離れた状態(0)」から「引かれた状態(1)」へ変化した瞬間。時系列整形後のデータに基づき定義する。
     * **Reward (Event)**: `trial_outcome=success` となる試行の `pull_onset` 時刻。
@@ -39,7 +39,7 @@
 * **Reward Debouncing**: ビニングによりRewardフラグが連続してしまった場合、先頭のビンのみ $1$ を残し、以降を $0$ にする（History計算での値の爆発を防ぐため）。
 
 ### 3.4. ITIカット (Truncation)
-* **条件**: 音刺激もなく($x_{stim}=0$)、行動もない($y=0$)状態が **10秒** 以上続いた場合。
+* **条件**: 音刺激もなく( $x_{stim}=0$)、行動もない( $y=0$)状態が **10秒** 以上続いた場合。
 * **処理**: 該当区間でデータを切断し、モデル学習用ライブラリ（ssm等）に合わせて「時系列データのリスト（List of Arrays）」形式に変換する。実装関数: `split_data_by_iti`
 
 ## 4. 入出力変数定義 (Design Matrix)
@@ -51,17 +51,17 @@
 ### 4.2. 入力変数 (Input Regressors: $x_t$)
 以下の4つの列（Covariates）を作成する。
 
-1.  **Bias ($x_{bias}$)**
+1.  **Bias ( $x_{bias}$)**
     * 値: 常に 1。
     * 役割: 基礎的なレバー引き確率（衝動性）の学習。
-2.  **Stimulus ($x_{stim}$)**
+2.  **Stimulus ( $x_{stim}$)**
     * 値: `state_task=1` の区間を含むビンは 1。
     * 役割: 音刺激に対する感度の学習。
-3.  **Action History ($x_{hist}$)**
+3.  **Action History ( $x_{hist}$)**
     * 定義: $h_t = y_{t-1} + \alpha_{act} \cdot h_{t-1}$
-    * 制約: 必ず **1ラグ ($t-1$)** ずらして計算する（自己回帰リーク防止）。
+    * 制約: 必ず **1ラグ ( $t-1$)** ずらして計算する（自己回帰リーク防止）。
     * 役割: 不応期や慣性（連打癖）の学習。Gap Fillingにより、センサーノイズによる誤った連打判定は排除済み。
-4.  **Reward History ($x_{rew}$)**
+4.  **Reward History ( $x_{rew}$)**
     * 定義: $r_t = Reward_{t-1} + \alpha_{rew} \cdot r_{t-1}$
     * 制約: $Reward_{t-1}$ はSuccess試行のOnset時点のみ1。Unrewarded Pullでは0。
     * 役割: 過去の報酬体験による強化の学習。
@@ -74,8 +74,8 @@
 | **Gap Fill Limit** | 2 frames | $\le$ 0.066s の「離し」は無視 |
 | **Noise Remove Limit** | 2 frames | $\le$ 0.066s の「引き」は削除 |
 | **Bin Width** | 0.1 s | 3 frames aggregation |
-| **Action Alpha** ($\alpha_{act}$) | ~0.80 | $\exp(\ln(0.1)/10)$, Window $\approx$ 1.0s |
-| **Reward Alpha** ($\alpha_{rew}$) | ~0.94 | $\exp(\ln(0.1)/40)$, Window $\approx$ 4.0s |
+| **Action Alpha** ( $\alpha_{act}$) | ~0.80 | $\exp(\ln(0.1)/10)$, Window $\approx$ 1.0s |
+| **Reward Alpha** ( $\alpha_{rew}$) | ~0.94 | $\exp(\ln(0.1)/40)$, Window $\approx$ 4.0s |
 | **ITI Cut Threshold** | 10.0 s | Silence & No Action duration |
 
 ### 4.3. 身体・顔部位特徴量の統合（オプション拡張）
@@ -91,7 +91,7 @@
 * **CSV/NWBデータとの結合**: 30Hzの行動データに対して `pandas.merge_asof(direction='nearest', tolerance=0.034)` で結合する（3.2節の結合と同一の許容誤差）。
 * **Binning時の集約則（3.3節への追加ルール）**: Position・Pupilは `median`（中央値）集約、Speedは `sum`（合計、ビン内の総移動量）集約とする。Binary変数（Stimulus/Action/Reward）の `max` 集約とは異なる。
 * **正規化**: ビデオ特徴量のみ、セッションごとに Z-score 正規化する（`scipy.stats.zscore`、NaNは0埋め）。Bias・Stimulus・History系の入力は正規化しない。
-* **ラグ処理**: Action History（4.2節）と同様に、必ず1ビンラグ ($t-1$) をずらして入力する（同時刻の運動情報の漏れ込み防止）。
+* **ラグ処理**: Action History（4.2節）と同様に、必ず1ビンラグ ( $t-1$) をずらして入力する（同時刻の運動情報の漏れ込み防止）。
 
 ## 6. 実装・解析フロー (Workflow)
 
