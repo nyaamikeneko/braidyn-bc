@@ -55,7 +55,7 @@ $$p(y_t^s \mid x_t^s, z_t^s=k) = \frac{\exp(-(1-y_t^s)\, w_k^s \cdot x_t^s)}{1 +
 
 **パラメータの動的事前分布**（式1・式2、Method Details "Dynamic GLM-HMM"）:
 
-$$w_{k,d}^{s} \sim \mathcal{N}(w_{k,d}^{s-1},\ \alpha_{k,d}^2) \tag{1}$$
+ $$w_{k,d}^{s} \sim \mathcal{N}(w_{k,d}^{s-1},\ \alpha_{k,d}^2) \tag{1}$$
 
 $$P_i^{s} \overset{\text{i.i.d.}}{\sim} \mathrm{Dir}(\kappa A_i + 1) \tag{2}$$
 
