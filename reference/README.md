@@ -6,9 +6,9 @@
 
 ## ファイル構成のルール
 
-- **論文PDFを [sources/](sources/) に保存している論文**（`#1` Kondo et al. 2025、`#2` Ashwood et al. 2022、`#3` Cuturela et al. 2024、`#7` Cazettes et al. 2025、`#8` Tlaie et al. 2025）のみ、個別の `<著者><年>_<slug>.md` ファイルを作成する。内容はタイトル・タイトル和訳・書誌情報・Fig 1・原文PDFに基づく要旨・モデル定義とメソッドの5部構成（「この研究との関連」節は設けない）。
+- **論文PDFを [sources/](sources/) に保存している論文**（`#1` Kondo et al. 2025、`#2` Ashwood et al. 2022、`#3` Cuturela et al. 2024、`#4` Bruijns et al. 2025、`#7` Cazettes et al. 2025、`#8` Tlaie et al. 2025）のみ、個別の `<著者><年>_<slug>.md` ファイルを作成する。内容はタイトル・タイトル和訳・書誌情報・Fig 1・原文PDFに基づく要旨・モデル定義とメソッドの5部構成（「この研究との関連」節は設けない）。
 - **要旨・要約の構造化**: 太字ラベル付きの箇条書き（`- **問題提起**`など）でカテゴリ（問題提起・タスク・数理モデル・決定方策など論文固有の要素・主要な結果、など）を分け、各カテゴリの内容はその下にインデントしたサブ箇条書きとして畳み込む（`###`/`####` などの見出しは使わない。見出しにすると、多くのMarkdownレンダラーで見出し要素の上下マージンにより余白が広くなりすぎる）。詳細情報はさらにインデントを深くする（フラットな1階層の箇条書きにしない）。この構造化は個別ファイルの「要旨」と、[all_references.md](all_references.md) の「要約」の両方に適用する。モデル定義はこのリポジトリでモデルを組む際に参照できることを念頭に書く。
-- **PDF未保存の論文**（`#4`, `#5`, `#6`, `#9`, `#10`）は個別ファイルを作らず、[all_references.md](all_references.md) の要約のみを情報源とする。PDFを入手した時点で個別ファイル化する。
+- **PDF未保存の論文**（`#5`, `#6`, `#9`, `#10`）は個別ファイルを作らず、[all_references.md](all_references.md) の要約のみを情報源とする。PDFを入手した時点で個別ファイル化する。
 - **本研究との関連性**（他論文との位置づけ、本リポジトリのRQ・実装との技術的対応）は個別ファイル・all_references.mdのいずれにも書かない。すべて [relations.md](relations.md) に集約する。
 
 この方針は今後の文献サーベイにも適用する（[CLAUDE.md](../CLAUDE.md) 参照）。
@@ -20,7 +20,7 @@
 | 1 | [kondo2025_braidynbc_dataset.md](kondo2025_braidynbc_dataset.md) | Multimodal dataset linking wide-field calcium imaging to behavior changes in operant lever-pull task in mice | Kondo, M. | Scientific Data, 2025 |
 | 2 | [ashwood2022_discrete_strategies.md](ashwood2022_discrete_strategies.md) | Mice alternate between discrete strategies during perceptual decision-making | Ashwood, Z. C. | Nature Neuroscience, 2022 |
 | 3 | [cuturela2024_internal_states_early.md](cuturela2024_internal_states_early.md) | Internal states emerge early during learning of a perceptual decision-making task | Cuturela, L. I. (IBL) | bioRxiv, 2024 |
-| 4 | [all_references.md](all_references.md#4-infinite-hidden-markov-models-can-dissect-the-complexities-of-learning) | Infinite hidden Markov models can dissect the complexities of learning | Bruijns, S. A. (IBL) | Nature Neuroscience, 2025 |
+| 4 | [bruijns2025_infinite_hmm.md](bruijns2025_infinite_hmm.md) | Infinite hidden Markov models can dissect the complexities of learning | Bruijns, S. A. (IBL) | Nature Neuroscience, 2025 |
 | 5 | [all_references.md](all_references.md#5-identifying-the-factors-governing-internal-state-switches-during-nonstationary-sensory-decision-making) | Identifying the factors governing internal state switches during nonstationary sensory decision-making | Mohammadi, Z. | Nature Communications, 2025 |
 | 6 | [all_references.md](all_references.md#6-a-reservoir-of-foraging-decision-variables-in-the-mouse-brain) | A reservoir of foraging decision variables in the mouse brain | Cazettes, F. | Nature Neuroscience, 2023 |
 | 7 | [cazettes2025_facial_expressions.md](cazettes2025_facial_expressions.md) | Facial expressions in mice reveal latent cognitive variables and their neural correlates | Cazettes, F. | Nature Neuroscience, 2025 |

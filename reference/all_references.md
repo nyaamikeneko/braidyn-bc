@@ -2,7 +2,7 @@
 
 [reference/README.md](README.md) の一覧にある10本の先行文献を、1ファイルに集約したものです。論文間・本リポジトリとの関連性は [reference/relations.md](relations.md) を参照してください。
 
-論文PDFを [sources/](sources/) に保存している5本（#1, #2, #3, #7, #8）は個別ファイルがあり、要旨（原文PDFに基づく箇条書き）とモデル定義・メソッドの詳細はそちらに記載しています。ここでは書誌情報と要約のみを示します。PDF未保存の5本（#4, #5, #6, #9, #10）は、この一覧が唯一の情報源です。
+論文PDFを [sources/](sources/) に保存している6本（#1, #2, #3, #4, #7, #8）は個別ファイルがあり、要旨（原文PDFに基づく箇条書き）とモデル定義・メソッドの詳細はそちらに記載しています。ここでは書誌情報と要約のみを示します。PDF未保存の4本（#5, #6, #9, #10）は、この一覧が唯一の情報源です。
 
 ---
 
@@ -79,7 +79,7 @@ Cuturela, L. I. et al. (International Brain Laboratory) — bioRxiv preprint (20
 
 *無限隠れマルコフモデルは学習の複雑性を解剖できる*
 
-Bruijns, S. A. et al. (International Brain Laboratory), Dayan, P. — Nature Neuroscience 29, 186–194 (2026年1月号 / 2025年12月30日オンライン公開). DOI: [10.1038/s41593-025-02130-x](https://doi.org/10.1038/s41593-025-02130-x) / [bioRxiv preprint](https://www.biorxiv.org/content/10.1101/2023.12.22.573001)
+Bruijns, S. A. et al. (International Brain Laboratory), Dayan, P. — Nature Neuroscience 29, 186–194 (2026年1月号 / 2025年12月30日オンライン公開). DOI: [10.1038/s41593-025-02130-x](https://doi.org/10.1038/s41593-025-02130-x) / [bioRxiv preprint](https://www.biorxiv.org/content/10.1101/2023.12.22.573001) — 個別ファイル: [bruijns2025_infinite_hmm.md](bruijns2025_infinite_hmm.md)（原本PDFあり）
 
 ![Figure 1](images/bruijns2025_infinite_hmm_fig1.jpg)
 
