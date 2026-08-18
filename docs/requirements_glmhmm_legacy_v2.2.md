@@ -15,8 +15,8 @@
 ## 2. 実験パラダイムと行動定義 (Task & Behavior)
 
 * **タスク構造**:
-* 音提示あり ( $Stimulus=1$) → 一定時間以上のレバー引きで報酬。
-* 音提示なし ( $Stimulus=0$) → レバーを引いても報酬なし（自発的な引き）。
+* 音提示あり ($Stimulus=1$) → 一定時間以上のレバー引きで報酬。
+* 音提示なし ($Stimulus=0$) → レバーを引いても報酬なし（自発的な引き）。
 * **No-Go刺激は存在しない**（Silence vs Sound のみ）。
 
 
@@ -118,9 +118,9 @@
 | **Time Bin** | **0.1 s** | Downsampling 30Hz by factor of 3 |
 | **Threshold** | **0.04 s** | Noise filtering threshold |
 | **Action Window** | **1.0 s** | Decays to 10% at 1.0s (10 bins) |
-| **Action Alpha ( $\alpha_{act}$)** | **~0.80** | $\exp(\ln(0.1)/10)$ |
+| **Action Alpha ($\alpha_{act}$)** | **~0.80** | $\exp(\ln(0.1)/10)$ |
 | **Reward Window** | **4.0 s** | Decays to 10% at 4.0s (40 bins) |
-| **Reward Alpha ( $\alpha_{rew}$)** | **~0.94** | $\exp(\ln(0.1)/40)$ |
+| **Reward Alpha ($\alpha_{rew}$)** | **~0.94** | $\exp(\ln(0.1)/40)$ |
 | **States (K)** | **2, 3** | Compare Log-likelihood or CV score |
 
 ## 6. 解析フロー (Workflow)

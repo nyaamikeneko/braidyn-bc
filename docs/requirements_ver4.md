@@ -48,14 +48,14 @@ CSV（行動）とNWB（報酬）を pandas.merge_asof を使用し、direction=
 * 定義: 試行 $k$ において、定義された時間範囲内に Action (Onset) が存在すれば 1、存在しなければ 0。
 
 ### 4.2. 入力変数 (Input Regressors: $x_k$)
-1. Bias ( $x_{bias,k}$)
+1. Bias ($x_{bias,k}$)
 値: 常に 1。
-2. Stimulus ( $x_{stim,k}$)
+2. Stimulus ($x_{stim,k}$)
 値: 試行 $k$ の時間範囲内に音刺激（state_task=1）が含まれる場合は 1、含まれない場合は 0。
-3. Action History ( $x_{hist,k}$)
+3. Action History ($x_{hist,k}$)
 定義: $h_k = y_{k-1} + \alpha_{act} \cdot h_{k-1}$
 制約: 前の試行（$k-1$）までの結果を用い、当該試行 $k$ の行動は含めない。
-4. Reward History ( $x_{rew,k}$)
+4. Reward History ($x_{rew,k}$)
 定義: $r_k = Reward_{k-1} + \alpha_{rew} \cdot r_{k-1}$
 制約: 前の試行（$k-1$）が Success であったか（Reward=1）を参照する。
 
@@ -80,8 +80,8 @@ CSV（行動）とNWB（報酬）を pandas.merge_asof を使用し、direction=
 | Raw Sampling | 30 Hz | ~0.033s / frame |
 | Gap Fill Limit | 2 frames | センサーノイズ対策 |
 | Noise Remove Limit | 2 frames | センサーノイズ対策 |
-| Action Alpha ( $\alpha_{act}$) | 0.5 - 0.8 | 過去の行動の減衰率（試行単位） |
-| Reward Alpha ( $\alpha_{rew}$) | 0.7 - 0.9 | 過去の報酬の減衰率（試行単位） |
+| Action Alpha ($\alpha_{act}$) | 0.5 - 0.8 | 過去の行動の減衰率（試行単位） |
+| Reward Alpha ($\alpha_{rew}$) | 0.7 - 0.9 | 過去の報酬の減衰率（試行単位） |
 
 ## 6. 実装・解析フロー (Workflow)
 
