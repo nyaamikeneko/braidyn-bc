@@ -24,7 +24,7 @@ Google Drive の NWB フォルダ自体はプロジェクトサイト上にリ�
 
 **注**: 論文本文（Data Recordsセクション、[reference/kondo2025_braidynbc_dataset.md](../reference/kondo2025_braidynbc_dataset.md)）で明記されているのは DANDI と GIN の2つのみ。AWS S3 はプロジェクトサイトのみで案内されている（論文には記載なし）。
 
-### GIN利用時の実務メモ（1ファイル約1GBの場合）
+### GIN利用時の実務メモ（1ファイル約1.7GBの場合）
 
 ファイルサイズが1GB程度であれば、Google Colabの一時ディスクよりも、永続化できるローカル環境での作業を基本とする。理由: Colab無料枠のディスクはセッション終了でリセットされ、DataLad/git-annexでの再取得が繰り返し発生しやすく、GINのgit-annex経由の取得は小さなgitオブジェクトのやり取りが多いため、Colabの一時ストレージ・帯域と相性がよくない。探索段階で数ファイルだけ試したい場合、またはGoogle Driveをマウントして永続化する運用にする場合はColabも選択肢。
 
@@ -50,7 +50,7 @@ datalad get sub-01/ses-01/*.nwb    # 必要なsubject/sessionだけ実体を取�
 | `acquisition` | 2333 MB | 82% | 16チャンネル分の生センサー波形 |
 | `processing` | 499 MB | 18% | 解析で使う処理済みデータ（内訳は下表） |
 
-`acquisition`（1GBの主因）: `tone`/`lever`/`reward`/`lick`/`motion`/`pull_duration`/`state_lever`/`state_task`/`air_pressure`/`CO2_level`/`humidity`/`room_temp`/`LED_B`/`LED_V`/`img_acquisition`/`video_trig` の16チャンネルが、各約5kHz×30分（909万サンプル）の `data`+`timestamps` で1チャンネルあたり145.5MB。動画・イメージングのトリガ/フレームカウンタ（`body_video`/`eye_video`/`face_video`/`widefield_UV`/`widefield_blue`）もここに含まれるが、いずれも1.5MB以下で画素データそのものは含まれない。GINが除外している「Raw imaging」は動画・画素データを指し、この5kHz生波形自体はGIN版にも残っている。
+`acquisition`（2.3GBの主因）: `tone`/`lever`/`reward`/`lick`/`motion`/`pull_duration`/`state_lever`/`state_task`/`air_pressure`/`CO2_level`/`humidity`/`room_temp`/`LED_B`/`LED_V`/`img_acquisition`/`video_trig` の16チャンネルが、各約5kHz×30分（909万サンプル）の `data`+`timestamps` で1チャンネルあたり145.5MB。動画・イメージングのトリガ/フレームカウンタ（`body_video`/`eye_video`/`face_video`/`widefield_UV`/`widefield_blue`）もここに含まれるが、いずれも1.5MB以下で画素データそのものは含まれない。GINが除外している「Raw imaging」は動画・画素データを指し、この5kHz生波形自体はGIN版にも残っている。
 
 `processing` は3つのモジュールに分かれる: `behavior`（DLCキーポイント等、動画のネイティブレート）、`downsampled`（imagingフレームレート30Hzに揃えた版）、`ophys`（神経活動）。imaging frame rate（30Hz）の実体は `ophys/DfOverF` 自身のサンプリングレートで、`downsampled` 配下の全チャンネルはこれと同じ54000サンプル（30分×30Hz）に揃えてある。
 
@@ -87,7 +87,7 @@ DLCで追跡したキーポイントごとに `data`(x, y)・`confidence`・`tim
 | `DfOverF` | 58 MB | ROIごとのΔF/F。`dFF`（ヘモダイナミクス補正済み本体）/`dFF_B`（470nm生）/`dFF_V`（405nm生）の3系統、各`(54000, 44)`＝44 ROI（片半球22×両半球） |
 | `ImageSegmentation` | 7 MB | 44 ROIのマスク・座標定義 |
 
-`src/glmhmm_ver4.py` の13次元モデル（顔特徴＋pupil）と神経活動（`ophys/DfOverF`）はいずれも`processing`側（500MB程度）に収まる。`acquisition`側の5kHz生波形（1ファイルの大半を占める）は前処理前の生ログであり、同じ内容が`processing/downsampled`に30Hz版として既に入っているため、モデル入力を作る段階では読む必要がない。
+`src/glmhmm_ver4.py` の13次元モデル（顔特徴＋pupil）と神経活動（`ophys/DfOverF`）が実際に読むのは `processing/downsampled` と `processing/ophys` の2モジュールのみ（計約195MB）。`bdbc_nwb_explorer.read_nwb()` はデフォルト（`downsampled=True`）でこの2モジュールしか読まない（`read_acquisition()`/`read_video_tracking()`/`read_trials()`/`read_roi_dFF()` のいずれも同様）ため、`acquisition`（5kHz生波形、2.3GB）と `processing/behavior`（動画ネイティブレートのキーポイント、302MB）は読み込み経路に一切含まれない。この2つを除いた軽量版NWBを作るユーティリティが `src/nwb_shrink.py`（`strip_to_downsampled_and_ophys()`）で、GINから取得したNWBをローカル(WSL)で軽量化してDriveへ保存する手順が `notebooks/15_gin_fetch_processing_only.ipynb` にある。
 
 ### GIN版とGoogle Drive版NWBの関係
 
