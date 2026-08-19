@@ -17,7 +17,132 @@ from __future__ import annotations
 
 import re
 import shutil
+import subprocess
 from pathlib import Path
+
+
+def check_free_space(path: Path, required_bytes: int, label: str = "") -> None:
+    """path配下の空き容量がrequired_bytes未満なら例外を投げる。
+
+    Cドライブ（Google Drive のミラー先と共有）が枯渇すると、9pマウント越しの
+    書き込みが`OSError: [Errno 5] Input/output error`で失敗したり、
+    `datalad get`が転送完了後にハングしたりする（実測で確認済み）。
+    事前チェックで早期に分かりやすいエラーにする。
+    """
+    usage = shutil.disk_usage(path)
+    if usage.free < required_bytes:
+        label_suffix = f"（{label}）" if label else ""
+        raise RuntimeError(
+            f"空き容量不足{label_suffix}: {path} の空きは {usage.free / 1e9:.2f}GB "
+            f"ですが、{required_bytes / 1e9:.2f}GB必要です。"
+        )
+
+
+def clone_gin_dataset(dest_dir: Path, https_url: str, ssh_url: str, https_timeout_sec: int = 60) -> None:
+    """GINデータセットをclone(メタデータのみ)する。
+
+    まずHTTPSを試し、失敗（サーバー側の一時的なダウン・ネットワーク不調等）したら
+    SSHにフォールバックする。SSH経由には事前にGINアカウント作成＋SSH公開鍵の登録が
+    必要（本ノートブックの依存関係セル参照）。
+
+    注意: SSH URLは`ssh://git@gin.g-node.org/ORG/REPO.git`の形式である必要がある。
+    scp風の`git@gin.g-node.org:ORG/REPO.git`形式では
+    `GIN: Invalid repository path`エラーになる（実測で確認済み）。
+    """
+    dest_dir.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        print(f"HTTPSでclone試行中（{https_timeout_sec}秒でタイムアウト）...")
+        subprocess.run(
+            ["datalad", "clone", https_url, str(dest_dir)],
+            check=True, timeout=https_timeout_sec,
+        )
+        return
+    except (subprocess.TimeoutExpired, subprocess.CalledProcessError) as exc:
+        print(f"HTTPSでのcloneに失敗しました（{exc}）。SSHにフォールバックします。")
+        if dest_dir.exists():
+            shutil.rmtree(dest_dir)
+
+    subprocess.run(["datalad", "clone", ssh_url, str(dest_dir)], check=True)
+
+
+def datalad_get_with_recovery(gin_root: Path, rel_path: Path, timeout_sec: int = 3600) -> None:
+    """`datalad get`を実行する。
+
+    実測で、ダウンロード自体は完了している（ファイルサイズが期待値に達している）のに
+    プロセスが後処理でハングし続ける現象を確認した（原因はCドライブの空き容量枯渇と
+    見られる。`check_free_space`で事前チェックしてもなお発生しうるため、ここでも
+    タイムアウト後にサイズ照合で救済する）。タイムアウトした場合、`git annex find`で
+    取得した期待サイズとローカルファイルの実サイズが一致していれば成功とみなす。
+    """
+    expected_raw = subprocess.run(
+        ["git", "annex", "find", "--format=${bytesize}", str(rel_path)],
+        cwd=str(gin_root), check=True, capture_output=True, text=True,
+    ).stdout.strip()
+    expected_bytes = int(expected_raw) if expected_raw else None
+
+    proc = subprocess.Popen(["datalad", "get", str(rel_path)], cwd=str(gin_root))
+    try:
+        proc.wait(timeout=timeout_sec)
+    except subprocess.TimeoutExpired:
+        proc.kill()
+        proc.wait()
+        actual_path = gin_root / rel_path
+        actual_bytes = actual_path.stat().st_size if actual_path.exists() else -1
+        if expected_bytes is not None and actual_bytes == expected_bytes:
+            print(
+                "datalad getがタイムアウトしましたが、ファイルサイズが期待値と一致しているため"
+                "成功とみなします（ダウンロード完了後のハング）。"
+            )
+            return
+        raise RuntimeError(
+            f"datalad get がタイムアウトし、ファイルサイズも不一致です"
+            f"(期待={expected_bytes}, 実際={actual_bytes})。ディスク空き容量を確認してください。"
+        )
+    else:
+        if proc.returncode != 0:
+            raise RuntimeError(f"datalad get failed with code {proc.returncode}")
+
+
+def datalad_drop_with_recovery(gin_root: Path, rel_path: Path, timeout_sec: int = 120) -> None:
+    """`datalad drop`を実行する。タイムアウトした場合は作業コピーを直接削除する。
+
+    dropもgetと同様の理由でハングすることがある。使い捨てのGINキャッシュなので、
+    annexのブックキーピングが多少不整合になっても実害はなく、確実にディスクから
+    消えることを優先する。
+    """
+    proc = subprocess.Popen(["datalad", "drop", str(rel_path)], cwd=str(gin_root))
+    try:
+        proc.wait(timeout=timeout_sec)
+    except subprocess.TimeoutExpired:
+        proc.kill()
+        proc.wait()
+        target = gin_root / rel_path
+        if target.exists():
+            target.unlink()
+            print(f"datalad dropがタイムアウトしたため、作業コピーを直接削除しました: {target}")
+
+
+def copy_to_drive(src_path: Path, dst_path: Path) -> None:
+    """Google Drive（9pマウント）へファイルをコピーする。
+
+    `shutil.copy2`等が内部で使う`sendfile()`は9pマウント越しだと
+    `OSError: [Errno 5] Input/output error`になることがある（実測で確認済み。
+    Cドライブ枯渇時に発生し、通常のread/writeループでも空き容量不足なら
+    同様に失敗するが、その場合は`check_free_space`で事前に弾く）。
+    通常のread/writeでコピーし、失敗時は中途半端なdstを残さない。
+    """
+    dst_path.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        with open(src_path, "rb") as fsrc, open(dst_path, "wb") as fdst:
+            while True:
+                chunk = fsrc.read(4 * 1024 * 1024)
+                if not chunk:
+                    break
+                fdst.write(chunk)
+    except Exception:
+        if dst_path.exists():
+            dst_path.unlink()
+        raise
 
 
 def strip_to_downsampled_and_ophys(src_path: Path, dst_path: Path) -> None:
@@ -99,10 +224,14 @@ def swap_in_place(new_path: Path, target_path: Path, backup_suffix: str = ".full
     """target_pathの中身をnew_pathの内容で安全に置き換える。
 
     target_pathが既に存在する場合は先に`backup_suffix`付きへ退避してから
-    new_pathをtarget_pathへ移動する。呼び出し側で置き換え後の検証
+    new_pathをtarget_pathへコピーする。呼び出し側で置き換え後の検証
     （`verify_processing_only`等）が成功したら、退避ファイルは
     `finalize_swap`で削除する。失敗した場合は退避ファイルを
     `target_path`へ戻して元に戻す。
+
+    new_path（WSLローカル）とtarget_path（Drive）は別ファイルシステムのため、
+    `shutil.move`が内部でコピー+削除にフォールバックし`copy_to_drive`と同じ
+    `sendfile()`のI/Oエラーを踏むことがある。そのため明示的に`copy_to_drive`を使う。
     """
     backup_path = target_path.with_suffix(target_path.suffix + backup_suffix)
     if target_path.exists():
@@ -110,7 +239,8 @@ def swap_in_place(new_path: Path, target_path: Path, backup_suffix: str = ".full
             backup_path.unlink()
         target_path.rename(backup_path)
     try:
-        shutil.move(str(new_path), str(target_path))
+        copy_to_drive(new_path, target_path)
+        new_path.unlink()
     except Exception:
         if backup_path.exists():
             if target_path.exists():
