@@ -103,12 +103,92 @@ def datalad_get_with_recovery(gin_root: Path, rel_path: Path, timeout_sec: int =
             raise RuntimeError(f"datalad get failed with code {proc.returncode}")
 
 
+def _annex_object_path(gin_root: Path, target: Path) -> Path | None:
+    """targetの実体が置かれている `.git/annex/objects/` 配下のパスを返す（無ければNone）。
+
+    ワークツリー側の見え方はannexのモードで異なる:
+    - ロック済み: `.git/annex/objects/...` へのシンボリックリンク → リンクを辿る。
+    - unlocked（このGINデータセットが使っている形式。`datalad clone`直後は
+      64バイト程度のポインタファイル）: `datalad get`後は実体へのハードリンク
+      またはコピー → inode一致で探し、駄目ならサイズ一致で1件に絞れる場合のみ採用。
+
+    誤削除を防ぐため、当該リポジトリの `.git/annex/objects/` 配下のファイルしか返さない。
+    """
+    annex_objects = gin_root / ".git" / "annex" / "objects"
+    if not annex_objects.exists():
+        return None
+    if target.is_symlink():
+        obj_path = target.resolve()
+        if obj_path.is_file() and annex_objects.resolve() in obj_path.parents:
+            return obj_path
+        return None
+    if not target.is_file():
+        return None
+
+    target_stat = target.stat()
+    same_size = []
+    for obj_path in annex_objects.rglob("*"):
+        if not obj_path.is_file():
+            continue
+        obj_stat = obj_path.stat()
+        if obj_stat.st_dev == target_stat.st_dev and obj_stat.st_ino == target_stat.st_ino:
+            return obj_path
+        if obj_stat.st_size == target_stat.st_size:
+            same_size.append(obj_path)
+    return same_size[0] if len(same_size) == 1 else None
+
+
+def _remove_annex_object(gin_root: Path, target: Path) -> None:
+    """targetの実体（`.git/annex/objects/`配下）を削除する。
+
+    ワークツリー側のファイルを消してもannexの実体が残っていれば1.7GBは解放されない。
+    `git annex unused` → `git annex dropunused` を使う手もあるが、これはdropが
+    ハングした後のフォールバックなので、annexのサブプロセスをさらに走らせるのは
+    本末転倒。ファイルシステム操作だけで完結させる。
+
+    実体のあるディレクトリはgit-annexが読み取り専用にしているのでchmodしてから消す。
+    """
+    obj_path = _annex_object_path(gin_root, target)
+    if obj_path is None:
+        return
+    size = obj_path.stat().st_size
+    obj_path.parent.chmod(0o755)
+    obj_path.unlink()
+    print(f"annexの実体も削除しました: {obj_path} ({size / 1e9:.2f}GB)")
+
+
+def _restore_pointer_file(gin_root: Path, rel_path: Path, timeout_sec: int = 60) -> None:
+    """ワークツリーから消したファイルをgitのポインタファイルとして復元する。
+
+    実体を消した後に`git checkout`すると、annexは内容が手元に無いことを検知して
+    ポインタファイル（数十バイト）を書き戻す。これをやらないとワークツリーが
+    「削除済み」状態のままになり、`find_gin_nwb_path`が次回そのdayを見つけられなくなる
+    （実測: day1のポインタファイルがこれで消えていた）。失敗しても致命的ではないので
+    警告だけ出して続行する。
+    """
+    proc = subprocess.Popen(
+        ["git", "checkout", "--", str(rel_path)],
+        cwd=str(gin_root),
+    )
+    try:
+        proc.wait(timeout=timeout_sec)
+    except subprocess.TimeoutExpired:
+        proc.kill()
+        proc.wait()
+    if (gin_root / rel_path).exists():
+        print(f"ポインタファイルを復元しました: {rel_path}")
+    else:
+        print(f"警告: ポインタファイルを復元できませんでした（`git checkout -- {rel_path}`を手動実行してください）")
+
+
 def datalad_drop_with_recovery(gin_root: Path, rel_path: Path, timeout_sec: int = 120) -> None:
     """`datalad drop`を実行する。タイムアウトした場合は作業コピーを直接削除する。
 
     dropもgetと同様の理由でハングすることがある。使い捨てのGINキャッシュなので、
     annexのブックキーピングが多少不整合になっても実害はなく、確実にディスクから
-    消えることを優先する。
+    消えることを優先する。ワークツリー側のファイルを消すだけでは容量が解放されない
+    （実体は`.git/annex/objects/`にある）ため`_remove_annex_object`で実体も消し、
+    ワークツリーは`_restore_pointer_file`でポインタファイルに戻す。
     """
     proc = subprocess.Popen(["datalad", "drop", str(rel_path)], cwd=str(gin_root))
     try:
@@ -117,9 +197,34 @@ def datalad_drop_with_recovery(gin_root: Path, rel_path: Path, timeout_sec: int 
         proc.kill()
         proc.wait()
         target = gin_root / rel_path
-        if target.exists():
+        if target.is_symlink() or target.exists():
+            _remove_annex_object(gin_root, target)
             target.unlink()
             print(f"datalad dropがタイムアウトしたため、作業コピーを直接削除しました: {target}")
+            _restore_pointer_file(gin_root, rel_path)
+
+
+def cleanup_work_dir(work_dir: Path) -> int:
+    """work_dir直下のNWB（変換途中・変換済みの一時ファイル）を削除し、解放バイト数を返す。
+
+    本体ループは`finally`で一時ファイルを消すが、カーネルごと落ちる・実行を中断する等で
+    残骸が残ることがある（実測: ハング修正前の中断runで186MBのday1が残っていた）。
+    1ファイル約195MBがWSLのext4.vhdxを膨らませ続けるため、ループの前後で掃除する。
+    """
+    if not work_dir.exists():
+        print(f"作業ディレクトリはまだありません: {work_dir}")
+        return 0
+    freed = 0
+    for path in sorted(work_dir.glob("*.nwb")):
+        size = path.stat().st_size
+        path.unlink()
+        freed += size
+        print(f"一時ファイルを削除: {path.name} ({size / 1e6:.1f} MB)")
+    if freed == 0:
+        print(f"削除対象の一時ファイルはありません: {work_dir}")
+    else:
+        print(f"合計 {freed / 1e6:.1f} MB 解放しました: {work_dir}")
+    return freed
 
 
 def copy_to_drive(src_path: Path, dst_path: Path) -> None:

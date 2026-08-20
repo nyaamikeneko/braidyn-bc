@@ -23,6 +23,7 @@
 - **ssm は手動インストールが必要**: pip に無いので `git clone https://github.com/lindermanlab/ssm && cd ssm && pip install -e .` が要る（ノート `11` / `12` / `2b` に手順あり）。ローカルでは WSL 上に作った `.venv-wsl`（`ssm` / `bdbc_nwb_explorer` / `pynwb` インストール済み）を使えば Windows ネイティブでのビルド失敗を避けられる。
 - **NWBファイル名探索のフォールバックを部分一致にすると誤爆する**: `src/glmhmm_ver4.py` の `find_nwb_file()` は完全一致（`{mouse_id}_*_{task_day}.nwb`）が失敗すると `*{task_day}*.nwb` でフォールバック検索する。単純な部分文字列一致にすると `task-day1` が `task-day15` にヒットしてしまう（day1用のNWBが存在しないのに、代わりにday15のNWBを誤って読み込む）ため、日番号の直後に数字が続かないことを保証する正規表現を使っている。日番号を含む文字列マッチを書くときは同じ罠に注意する。
 - **ノートブックのローカル実行はClaude Code経由が簡単**: Cursor/VS CodeでWSLカーネルに接続してセルを対話実行させる方法は、Cursorだと「インタープリタパスを入力」の選択肢がカーネルピッカーに出てこないことがある（拡張機能都合、原因未特定）。詰まったら `wsl -d Ubuntu -e bash -lc "cd /mnt/c/Users/<user>/braidyn-bc && <repo>/.venv-wsl/bin/python -m jupyter nbconvert --to notebook --execute --inplace --ExecutePreprocessor.timeout=1800 notebooks/XX.ipynb"` で直接実行するのが早い。出力（print・図）は `.ipynb` のJSONにインライン保存されるので、Cursor側はリモート接続なしで開くだけで見える。実行時間の目安: 複数日×複数モデルを学習するノート14で約6〜7分（`--ExecutePreprocessor.timeout` は余裕を持って1800秒程度に設定）。
+- **WSLのext4.vhdxは中でファイルを消しても自動で縮まない**: ノート15のようにWSLホーム上でGBクラスの一時ファイルを扱うと、削除後もホストCドライブの空きは戻らない。戻すにはWindows側で `wsl --shutdown` してから `Optimize-VHD -Path <ext4.vhdx> -Mode Full`（Hyper-Vが無い環境では `diskpart` の `select vdisk file=...` → `compact vdisk`）を実行する。
 
 ## Claude作業ログの置き場所
 
