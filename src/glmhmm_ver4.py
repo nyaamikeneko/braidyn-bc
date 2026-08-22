@@ -40,7 +40,7 @@ ALL_INPUT_COLS = BEHAVIOR_COLS + FACE_COLS
 
 TRIAL_TYPE_COLORS = {
     "Success": "limegreen",
-    "No Reaction": "silver",
+    "No Reaction": "indigo",
     "Short Pull": "deeppink",
     "Second Pull": "mediumpurple",
     "No Sound Pull": "darkorange",
@@ -282,6 +282,21 @@ def extract_trials(cleaned_df: pd.DataFrame, session=None) -> pd.DataFrame:
     trials = trials.sort_values("t_start").reset_index(drop=True)
     trials["trial_index"] = np.arange(len(trials))
     return trials
+
+
+def compute_pull_durations(trial_df: pd.DataFrame, cleaned_df: pd.DataFrame) -> pd.Series:
+    """Actual lever-hold duration per trial: release time (via `_action_end_time`) minus `t_onset`.
+
+    `t_start`/`t_end` cannot be used for this: for Success/Short Pull they span the official
+    sound-trial window (plus, for Success, the reward phase), not the pull itself. NaN for
+    trials with no pull (No Reaction) or a missing `t_onset`.
+    """
+    out = pd.Series(np.nan, index=trial_df.index, dtype=float)
+    has_onset = trial_df["t_onset"].notna() & (trial_df["trial_type"] != "No Reaction")
+    for i in trial_df.index[has_onset]:
+        t_onset = float(trial_df.loc[i, "t_onset"])
+        out.loc[i] = _action_end_time(cleaned_df, t_onset) - t_onset
+    return out
 
 
 def add_history(
@@ -775,6 +790,73 @@ def plot_state_path(model, y, x, trial_types=None, title: str = ""):
     axes[2].set_yticklabels([f"State {k + 1}" for k in range(model.K)])
     axes[2].set_title("Viterbi path")
     axes[2].set_xlabel("Trial k")
+    plt.tight_layout()
+    plt.show()
+
+
+def plot_day_panel(model, trial_df: pd.DataFrame, y, x, title: str = ""):
+    """One figure, 6 rows sharing a trial-index x-axis: trial type, stimulus, action
+    history, reward history, state posterior, Viterbi path.
+
+    Trial type carries the action/outcome distinction (including No Reaction), so the
+    stimulus row only shows where `x_stim == 1` and does not repeat an action overlay.
+    """
+    import matplotlib.pyplot as plt
+
+    z = model.most_likely_states(y, input=x)
+    prob = model.expected_states(data=y, input=x)[0]
+    t = np.arange(len(y))
+    trial_types = trial_df["trial_type"].to_numpy()
+    colors = plt.cm.tab10(np.linspace(0, 1, model.K))
+
+    fig, axes = plt.subplots(6, 1, figsize=(14, 15), sharex=True)
+
+    for ttype, color in TRIAL_TYPE_COLORS.items():
+        idx = trial_types == ttype
+        if idx.any():
+            axes[0].vlines(t[idx], 0, 1, color=color, linewidth=1.4, label=f"{ttype} (n={int(idx.sum())})")
+    axes[0].set_yticks([])
+    axes[0].set_ylabel("Trial type")
+    axes[0].set_title(title or "Day summary")
+    axes[0].legend(loc="upper right", ncol=5, fontsize=8)
+
+    axes[1].fill_between(t, 0, x[:, 1], color="skyblue", alpha=0.6, step="mid")
+    axes[1].set_yticks([0, 1])
+    axes[1].set_ylabel("Stimulus")
+    axes[1].set_title("Stimulus")
+
+    axes[2].plot(t, x[:, 2], color="purple", linewidth=1.5)
+    axes[2].set_ylabel("Act Hist")
+    axes[2].set_title("Action history")
+    axes[2].grid(True, alpha=0.3)
+
+    axes[3].plot(t, x[:, 3], color="green", linewidth=1.5)
+    if "reward" in trial_df.columns:
+        jumps = trial_df["reward"].to_numpy() == 1
+        if jumps.any():
+            axes[3].scatter(t[jumps], x[jumps, 3], color="green", s=20, zorder=5)
+    axes[3].set_ylabel("Rew Hist")
+    axes[3].set_title("Reward history")
+    axes[3].grid(True, alpha=0.3)
+
+    for k in range(model.K):
+        axes[4].plot(t, prob[:, k], label=f"State {k + 1}", color=colors[k], alpha=0.85)
+    axes[4].set_ylabel("P(state)")
+    axes[4].set_title("State posterior")
+    axes[4].set_ylim(-0.05, 1.05)
+    axes[4].legend(loc="upper right", ncol=model.K, fontsize=8)
+
+    axes[5].step(t, z, where="post", color="black", linewidth=1.2)
+    for ttype, color in TRIAL_TYPE_COLORS.items():
+        idx = trial_types == ttype
+        if idx.any():
+            axes[5].scatter(t[idx], z[idx], s=12, color=color, zorder=3)
+    axes[5].set_yticks(range(model.K))
+    axes[5].set_yticklabels([f"State {k + 1}" for k in range(model.K)])
+    axes[5].set_ylabel("Viterbi")
+    axes[5].set_title("Viterbi path")
+    axes[5].set_xlabel("Trial k")
+
     plt.tight_layout()
     plt.show()
 
