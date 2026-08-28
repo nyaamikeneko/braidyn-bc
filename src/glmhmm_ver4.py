@@ -822,52 +822,71 @@ def plot_day_panel(model, trial_df: pd.DataFrame, y, x, title: str = ""):
     fig_height = fig_width * (15 / 14)
     fig, axes = plt.subplots(6, 1, figsize=(fig_width, fig_height), sharex=True)
 
+    # Fonts/linewidths are in points, which are fixed regardless of fig_width; but
+    # notebook viewers scale a wide figure down to a constant display width, so a
+    # day with more trials (larger fig_width) renders with proportionally smaller
+    # text and thinner lines than a short day. Scale every point-based size by how
+    # far fig_width sits above the 14-inch floor so the displayed (post-scaling)
+    # size stays constant across days.
+    scale = fig_width / 14
+    title_fs = 12 * scale
+    label_fs = 10 * scale
+    tick_fs = 9 * scale
+    legend_fs = 8 * scale
+    lw_thin = 1.5 * scale
+    lw_step = 1.2 * scale
+    s_reward = 20 * scale**2
+    s_viterbi = 12 * scale**2
+
     bar_width = 0.6
     for ttype, color in TRIAL_TYPE_COLORS.items():
         idx = trial_types == ttype
         if idx.any():
             axes[0].bar(t[idx], 1, width=bar_width, color=color, linewidth=0, label=f"{ttype} (n={int(idx.sum())})")
     axes[0].set_yticks([])
-    axes[0].set_ylabel("Trial type")
-    axes[0].set_title(title or "Day summary")
-    axes[0].legend(loc="upper right", ncol=5, fontsize=8)
+    axes[0].set_ylabel("Trial type", fontsize=label_fs)
+    axes[0].set_title(title or "Day summary", fontsize=title_fs)
+    axes[0].legend(loc="upper right", ncol=5, fontsize=legend_fs)
 
     axes[1].bar(t, x[:, 1], width=bar_width, color="skyblue", linewidth=0)
     axes[1].set_yticks([0, 1])
-    axes[1].set_ylabel("Stimulus")
-    axes[1].set_title("Stimulus")
+    axes[1].set_ylabel("Stimulus", fontsize=label_fs)
+    axes[1].set_title("Stimulus", fontsize=title_fs)
 
-    axes[2].plot(t, x[:, 2], color="purple", linewidth=1.5)
-    axes[2].set_ylabel("Act Hist")
-    axes[2].set_title("Action history")
+    axes[2].plot(t, x[:, 2], color="purple", linewidth=lw_thin)
+    axes[2].set_ylabel("Act Hist", fontsize=label_fs)
+    axes[2].set_title("Action history", fontsize=title_fs)
     axes[2].grid(True, alpha=0.3)
 
-    axes[3].plot(t, x[:, 3], color="green", linewidth=1.5)
+    axes[3].plot(t, x[:, 3], color="green", linewidth=lw_thin)
     if "reward" in trial_df.columns:
         jumps = trial_df["reward"].to_numpy() == 1
         if jumps.any():
-            axes[3].scatter(t[jumps], x[jumps, 3], color="green", s=20, zorder=5)
-    axes[3].set_ylabel("Rew Hist")
-    axes[3].set_title("Reward history")
+            axes[3].scatter(t[jumps], x[jumps, 3], color="green", s=s_reward, zorder=5)
+    axes[3].set_ylabel("Rew Hist", fontsize=label_fs)
+    axes[3].set_title("Reward history", fontsize=title_fs)
     axes[3].grid(True, alpha=0.3)
 
     for k in range(model.K):
-        axes[4].plot(t, prob[:, k], label=f"State {k + 1}", color=colors[k], alpha=0.85)
-    axes[4].set_ylabel("P(state)")
-    axes[4].set_title("State posterior")
+        axes[4].plot(t, prob[:, k], label=f"State {k + 1}", color=colors[k], alpha=0.85, linewidth=lw_thin)
+    axes[4].set_ylabel("P(state)", fontsize=label_fs)
+    axes[4].set_title("State posterior", fontsize=title_fs)
     axes[4].set_ylim(-0.05, 1.05)
-    axes[4].legend(loc="upper right", ncol=model.K, fontsize=8)
+    axes[4].legend(loc="upper right", ncol=model.K, fontsize=legend_fs)
 
-    axes[5].step(t, z, where="post", color="black", linewidth=1.2)
+    axes[5].step(t, z, where="post", color="black", linewidth=lw_step)
     for ttype, color in TRIAL_TYPE_COLORS.items():
         idx = trial_types == ttype
         if idx.any():
-            axes[5].scatter(t[idx], z[idx], s=12, color=color, zorder=3)
+            axes[5].scatter(t[idx], z[idx], s=s_viterbi, color=color, zorder=3)
     axes[5].set_yticks(range(model.K))
-    axes[5].set_yticklabels([f"State {k + 1}" for k in range(model.K)])
-    axes[5].set_ylabel("Viterbi")
-    axes[5].set_title("Viterbi path")
-    axes[5].set_xlabel("Trial k")
+    axes[5].set_yticklabels([f"State {k + 1}" for k in range(model.K)], fontsize=tick_fs)
+    axes[5].set_ylabel("Viterbi", fontsize=label_fs)
+    axes[5].set_title("Viterbi path", fontsize=title_fs)
+    axes[5].set_xlabel("Trial k", fontsize=label_fs)
+
+    for ax in axes:
+        ax.tick_params(axis="both", labelsize=tick_fs)
 
     plt.tight_layout()
     plt.show()
