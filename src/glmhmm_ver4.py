@@ -809,26 +809,30 @@ def plot_day_panel(model, trial_df: pd.DataFrame, y, x, title: str = ""):
     trial_types = trial_df["trial_type"].to_numpy()
     colors = plt.cm.tab10(np.linspace(0, 1, model.K))
 
-    # Thin vlines/step-fills anti-alias into invisibility once trial count exceeds a
-    # few hundred at fixed figure width, so trial type / stimulus use one full-width
-    # bar per trial index instead (guaranteed visible regardless of trial count).
+    # Trial index has no gaps between trials (unlike note 14's real-time raster, where
+    # ITI duration naturally separates events), so a full-width bar per trial fuses a
+    # run of the same type into one solid block. Narrower bars (width < 1) leave a
+    # sliver of background between neighbors, reproducing note 14's barcode look; this
+    # needs more horizontal room per trial than the plain crushed-line fix did, hence
+    # the larger per-trial figure width below.
     # Height scales with width at the same 14:15 ratio as the baseline figure: notebook
     # viewers cap displayed image width and scale height down to match, so a wide image
     # with a fixed height renders every row squashed unless height grows with it too.
-    fig_width = min(40, max(14, len(t) * 0.03))
+    fig_width = min(60, max(14, len(t) * 0.06))
     fig_height = fig_width * (15 / 14)
     fig, axes = plt.subplots(6, 1, figsize=(fig_width, fig_height), sharex=True)
 
+    bar_width = 0.6
     for ttype, color in TRIAL_TYPE_COLORS.items():
         idx = trial_types == ttype
         if idx.any():
-            axes[0].bar(t[idx], 1, width=1.0, color=color, linewidth=0, label=f"{ttype} (n={int(idx.sum())})")
+            axes[0].bar(t[idx], 1, width=bar_width, color=color, linewidth=0, label=f"{ttype} (n={int(idx.sum())})")
     axes[0].set_yticks([])
     axes[0].set_ylabel("Trial type")
     axes[0].set_title(title or "Day summary")
     axes[0].legend(loc="upper right", ncol=5, fontsize=8)
 
-    axes[1].bar(t, x[:, 1], width=1.0, color="skyblue", linewidth=0)
+    axes[1].bar(t, x[:, 1], width=bar_width, color="skyblue", linewidth=0)
     axes[1].set_yticks([0, 1])
     axes[1].set_ylabel("Stimulus")
     axes[1].set_title("Stimulus")
