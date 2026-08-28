@@ -809,18 +809,22 @@ def plot_day_panel(model, trial_df: pd.DataFrame, y, x, title: str = ""):
     trial_types = trial_df["trial_type"].to_numpy()
     colors = plt.cm.tab10(np.linspace(0, 1, model.K))
 
-    fig, axes = plt.subplots(6, 1, figsize=(14, 15), sharex=True)
+    # Thin vlines/step-fills anti-alias into invisibility once trial count exceeds a
+    # few hundred at fixed figure width, so trial type / stimulus use one full-width
+    # bar per trial index instead (guaranteed visible regardless of trial count).
+    fig_width = min(40, max(14, len(t) * 0.03))
+    fig, axes = plt.subplots(6, 1, figsize=(fig_width, 15), sharex=True)
 
     for ttype, color in TRIAL_TYPE_COLORS.items():
         idx = trial_types == ttype
         if idx.any():
-            axes[0].vlines(t[idx], 0, 1, color=color, linewidth=1.4, label=f"{ttype} (n={int(idx.sum())})")
+            axes[0].bar(t[idx], 1, width=1.0, color=color, linewidth=0, label=f"{ttype} (n={int(idx.sum())})")
     axes[0].set_yticks([])
     axes[0].set_ylabel("Trial type")
     axes[0].set_title(title or "Day summary")
     axes[0].legend(loc="upper right", ncol=5, fontsize=8)
 
-    axes[1].fill_between(t, 0, x[:, 1], color="skyblue", alpha=0.6, step="mid")
+    axes[1].bar(t, x[:, 1], width=1.0, color="skyblue", linewidth=0)
     axes[1].set_yticks([0, 1])
     axes[1].set_ylabel("Stimulus")
     axes[1].set_title("Stimulus")
