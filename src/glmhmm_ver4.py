@@ -802,8 +802,6 @@ def plot_day_panel(model, trial_df: pd.DataFrame, y, x, title: str = ""):
     stimulus row only shows where `x_stim == 1` and does not repeat an action overlay.
     """
     import matplotlib.pyplot as plt
-    import matplotlib.colors as mcolors
-    from matplotlib.patches import Patch
 
     z = model.most_likely_states(y, input=x)
     prob = model.expected_states(data=y, input=x)[0]
@@ -811,42 +809,30 @@ def plot_day_panel(model, trial_df: pd.DataFrame, y, x, title: str = ""):
     trial_types = trial_df["trial_type"].to_numpy()
     colors = plt.cm.tab10(np.linspace(0, 1, model.K))
 
-    # dpi=100 (matplotlib's default) only gives ~1.7px per trial at high trial counts
-    # (e.g. 787 trials across a 14in-wide axis) — thin enough that most notebook
-    # viewers, which cap the displayed width below the image's native pixel width and
-    # downscale with a blurring (bilinear/bicubic) filter, smear individual trial
-    # columns together. A higher dpi keeps the same inches (so text/other rows are
-    # unaffected) but gives each trial enough source pixels to survive that downscale.
-    fig, axes = plt.subplots(6, 1, figsize=(14, 15), dpi=300, sharex=True)
-
     # Trial index has no gaps between trials (unlike note 14's real-time raster, where
-    # ITI duration naturally separates events), so a stroke-based renderer (bar/vlines)
-    # blends a run of same-type trials into one solid block and anti-aliases thin
-    # strokes into invisibility at high trial counts. imshow instead paints one crisp,
-    # unblended pixel column per trial, so it stays legible at any density without
-    # inflating the figure (which would shrink every row's labels along with it).
-    type_names = list(TRIAL_TYPE_COLORS.keys())
-    type_codes = np.array([type_names.index(tt) for tt in trial_types])
-    type_cmap = mcolors.ListedColormap(list(TRIAL_TYPE_COLORS.values()))
-    axes[0].imshow(
-        type_codes[None, :], aspect="auto", cmap=type_cmap,
-        vmin=-0.5, vmax=len(type_names) - 0.5,
-        extent=[-0.5, len(t) - 0.5, 0, 1], interpolation="nearest",
-    )
+    # ITI duration naturally separates events), so a full-width bar per trial fuses a
+    # run of the same type into one solid block. Narrower bars (width < 1) leave a
+    # sliver of background between neighbors, reproducing note 14's barcode look; this
+    # needs more horizontal room per trial than the plain crushed-line fix did, hence
+    # the larger per-trial figure width below.
+    # Height scales with width at the same 14:15 ratio as the baseline figure: notebook
+    # viewers cap displayed image width and scale height down to match, so a wide image
+    # with a fixed height renders every row squashed unless height grows with it too.
+    fig_width = min(60, max(14, len(t) * 0.06))
+    fig_height = fig_width * (15 / 14)
+    fig, axes = plt.subplots(6, 1, figsize=(fig_width, fig_height), sharex=True)
+
+    bar_width = 0.6
+    for ttype, color in TRIAL_TYPE_COLORS.items():
+        idx = trial_types == ttype
+        if idx.any():
+            axes[0].bar(t[idx], 1, width=bar_width, color=color, linewidth=0, label=f"{ttype} (n={int(idx.sum())})")
     axes[0].set_yticks([])
     axes[0].set_ylabel("Trial type")
     axes[0].set_title(title or "Day summary")
-    handles = [
-        Patch(color=color, label=f"{name} (n={int((trial_types == name).sum())})")
-        for name, color in TRIAL_TYPE_COLORS.items() if (trial_types == name).any()
-    ]
-    axes[0].legend(handles=handles, loc="upper right", ncol=5, fontsize=8)
+    axes[0].legend(loc="upper right", ncol=5, fontsize=8)
 
-    stim_cmap = mcolors.ListedColormap(["white", "skyblue"])
-    axes[1].imshow(
-        x[:, 1][None, :], aspect="auto", cmap=stim_cmap, vmin=0, vmax=1,
-        extent=[-0.5, len(t) - 0.5, 0, 1], interpolation="nearest",
-    )
+    axes[1].bar(t, x[:, 1], width=bar_width, color="skyblue", linewidth=0)
     axes[1].set_yticks([0, 1])
     axes[1].set_ylabel("Stimulus")
     axes[1].set_title("Stimulus")
