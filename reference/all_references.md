@@ -2,7 +2,7 @@
 
 [reference/README.md](README.md) の一覧にある14本の先行文献を、1ファイルに集約したものです。論文間・本リポジトリとの関連性は [reference/relations.md](relations.md) を参照してください。
 
-論文PDFを [sources/](sources/) に保存している7本（#1, #2, #3, #4, #7, #8, #13）は個別ファイルがあり、要旨（原文PDFに基づく箇条書き）とモデル定義・メソッドの詳細はそちらに記載しています。ここでは書誌情報と要約のみを示します。PDF未保存の7本（#5, #6, #9, #10, #11, #12, #14）は、この一覧が唯一の情報源です。
+論文PDFを [sources/](sources/) に保存している8本（#1, #2, #3, #4, #6, #7, #8, #12）は個別ファイルがあり、要旨（原文PDFに基づく箇条書き）とモデル定義・メソッドの詳細はそちらに記載しています。ここでは書誌情報と要約のみを示します。PDF未保存の6本（#5, #9, #10, #11, #13, #14）は、この一覧が唯一の情報源です。
 
 ---
 
@@ -125,28 +125,26 @@ Mohammadi, Z., Ashwood, Z. C., Pillow, J. W. — Nature Communications (2025). D
 
 ---
 
-## 6. A reservoir of foraging decision variables in the mouse brain
+## 6. Behavioural and neural mechanisms for stochastic choices in mixed-strategy games
 
-*マウス脳内における採食意思決定変数の貯蔵庫*
+*混合戦略ゲームにおける確率的選択の行動・神経メカニズム*
 
-Cazettes, F. et al. — Nature Neuroscience 26(5), 840–849 (2023). DOI: [10.1038/s41593-023-01305-8](https://doi.org/10.1038/s41593-023-01305-8)
+Aloor, J., Sit, T. P. H., Gauld, O. M., Warren, J., Mower, M., Lee, D., Duan, C. A. — bioRxiv preprint (2026). DOI: [10.64898/2026.07.29.741515](https://doi.org/10.64898/2026.07.29.741515) — 個別ファイル: [aloor2026_stochastic_choices.md](aloor2026_stochastic_choices.md)（原本PDFあり）
 
-![Figure 1](images/cazettes2023_foraging_reservoir_fig1.jpg)
+![Figure 1](images/aloor2026_stochastic_choices_fig1.jpg)
 
 ### 要約
 
-同グループによる [cazettes2025_facial_expressions.md](cazettes2025_facial_expressions.md)（表情側の報告）と対をなす、神経活動側の報告。
-
 - **問題**
-  - マウスは採食課題中に複数の意思決定変数（decision variables, DV）を使い分け、セッション内で戦略を切り替える。この使い分けを支える神経基盤は不明だった。
+  - 敵対的な相手と競争する場面では、予測可能な選択パターンはむしろ不利になる。動物がどのように確率的で予測不能な選択を神経回路レベルで生成するかは不明だった。
 - **手法**
-  - 採食課題中のマウス前頭皮質からニューロン集団活動を記録。
-  - 光遺伝学的操作で二次運動皮質（M2）の必要性を検証。
+  - 頭部固定マウスに、直前1〜4試行の選択・報酬パターンから次の選択を予測する搾取的なコンピュータ相手とのマッチングペニーゲーム（二者択一のゼロサムゲーム）を訓練。
+  - Ashwood et al. (2022) のGLM-HMMを適用し、サイドバイアス・直前の勝ち選択の反復（repeat-win）・直前の負け選択の反復（repeat-loss）を回帰子とする3状態モデル（右バイアス状態・左バイアス状態・確率的状態）で試行ごとの戦略を推定。同じ枠組みをLee et al. (2004) のサルのマッチングペニーデータにも適用し種間で比較。
+  - 広視野カルシウムイメージング（背側皮質全体、GCaMP6s）とlocaNMFによる空間成分分解を用いて、GLM-HMMで推定した潜在戦略状態・報酬・選択のデコーディングを実施。
 - **結果**
-  - M2が異なるDVの使い分けに必要であることが示された。
-  - M2の活動は、現在の行動を最もよく説明するDVだけでなく、その時点では使われていない別のDV群も同時に符号化していた。
-    - M2は複数タスクに対応可能な計算の「貯蔵庫（reservoir）」を常時保持している。
-  - この神経多重化は、学習や環境変化への適応を有利にすると考察されている。
+  - マウスは学習に伴い、構造化された（バイアスのある）戦略から、報酬率が理論最適値0.5に近い確率的戦略へと移行した。サルでも共通の確率的状態が同定され、種を超えて共有される戦略であることが示された（ただしセッション内での確率的状態の使い方には種間差がある）。
+  - 皮質活動は現在の報酬・選択・直前の報酬・相手の選択を符号化しており、GLM-HMMで推定した潜在戦略状態（確率的状態 vs バイアス状態）も皮質活動から有意にデコード可能だった。
+  - 確率的状態では過去の報酬に関する皮質表現が減弱する一方、直近の報酬信号自体は保たれていた。さらに、報酬信号の強さが次の選択（switch/stay）を予測する関係は報酬誘導型の行動では成立するが確率的状態では消失しており、確率的な選択の生成は「報酬情報の喪失」ではなく「報酬信号と将来選択の選択的な分離」によって生じることが示唆された。
 
 ---
 
@@ -217,29 +215,7 @@ Markowitz, J. E. et al., Linderman, S. W., Datta, S. R. — Nature 614(7946), 10
 
 ---
 
-## 10. Hidden Markov models reveal behavioral state dynamics in depth-related locomotion in mice
-
-*隠れマルコフモデルはマウスの奥行き関連移動行動における行動状態動態を明らかにする*
-
-Shuto, H. et al. — PLOS ONE 20(8), e0329367 (2025). DOI: [10.1371/journal.pone.0329367](https://doi.org/10.1371/journal.pone.0329367)
-
-![Figure 1](images/shuto2025_hmm_depth_locomotion_fig1.jpg)
-
-### 要約
-
-- **問題**
-  - 視覚的な奥行き手がかりに対するマウスの行動応答を、離散的な行動状態として定量化したい。
-- **手法**
-  - 円形装置と隠れマルコフモデル（HMM）解析を組み合わせ、野生型マウスと網膜変性モデル（rd1-2J）を比較。
-- **結果**
-  - マウスは奥行き手がかりに応じて「静止（resting）」「探索（exploring）」「移動（navigating）」の3状態間を遷移することが示された。
-  - 奥行き知覚には最適な空間周波数帯（6〜8 cm相当）があり、複数の空間手がかりを統合した処理が行われている。
-  - 初期の強い崖回避反応が時間とともにより繊細な行動適応へ変化する。
-  - 野生型と網膜変性モデルの比較により、これらの行動パターンが視覚処理を特異的に反映することが確認された。
-
----
-
-## 11. How learned expectations shape brain-wide responses
+## 10. How learned expectations shape brain-wide responses
 
 *学習された期待は脳全体の応答をどのように形作るか*
 
@@ -264,7 +240,7 @@ Liu, A., Schartner, M., International Brain Laboratory, Fiete, I. — bioRxiv pr
 
 ---
 
-## 12. Exploiting correlations across trials and behavioral sessions to improve neural decoding
+## 11. Exploiting correlations across trials and behavioral sessions to improve neural decoding
 
 *試行間・行動セッション間の相関を活用した神経デコーディングの改善*
 
@@ -287,7 +263,7 @@ Zhang, Y., Lyu, H., Hurwitz, C. ... Pouget, A., Varol, E., Paninski, L. — Neur
 
 ---
 
-## 13. Decision-making dynamics are predicted by arousal and uninstructed movements
+## 12. Decision-making dynamics are predicted by arousal and uninstructed movements
 
 *意思決定のダイナミクスは覚醒度と無指示運動から予測できる*
 
@@ -311,23 +287,47 @@ Hulsey, D., Zumwalt, K., Mazzucato, L., McCormick, D. A., Jaramillo, S. — Cell
 
 ---
 
-## 14. Behavioural and neural mechanisms for stochastic choices in mixed-strategy games
+## 13. A reservoir of foraging decision variables in the mouse brain
 
-*混合戦略ゲームにおける確率的選択の行動・神経メカニズム*
+*マウス脳内における採食意思決定変数の貯蔵庫*
 
-Aloor, J., Sit, T. P. H., Gauld, O. M., Warren, J., Mower, M., Lee, D., Duan, C. A. — bioRxiv preprint (2026). DOI: [10.64898/2026.07.29.741515](https://doi.org/10.64898/2026.07.29.741515)
+Cazettes, F. et al. — Nature Neuroscience 26(5), 840–849 (2023). DOI: [10.1038/s41593-023-01305-8](https://doi.org/10.1038/s41593-023-01305-8)
 
-![Figure 1](images/aloor2026_stochastic_choices_fig1.jpg)
+![Figure 1](images/cazettes2023_foraging_reservoir_fig1.jpg)
+
+### 要約
+
+同グループによる [cazettes2025_facial_expressions.md](cazettes2025_facial_expressions.md)（表情側の報告）と対をなす、神経活動側の報告。
+
+- **問題**
+  - マウスは採食課題中に複数の意思決定変数（decision variables, DV）を使い分け、セッション内で戦略を切り替える。この使い分けを支える神経基盤は不明だった。
+- **手法**
+  - 採食課題中のマウス前頭皮質からニューロン集団活動を記録。
+  - 光遺伝学的操作で二次運動皮質（M2）の必要性を検証。
+- **結果**
+  - M2が異なるDVの使い分けに必要であることが示された。
+  - M2の活動は、現在の行動を最もよく説明するDVだけでなく、その時点では使われていない別のDV群も同時に符号化していた。
+    - M2は複数タスクに対応可能な計算の「貯蔵庫（reservoir）」を常時保持している。
+  - この神経多重化は、学習や環境変化への適応を有利にすると考察されている。
+
+---
+
+## 14. Hidden Markov models reveal behavioral state dynamics in depth-related locomotion in mice
+
+*隠れマルコフモデルはマウスの奥行き関連移動行動における行動状態動態を明らかにする*
+
+Shuto, H. et al. — PLOS ONE 20(8), e0329367 (2025). DOI: [10.1371/journal.pone.0329367](https://doi.org/10.1371/journal.pone.0329367)
+
+![Figure 1](images/shuto2025_hmm_depth_locomotion_fig1.jpg)
 
 ### 要約
 
 - **問題**
-  - 敵対的な相手と競争する場面では、予測可能な選択パターンはむしろ不利になる。動物がどのように確率的で予測不能な選択を神経回路レベルで生成するかは不明だった。
+  - 視覚的な奥行き手がかりに対するマウスの行動応答を、離散的な行動状態として定量化したい。
 - **手法**
-  - 頭部固定マウスに、直前1〜4試行の選択・報酬パターンから次の選択を予測する搾取的なコンピュータ相手とのマッチングペニーゲーム（二者択一のゼロサムゲーム）を訓練。
-  - Ashwood et al. (2022) のGLM-HMMを適用し、サイドバイアス・直前の勝ち選択の反復（repeat-win）・直前の負け選択の反復（repeat-loss）を回帰子とする3状態モデル（右バイアス状態・左バイアス状態・確率的状態）で試行ごとの戦略を推定。同じ枠組みをLee et al. (2004) のサルのマッチングペニーデータにも適用し種間で比較。
-  - 広視野カルシウムイメージング（背側皮質全体、GCaMP6s）とlocaNMFによる空間成分分解を用いて、GLM-HMMで推定した潜在戦略状態・報酬・選択のデコーディングを実施。
+  - 円形装置と隠れマルコフモデル（HMM）解析を組み合わせ、野生型マウスと網膜変性モデル（rd1-2J）を比較。
 - **結果**
-  - マウスは学習に伴い、構造化された（バイアスのある）戦略から、報酬率が理論最適値0.5に近い確率的戦略へと移行した。サルでも共通の確率的状態が同定され、種を超えて共有される戦略であることが示された（ただしセッション内での確率的状態の使い方には種間差がある）。
-  - 皮質活動は現在の報酬・選択・直前の報酬・相手の選択を符号化しており、GLM-HMMで推定した潜在戦略状態（確率的状態 vs バイアス状態）も皮質活動から有意にデコード可能だった。
-  - 確率的状態では過去の報酬に関する皮質表現が減弱する一方、直近の報酬信号自体は保たれていた。さらに、報酬信号の強さが次の選択（switch/stay）を予測する関係は報酬誘導型の行動では成立するが確率的状態では消失しており、確率的な選択の生成は「報酬情報の喪失」ではなく「報酬信号と将来選択の選択的な分離」によって生じることが示唆された。
+  - マウスは奥行き手がかりに応じて「静止（resting）」「探索（exploring）」「移動（navigating）」の3状態間を遷移することが示された。
+  - 奥行き知覚には最適な空間周波数帯（6〜8 cm相当）があり、複数の空間手がかりを統合した処理が行われている。
+  - 初期の強い崖回避反応が時間とともにより繊細な行動適応へ変化する。
+  - 野生型と網膜変性モデルの比較により、これらの行動パターンが視覚処理を特異的に反映することが確認された。

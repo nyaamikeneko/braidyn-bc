@@ -132,7 +132,7 @@ pip install -e .
 
 ## 参考文献
 
-本研究の背景となる先行文献は [reference/](reference/) にまとめています。全10本の書誌情報・要約は [reference/all_references.md](reference/all_references.md) に集約し、論文PDFを保存している6本（#1, #2, #3, #4, #7, #8）は個別の md ファイルも持ちます。論文間・本リポジトリとの関連性は [reference/relations.md](reference/relations.md) を参照してください。
+本研究の背景となる先行文献は [reference/](reference/) にまとめています。全14本の書誌情報・要約は [reference/all_references.md](reference/all_references.md) に集約し、論文PDFを保存している8本（#1, #2, #3, #4, #6, #7, #8, #12）は個別の md ファイルも持ちます。論文間・本リポジトリとの関連性は [reference/relations.md](reference/relations.md) を参照してください。
 
 | # | タイトル | 著者（筆頭） | 誌名・年 |
 | :-- | :--- | :--- | :--- |
@@ -141,11 +141,15 @@ pip install -e .
 | 3 | [Internal states emerge early during learning of a perceptual decision-making task](reference/cuturela2024_internal_states_early.md) | Cuturela, L. I. (IBL) | bioRxiv, 2024 |
 | 4 | [Infinite hidden Markov models can dissect the complexities of learning](reference/bruijns2025_infinite_hmm.md) | Bruijns, S. A. (IBL) | Nature Neuroscience, 2025 |
 | 5 | [Identifying the factors governing internal state switches during nonstationary sensory decision-making](reference/all_references.md#5-identifying-the-factors-governing-internal-state-switches-during-nonstationary-sensory-decision-making) | Mohammadi, Z. | Nature Communications, 2025 |
-| 6 | [A reservoir of foraging decision variables in the mouse brain](reference/all_references.md#6-a-reservoir-of-foraging-decision-variables-in-the-mouse-brain) | Cazettes, F. | Nature Neuroscience, 2023 |
+| 6 | [Behavioural and neural mechanisms for stochastic choices in mixed-strategy games](reference/aloor2026_stochastic_choices.md) | Aloor, J. | bioRxiv, 2026 |
 | 7 | [Facial expressions in mice reveal latent cognitive variables and their neural correlates](reference/cazettes2025_facial_expressions.md) | Cazettes, F. | Nature Neuroscience, 2025 |
 | 8 | [Inferring internal states across mice and monkeys using facial features](reference/tlaie2025_facial_features_mice_monkeys.md) | Tlaie, A. | Nature Communications, 2025 |
 | 9 | [Spontaneous behaviour is structured by reinforcement without explicit reward](reference/all_references.md#9-spontaneous-behaviour-is-structured-by-reinforcement-without-explicit-reward) | Markowitz, J. E. | Nature, 2023 |
-| 10 | [Hidden Markov models reveal behavioral state dynamics in depth-related locomotion in mice](reference/all_references.md#10-hidden-markov-models-reveal-behavioral-state-dynamics-in-depth-related-locomotion-in-mice) | Shuto, H. | PLOS ONE, 2025 |
+| 10 | [How learned expectations shape brain-wide responses](reference/all_references.md#10-how-learned-expectations-shape-brain-wide-responses) | Liu, A. | bioRxiv, 2025 |
+| 11 | [Exploiting correlations across trials and behavioral sessions to improve neural decoding](reference/all_references.md#11-exploiting-correlations-across-trials-and-behavioral-sessions-to-improve-neural-decoding) | Zhang, Y. | Neuron, 2026 |
+| 12 | [Decision-making dynamics are predicted by arousal and uninstructed movements](reference/hulsey2024_arousal_movement.md) | Hulsey, D. | Cell Reports, 2024 |
+| 13 | [A reservoir of foraging decision variables in the mouse brain](reference/all_references.md#13-a-reservoir-of-foraging-decision-variables-in-the-mouse-brain) | Cazettes, F. | Nature Neuroscience, 2023 |
+| 14 | [Hidden Markov models reveal behavioral state dynamics in depth-related locomotion in mice](reference/all_references.md#14-hidden-markov-models-reveal-behavioral-state-dynamics-in-depth-related-locomotion-in-mice) | Shuto, H. | PLOS ONE, 2025 |
 
 ## ライセンス・出典
 
