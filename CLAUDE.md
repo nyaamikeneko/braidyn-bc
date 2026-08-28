@@ -47,6 +47,6 @@ Claude Code が生成する作業ログ・変更メモは `.claude/changes/` に
 
 ## その他
 
-- 現在の実装の主軸は Ver.4（試行単位、`notebooks/14_glmhmm_ver4_trials.ipynb`、`src/glmhmm_ver4.py`）。Ver.3（時間ビン単位）は `docs/requirements_glmhmm.md` に要件があるが実装は古い。
+- 現在の実装の主軸は Ver.4（試行単位、`notebooks/14_glmhmm_ver4_trials.ipynb`、`src/glmhmm_ver4.py`）。Ver.3（時間ビン単位）は `docs/requirements_glmhmm.md` に要件があるが実装は古い。次期仕様 Ver.5（`docs/requirements_ver5.md`、Day 1–15を貫くDynamic GLM-HMM＋皮質による独立検証）は設計のみで、対応する実装はまだない。
 - 研究上の問い・仮説は `docs/RQ.md`、データ配置の詳細は `docs/data.md` を参照。
 - データセットの一次情報（実験プロトコル、NWBの公式スキーマ、resting-state/sensory-mappingセッションの内訳など）は `reference/kondo2025_braidynbc_dataset.md`（データセット記述論文の要約）を参照。全文PDF・Supplementary Informationの原本は `reference/sources/` にある。

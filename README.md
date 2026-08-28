@@ -13,7 +13,7 @@
 3. **マルチモーダル検証** — 推定状態を皮質活動・表情特徴で再構成し、脳–身体カップリングを定量する。
 4. **ミス試行の分解** — 学習初期の「脳は従事しているが身体が追いつかない」ミスと、後期の「両者とも非従事」ミスを区別する。
 
-現在の実装中心は GLM-HMM です。時間ビン単位（Ver.3、ノート `10`–`12`）に加え、試行単位（Ver.4、ノート `14`）がある。
+現在の実装中心は GLM-HMM です。時間ビン単位（Ver.3、ノート `10`–`12`）に加え、試行単位（Ver.4、ノート `14`）がある。Ver.4の「日ごと独立学習」を Day 1–15 を貫く Dynamic GLM-HMM へ拡張し、皮質活動を独立検証チャンネルとして統合する Ver.5（[docs/requirements_ver5.md](docs/requirements_ver5.md)）は設計段階で、対応する実装はまだない。
 
 ## リポジトリ構成
 
@@ -30,7 +30,8 @@ braidyn-bc/
 │   ├── data.md               # データ配置と CSV バックアップ
 │   ├── RQ.md                 # 研究質問・仮説
 │   ├── requirements_glmhmm.md    # GLM-HMM 要件 Ver.3（時間ビン）
-│   └── requirements_ver4.md      # GLM-HMM 要件 Ver.4（試行単位）
+│   ├── requirements_ver4.md      # GLM-HMM 要件 Ver.4（試行単位）
+│   └── requirements_ver5.md      # GLM-HMM 要件 Ver.5（Dynamic GLM-HMM、設計のみ）
 ├── reference/                 # 先行文献の要約
 └── .gitignore
 ```
@@ -112,6 +113,7 @@ pip install -e .
 | 行動 EDA | `08`, `09`, `06`, `04` | 引き長・試行数・セッション内タイミング |
 | 脳活動 EDA | `02`, `03` | レバー onset / 音提示まわりの ROI |
 | 要件（現行） | `docs/requirements_ver4.md` | 試行単位 GLM-HMM |
+| 要件（次期・設計のみ） | `docs/requirements_ver5.md` | Dynamic GLM-HMM＋皮質による独立検証。未実装 |
 | 要件（実装済み） | `docs/requirements_glmhmm.md` | 10 Hz ビン単位 GLM-HMM |
 | 入力作成 | `notebooks/10_setup_GLM-HMM_input_data.ipynb` | 整形・ビン・履歴・ITI 分割 |
 | モデル | `notebooks/11_build_GLM-HMM_model_for1mouse.ipynb` | 1 個体学習と解釈 |

@@ -4,21 +4,23 @@
 
 ---
 
-## 要件定義の2系統
+## 要件定義の3系統
 
-GLM-HMM の仕様は2つあります。**同じモデル名でも、1データポイントの取り方が違います。**（さらに古い [Ver.2.2](requirements_glmhmm_legacy_v2.2.md) は Ver.3 に置き換えられたレガシー版として参考保存）
+GLM-HMM の仕様は3つあります。**同じモデル名でも、1データポイントの取り方・状態推定の粒度が違います。**（さらに古い [Ver.2.2](requirements_glmhmm_legacy_v2.2.md) は Ver.3 に置き換えられたレガシー版として参考保存）
 
-| | [requirements_glmhmm.md](requirements_glmhmm.md) **Ver.3** | [requirements_ver4.md](requirements_ver4.md) **Ver.4** |
-| :--- | :--- | :--- |
-| 立場 | ノート `10` / `11` / `12` が実装している仕様 | ノート `14` / `16` と `src/glmhmm_ver4.py` が実装 |
-| 1行の意味 | 0.1 秒の時間ビン | 定義された1試行 |
-| 時系列の扱い | 30 Hz → 10 Hz にビニング。長い無反応は ITI カット | ビニングも ITI カットもしない。試行ウィンドウ外は捨てる |
-| \(y\) | そのビンにレバー onset があるか | その試行ウィンドウに Action があるか |
-| History | 前の**時間ビン** \(t-1\) | 前の**試行** \(k-1\) |
-| 試行タイプ | ビン列なのでタイプ分けしない | Success / No Reaction / Short Pull / Second Pull / No Sound Pull |
-| 共通部分 | 30 Hz のギャップ埋め・短引き除去、CSV と NWB の `merge_asof`、入力は Bias / Stimulus / Action History / Reward History | 同左 |
+| | [requirements_glmhmm.md](requirements_glmhmm.md) **Ver.3** | [requirements_ver4.md](requirements_ver4.md) **Ver.4** | [requirements_ver5.md](requirements_ver5.md) **Ver.5** |
+| :--- | :--- | :--- | :--- |
+| 立場 | ノート `10` / `11` / `12` が実装している仕様 | ノート `14` / `16` と `src/glmhmm_ver4.py` が実装 | 設計のみ・未実装（対応するノート・srcなし） |
+| 1行の意味 | 0.1 秒の時間ビン | 定義された1試行 | Ver.4と同じ（1試行） |
+| 時系列の扱い | 30 Hz → 10 Hz にビニング。長い無反応は ITI カット | ビニングも ITI カットもしない。試行ウィンドウ外は捨てる | Ver.4と同じ |
+| \(y\) | そのビンにレバー onset があるか | その試行ウィンドウに Action があるか | Ver.4と同じ（Bernoulli主系統、Multinomial拡張は検討中） |
+| History | 前の**時間ビン** \(t-1\) | 前の**試行** \(k-1\) | Ver.4と同じ |
+| 試行タイプ | ビン列なのでタイプ分けしない | Success / No Reaction / Short Pull / Second Pull / No Sound Pull | Ver.4と同じ |
+| 状態推定の単位 | セッション内で1本のHMM | **day単位で独立**に1本のHMM（状態ラベルはdayをまたいで対応しない） | **Day 1–15を貫くDynamic GLM-HMM**（GLM重み・遷移行列がdayをまたいで緩やかに変化し、状態ラベルが対応する） |
+| 皮質活動の扱い | 未使用 | 未使用 | GLM-HMMの入力には使わず、独立の生物学的妥当性検証チャンネルとして使用 |
+| 共通部分 | 30 Hz のギャップ埋め・短引き除去、CSV と NWB の `merge_asof`、入力は Bias / Stimulus / Action History / Reward History | 同左 | 同左（入力13次元＝行動4+顔9はVer.4を継承） |
 
-Ver.3 は「時刻ごとの引きやすさ」を、Ver.4 は「試行ごとの戦略」を状態として切り出す想定です。`11` で時間ビンだと状態が運動量に entangle した、という反省が Ver.4 側にあります。
+Ver.3 は「時刻ごとの引きやすさ」を、Ver.4 は「試行ごとの戦略」を状態として切り出す想定です。`11` で時間ビンだと状態が運動量に entangle した、という反省が Ver.4 側にあります。Ver.5 は Ver.4 の「日ごと独立学習」だと学習ダイナミクス（[RQ.md](RQ.md) の RQ2）を検証できないという制約を受け、Dynamic GLM-HMM（Cuturela et al. 2024 準拠）で日をまたぐ状態ラベルの対応を確保し、皮質活動を独立検証チャンネルとして統合する拡張。
 
 ---
 
@@ -138,3 +140,5 @@ ssm 公式チュートリアル。人工データ。`11` / `12` の API 参照�
 - `src/data_loader.py` — `load_nwb_session`, `load_trials_csv`。
 - `src/glmhmm_ver4.py` — Ver.4 パイプライン。
 - [data.md](data.md) — 正式な公開先（DANDI / AWS S3 / GIN）と、共有フォルダの場所・CSV バックアップの手順。
+
+Ver.5（[requirements_ver5.md](requirements_ver5.md)）に対応する `src/` モジュール・ノートブックはまだ無い。設計段階。
