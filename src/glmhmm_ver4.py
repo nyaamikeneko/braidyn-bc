@@ -811,7 +811,13 @@ def plot_day_panel(model, trial_df: pd.DataFrame, y, x, title: str = ""):
     trial_types = trial_df["trial_type"].to_numpy()
     colors = plt.cm.tab10(np.linspace(0, 1, model.K))
 
-    fig, axes = plt.subplots(6, 1, figsize=(14, 15), sharex=True)
+    # dpi=100 (matplotlib's default) only gives ~1.7px per trial at high trial counts
+    # (e.g. 787 trials across a 14in-wide axis) — thin enough that most notebook
+    # viewers, which cap the displayed width below the image's native pixel width and
+    # downscale with a blurring (bilinear/bicubic) filter, smear individual trial
+    # columns together. A higher dpi keeps the same inches (so text/other rows are
+    # unaffected) but gives each trial enough source pixels to survive that downscale.
+    fig, axes = plt.subplots(6, 1, figsize=(14, 15), dpi=300, sharex=True)
 
     # Trial index has no gaps between trials (unlike note 14's real-time raster, where
     # ITI duration naturally separates events), so a stroke-based renderer (bar/vlines)
