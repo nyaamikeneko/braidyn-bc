@@ -812,8 +812,12 @@ def plot_day_panel(model, trial_df: pd.DataFrame, y, x, title: str = ""):
     # Thin vlines/step-fills anti-alias into invisibility once trial count exceeds a
     # few hundred at fixed figure width, so trial type / stimulus use one full-width
     # bar per trial index instead (guaranteed visible regardless of trial count).
+    # Height scales with width at the same 14:15 ratio as the baseline figure: notebook
+    # viewers cap displayed image width and scale height down to match, so a wide image
+    # with a fixed height renders every row squashed unless height grows with it too.
     fig_width = min(40, max(14, len(t) * 0.03))
-    fig, axes = plt.subplots(6, 1, figsize=(fig_width, 15), sharex=True)
+    fig_height = fig_width * (15 / 14)
+    fig, axes = plt.subplots(6, 1, figsize=(fig_width, fig_height), sharex=True)
 
     for ttype, color in TRIAL_TYPE_COLORS.items():
         idx = trial_types == ttype
