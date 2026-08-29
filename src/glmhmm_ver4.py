@@ -105,11 +105,11 @@ def official_sound_trials(cleaned_df: pd.DataFrame, session=None) -> pd.DataFram
         src = cleaned_df[cleaned_df["trial_outcome"].notna()].copy()
 
     if src.empty:
-        return pd.DataFrame(columns=["start_time", "stop_time", "pull_onset", "trial_outcome"])
+        return pd.DataFrame(columns=["start_time", "stop_time", "pull_onset", "trial_outcome", "pull_duration_for_success"])
 
-    keep = [c for c in ["start_time", "stop_time", "pull_onset", "trial_outcome"] if c in src.columns]
+    keep = [c for c in ["start_time", "stop_time", "pull_onset", "trial_outcome", "pull_duration_for_success"] if c in src.columns]
     out = src[keep].copy()
-    for col in ["start_time", "stop_time", "pull_onset"]:
+    for col in ["start_time", "stop_time", "pull_onset", "pull_duration_for_success"]:
         if col in out.columns:
             out[col] = pd.to_numeric(out[col], errors="coerce")
     out = out.dropna(subset=["start_time", "stop_time"]).sort_values("start_time").reset_index(drop=True)
@@ -206,6 +206,7 @@ def extract_trials(cleaned_df: pd.DataFrame, session=None) -> pd.DataFrame:
         outcome = str(ot.get("trial_outcome", "")).lower()
         trial_type = OUTCOME_TO_TYPE.get(outcome, "No Reaction")
         pull_onset = ot["pull_onset"] if "pull_onset" in ot.index else np.nan
+        reward_threshold = ot["pull_duration_for_success"] if "pull_duration_for_success" in ot.index else np.nan
 
         if trial_type == "Success":
             # extend window through the following reward phase if present
@@ -236,6 +237,7 @@ def extract_trials(cleaned_df: pd.DataFrame, session=None) -> pd.DataFrame:
             "x_stim": stim,
             "reward": rew,
             "official_outcome": outcome,
+            "pull_duration_for_success": float(reward_threshold) if pd.notna(reward_threshold) else np.nan,
         })
 
         if primary_j is not None:
@@ -284,19 +286,20 @@ def extract_trials(cleaned_df: pd.DataFrame, session=None) -> pd.DataFrame:
     return trials
 
 
-def compute_pull_durations(trial_df: pd.DataFrame, cleaned_df: pd.DataFrame) -> pd.Series:
-    """Actual lever-hold duration per trial: release time (via `_action_end_time`) minus `t_onset`.
+def compute_pull_window(trial_df: pd.DataFrame, cleaned_df: pd.DataFrame) -> pd.DataFrame:
+    """Actual lever-hold window per trial: `t_onset` to release time (via `_action_end_time`).
 
     `t_start`/`t_end` cannot be used for this: for Success/Short Pull they span the official
-    sound-trial window (plus, for Success, the reward phase), not the pull itself. NaN for
-    trials with no pull (No Reaction) or a missing `t_onset`.
+    sound-trial window (plus, for Success, the reward phase), not the pull itself. Returns
+    `pull_end`/`pull_duration`, both NaN for trials with no pull (No Reaction) or a missing
+    `t_onset`.
     """
-    out = pd.Series(np.nan, index=trial_df.index, dtype=float)
+    pull_end = pd.Series(np.nan, index=trial_df.index, dtype=float)
     has_onset = trial_df["t_onset"].notna() & (trial_df["trial_type"] != "No Reaction")
     for i in trial_df.index[has_onset]:
         t_onset = float(trial_df.loc[i, "t_onset"])
-        out.loc[i] = _action_end_time(cleaned_df, t_onset) - t_onset
-    return out
+        pull_end.loc[i] = _action_end_time(cleaned_df, t_onset)
+    return pd.DataFrame({"pull_end": pull_end, "pull_duration": pull_end - trial_df["t_onset"]})
 
 
 def add_history(
@@ -396,24 +399,15 @@ def extract_video_features(session) -> pd.DataFrame:
     return out.sort_values("t").reset_index(drop=True)
 
 
-def attach_face_features(trial_df: pd.DataFrame, video_df: pd.DataFrame) -> pd.DataFrame:
-    """Median pos/pupil and mean speed in each trial window, z-scored, lagged by 1 trial."""
-    out = trial_df.copy()
-    for col in FACE_COLS:
-        out[col] = 0.0
-    if video_df is None or video_df.empty or out.empty:
-        return out
-
-    feat_cols = [c for c in FACE_COLS if c in video_df.columns]
-    if not feat_cols:
-        return out
-
-    raw = np.zeros((len(out), len(feat_cols)), dtype=float)
+def aggregate_face_window(t0s: np.ndarray, t1s: np.ndarray, video_df: pd.DataFrame, feat_cols: list[str]) -> np.ndarray:
+    """Median (pos/pupil) or mean (speed, column name contains "spd") of each face feature
+    within `[t0, t1]` per row. Falls back to the single nearest video frame to `t0` when the
+    window contains none.
+    """
+    raw = np.zeros((len(t0s), len(feat_cols)), dtype=float)
     t_vid = video_df["t"].to_numpy()
     vals = video_df[feat_cols].to_numpy(dtype=float)
-    t0s = out["t_start"].to_numpy(dtype=float)
-    t1s = out["t_end"].to_numpy(dtype=float)
-    for i in range(len(out)):
+    for i in range(len(t0s)):
         t0, t1 = t0s[i], t1s[i]
         hit = (t_vid >= t0) & (t_vid <= max(t1, t0))
         if not hit.any():
@@ -426,7 +420,24 @@ def attach_face_features(trial_df: pd.DataFrame, video_df: pd.DataFrame) -> pd.D
                 raw[i, c_idx] = np.nanmean(block[:, c_idx])
             else:
                 raw[i, c_idx] = np.nanmedian(block[:, c_idx])
+    return raw
 
+
+def attach_face_features(trial_df: pd.DataFrame, video_df: pd.DataFrame) -> pd.DataFrame:
+    """Median pos/pupil and mean speed in each trial window, z-scored, lagged by 1 trial."""
+    out = trial_df.copy()
+    for col in FACE_COLS:
+        out[col] = 0.0
+    if video_df is None or video_df.empty or out.empty:
+        return out
+
+    feat_cols = [c for c in FACE_COLS if c in video_df.columns]
+    if not feat_cols:
+        return out
+
+    raw = aggregate_face_window(
+        out["t_start"].to_numpy(dtype=float), out["t_end"].to_numpy(dtype=float), video_df, feat_cols
+    )
     raw = np.nan_to_num(raw, nan=0.0)
     z = zscore(raw, axis=0, nan_policy="omit")
     z = np.nan_to_num(z, nan=0.0)
@@ -492,6 +503,7 @@ def process_session(
     cleaned = clean_lever_30hz(csv)
     cleaned = attach_reward_flags(cleaned, session)
     trials = extract_trials(cleaned, session)
+    trials[["pull_end", "pull_duration"]] = compute_pull_window(trials, cleaned)
     trials = add_history(trials, alpha_act=alpha_act, alpha_rew=alpha_rew)
     video = extract_video_features(session)
     trials = attach_face_features(trials, video)
