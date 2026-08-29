@@ -21,6 +21,16 @@ import subprocess
 from pathlib import Path
 
 
+class InsufficientSpaceError(RuntimeError):
+    """空き容量不足で処理を継続できないことを示す。
+
+    複数個体をまとめて処理するバッチ実行では、個体・day単位の欠損（GIN上に無い等）は
+    スキップして続行してよいが、空き容量不足は同じ場所で処理を続ける限り再発し続ける
+    システム的な問題のため、呼び出し側（バッチループ）はこの例外だけは握りつぶさず
+    全体を停止する運用にする。
+    """
+
+
 def check_free_space(path: Path, required_bytes: int, label: str = "") -> None:
     """path配下の空き容量がrequired_bytes未満なら例外を投げる。
 
@@ -32,7 +42,7 @@ def check_free_space(path: Path, required_bytes: int, label: str = "") -> None:
     usage = shutil.disk_usage(path)
     if usage.free < required_bytes:
         label_suffix = f"（{label}）" if label else ""
-        raise RuntimeError(
+        raise InsufficientSpaceError(
             f"空き容量不足{label_suffix}: {path} の空きは {usage.free / 1e9:.2f}GB "
             f"ですが、{required_bytes / 1e9:.2f}GB必要です。"
         )
