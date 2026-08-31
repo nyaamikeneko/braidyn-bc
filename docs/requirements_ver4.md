@@ -75,7 +75,8 @@ CSV（行動）とNWB（報酬）を pandas.merge_asof を使用し、direction=
     * Pupil（1特徴量）: 瞳孔径（`face_video_pupildia` または `pupildia` 列）。
 * **欠損値処理**: 線形補間 (`interpolate(method='linear')`) の後、前方補完し、残りを0埋め。
 * **CSV/NWBデータとの結合**: 30Hzの行動データに対して `pandas.merge_asof(direction='nearest', tolerance=0.034)` で結合する（3.2節の結合と同一の許容誤差）。
-* **試行単位への集約**: 10Hzビニングを行わない代わりに、各試行 $k$ の時間範囲（2.1節の試行タイプ別Window）内のフレームに対して、Position・Pupilは `median`（中央値）、Speedは `sum`（合計、試行内の総移動量）で集約し、試行1件につき1つの値 $x_{video,k}$ とする。
+* **試行単位への集約**: 10Hzビニングを行わない代わりに、集計窓内のフレームに対して Position・Pupil は `median`（中央値）、Speed は `mean`（フレームあたりの平均移動量）で集約し、試行1件につき1つの値 $x_{video,k}$ とする。Speed に `sum`（窓内の総移動量）を使うと集約値が窓のフレーム数にそのまま比例し、次項の窓長バイアスを直接持ち込むため採らない。
+* **集計窓**: `src/glmhmm_ver4.py` の `face_window_bounds()` が3方式を持ち、`attach_face_features(..., window=)` / `process_session(..., face_window=)` / `process_mouse(..., face_window=)` で選ぶ。既定かつ本仕様の標準は `"trial"`（2.1節の試行タイプ別Window）。ほかに `"pull"`（`t_onset`〜`pull_end` の実測レバー保持区間）と `"onset_fixed"`（pull onset 基準の固定長窓、既定 `[-0.2, +0.8]` 秒。押下の無い試行は cue onset 基準）がある。`"trial"` は窓長が試行タイプごとに大きく違う（`VG1GC-66`全日でSuccess約74フレーム / No Reaction 31 / Short Pull 25 / No Sound Pull 13）ため集約値に窓長の影響が乗る。特に `x_pupil` は、既定窓が報酬フェーズまで伸びるかどうか（=報酬後の散瞳を拾えたか）を実質的に符号化しており、`"onset_fixed"` にすると `pull_duration` との相関が 0.28→0.00、trial_type による分散説明率が 0.12→0.00 まで落ちる。顔特徴そのものを解釈する解析では `"onset_fixed"` を使う。検証は [notebooks/16_glmhmm_ver4_faceB_alldays.ipynb](../notebooks/16_glmhmm_ver4_faceB_alldays.ipynb) の2.7節、要点は [CLAUDE.md](../CLAUDE.md) の顔特徴の集計窓の項。
 * **正規化**: ビデオ特徴量のみ、セッションごとに Z-score 正規化する（`scipy.stats.zscore`、NaNは0埋め）。Bias・Stimulus・History系の入力は正規化しない。
 * **ラグ処理**: Action History / Reward History（4.2節）と同様に、前の試行（ $k-1$）の集約値を用いる。当該試行 $k$ 内の運動情報は含めない（同時刻の運動情報の漏れ込み防止）。
 

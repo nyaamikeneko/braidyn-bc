@@ -20,6 +20,11 @@ NOISE_REMOVE_LIMIT = 2
 MERGE_TOLERANCE_SEC = 0.034
 ONSET_MATCH_TOLERANCE_SEC = 0.05
 
+# 顔特徴の pull onset 固定窓（"onset_fixed"）の前後幅。合計1.0秒は音提示ウィンドウと同じ長さで、
+# 動画30Hzなので常時30フレーム前後が入る。
+FACE_FIXED_PRE_SEC = 0.2
+FACE_FIXED_POST_SEC = 0.8
+
 # Midpoints of the ranges in requirements_ver4.md
 ALPHA_ACT = 0.65
 ALPHA_REW = 0.80
@@ -450,8 +455,47 @@ def aggregate_face_window(t0s: np.ndarray, t1s: np.ndarray, video_df: pd.DataFra
     return raw
 
 
-def attach_face_features(trial_df: pd.DataFrame, video_df: pd.DataFrame) -> pd.DataFrame:
-    """Median pos/pupil and mean speed in each trial window, z-scored, lagged by 1 trial."""
+def face_window_bounds(
+    trial_df: pd.DataFrame,
+    window: str = "trial",
+    pre: float = FACE_FIXED_PRE_SEC,
+    post: float = FACE_FIXED_POST_SEC,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Start/end times of the face-aggregation window, one row per trial.
+
+    - ``"trial"``: `t_start`〜`t_end`. 長さが trial_type ごとに大きく違う（Successは報酬フェーズ
+      まで含んで約2.4秒、No Reactionは1.0秒、No Sound Pullは中央値0.27秒）。
+    - ``"pull"``: `t_onset`〜`pull_end`（実測のレバー保持区間）。pullが無い試行は `"trial"` と同じ。
+    - ``"onset_fixed"``: pull onset を基準にした固定長窓 `[t_onset - pre, t_onset + post]`。pullが
+      無い試行は cue onset (`t_start`) を基準にする。窓長が定数なので、窓長そのものが集計値に
+      効く経路（フレーム数の差）が構造的に閉じる。
+
+    pullの有無は `t_onset` ではなく `pull_end` の有無で判定する。No Reaction 試行でも微小なレバー
+    接触で `t_onset` が非NaNになることがあり、それを窓の起点にすると意味のない窓になるため。
+    """
+    t_start = trial_df["t_start"].to_numpy(dtype=float)
+    t_end = trial_df["t_end"].to_numpy(dtype=float)
+    if window == "trial":
+        return t_start, t_end
+
+    has_pull = trial_df["pull_end"].notna() if "pull_end" in trial_df.columns else pd.Series(False, index=trial_df.index)
+    if window == "pull":
+        t0 = trial_df["t_onset"].where(has_pull, trial_df["t_start"]).to_numpy(dtype=float)
+        t1 = trial_df["pull_end"].where(has_pull, trial_df["t_end"]).to_numpy(dtype=float)
+        return t0, t1
+    if window == "onset_fixed":
+        anchor = trial_df["t_onset"].where(has_pull, trial_df["t_start"]).to_numpy(dtype=float)
+        return anchor - pre, anchor + post
+    raise ValueError(f"unknown window: {window!r}")
+
+
+def attach_face_features(
+    trial_df: pd.DataFrame, video_df: pd.DataFrame, window: str = "trial"
+) -> pd.DataFrame:
+    """Median pos/pupil and mean speed in each face window, z-scored, lagged by 1 trial.
+
+    `window` は `face_window_bounds()` の集計窓の選択肢。既定の `"trial"` が Ver.4 の仕様。
+    """
     out = trial_df.copy()
     for col in FACE_COLS:
         out[col] = 0.0
@@ -462,9 +506,8 @@ def attach_face_features(trial_df: pd.DataFrame, video_df: pd.DataFrame) -> pd.D
     if not feat_cols:
         return out
 
-    raw = aggregate_face_window(
-        out["t_start"].to_numpy(dtype=float), out["t_end"].to_numpy(dtype=float), video_df, feat_cols
-    )
+    t0s, t1s = face_window_bounds(out, window=window)
+    raw = aggregate_face_window(t0s, t1s, video_df, feat_cols)
     raw = np.nan_to_num(raw, nan=0.0)
     z = zscore(raw, axis=0, nan_policy="omit")
     z = np.nan_to_num(z, nan=0.0)
@@ -514,6 +557,7 @@ def process_session(
     nwb_filename: str | None = None,
     alpha_act: float = ALPHA_ACT,
     alpha_rew: float = ALPHA_REW,
+    face_window: str = "trial",
 ) -> dict:
     """Load one session and return trial table plus ssm arrays."""
     csv = dl.load_trials_csv(mouse_id, task_day)
@@ -533,7 +577,7 @@ def process_session(
     trials[["pull_end", "pull_duration"]] = compute_pull_window(trials, cleaned)
     trials = add_history(trials, alpha_act=alpha_act, alpha_rew=alpha_rew)
     video = extract_video_features(session)
-    trials = attach_face_features(trials, video)
+    trials = attach_face_features(trials, video, window=face_window)
     trials["mouse_id"] = mouse_id
     trials["task_day"] = task_day
 
@@ -556,6 +600,7 @@ def process_mouse(
     task_days: list[str] | None = None,
     alpha_act: float = ALPHA_ACT,
     alpha_rew: float = ALPHA_REW,
+    face_window: str = "trial",
 ) -> dict:
     """Each task day becomes one sequence in the ssm list."""
     if task_days is None:
@@ -566,7 +611,9 @@ def process_mouse(
     n_face = 0
     for day in task_days:
         try:
-            pack = process_session(mouse_id, day, alpha_act=alpha_act, alpha_rew=alpha_rew)
+            pack = process_session(
+                mouse_id, day, alpha_act=alpha_act, alpha_rew=alpha_rew, face_window=face_window
+            )
         except FileNotFoundError as exc:
             print(exc)
             continue
