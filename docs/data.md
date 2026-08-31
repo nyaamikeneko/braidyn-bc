@@ -115,7 +115,7 @@ DLCで追跡したキーポイントごとに `data`(x, y)・`confidence`・`tim
 | CSV | 30 Hz 行動ログ `trials_L1L2.csv` | `/content/drive/MyDrive/hackathon_data` | `G:\.shortcut-targets-by-id\1fI6PWRHgihU6asA4OyW-_rN-JII33Fkj\hackathon_data`（2026-08-16 存在確認済み） |
 | NWB | 神経画像・公式試行・表情 | `/content/drive/MyDrive/nwb_manual`（GIN版を取得して手動配置） | `G:\マイドライブ\nwb_manual`（2026-08-21確認。`VG1GC-66` の全14 task-day分（`task-day1`, `3`–`15`）が`nwb_shrink`ワークフロー（[ノート15](../notebooks/15_gin_fetch_processing_only.ipynb)）経由で軽量化版として存在。内部構造は[上記](#gin利用時の実務メモ1ファイル約1gbの場合)を参照） |
 
-`trials_L1L2.csv` はハッカソンで作成した抽出物で、論文のNWBファイルそのものではない。音なし条件も含む、すべてのレバー引き試行についてレバー引き時間を計算している。CSV は 25 匹中 24 匹に `trials_L1L2.csv` がある（`VG1GC-48` のみ 0 日）。個体によって欠ける課題日がある。
+`trials_L1L2.csv` はハッカソンで作成した抽出物で、論文のNWBファイルそのものではない。音なし条件も含む、すべてのレバー引き試行についてレバー引き時間を計算している。CSV は 25 匹中 24 匹に `trials_L1L2.csv` がある（`VG1GC-48` のみ 0 日）。個体によって欠ける課題日がある。注意: このCSVの `trial_outcome` 列は miss/failure の使い方がNWB公式trialsテーブルと正反対（`VG1GC-66`全日で確認: 同じ試行群がNWBではmiss=無反応、CSVではfailureと呼ばれる）。このため `src/glmhmm_ver4.py` は文字列ラベルではなく `pull_onset` の有無で試行タイプを判定する（詳細は[CLAUDE.md](../CLAUDE.md)の既知の落とし穴を参照）。
 
 共有フォルダ本来の NWB 置き場（`...\braidyn-bc\data` のショートカット先）は `data/` も `.nwb` も無く空だが、手動で集めた `nwb_manual` フォルダは Colab・ローカル（WSL / Windows）のどちらからも `config.py` が優先的に見に行く（`src/glmhmm_ver4.py` の `find_nwb_file()`）。2026-08-21時点では `VG1GC-66` の全14 task-day分が利用可能で、13 次元（顔特徴）学習も全日で行える（[ノート16](../notebooks/16_glmhmm_ver4_faceB_alldays.ipynb)）。ローカル実行の手順は [README.md](../README.md) の「ローカル（WSL、動作確認済み）」を参照。
 

@@ -46,11 +46,12 @@ TRIAL_TYPE_COLORS = {
     "No Sound Pull": "darkorange",
 }
 
-OUTCOME_TO_TYPE = {
-    "success": "Success",
-    "miss": "Short Pull",
-    "failure": "No Reaction",
-}
+# 非成功試行の trial_type は trial_outcome の文字列（miss/failure）ではなく pull_onset の
+# 有無で決める。NWB公式trialsテーブルとハッカソンCSVの trial_outcome 列は miss/failure の
+# 使い方が正反対（NWBのmiss=無反応/failure=短い押下、CSVはその逆）で、文字列→タイプの
+# 固定辞書ではどちらか一方のソースで必ずラベルが入れ替わってしまうため。pull_onset の有無は
+# 両ソースで一貫して「実際に引いたかどうか」を表す（VG1GC-66全日で確認: 押下ありの群は
+# pull_onset保有率100%、無反応の群は0%）。
 
 
 def filter_consecutive_runs(series: pd.Series, target_val: int, max_len: int, fill_val: int) -> pd.Series:
@@ -149,6 +150,22 @@ def _action_end_time(df: pd.DataFrame, t_onset: float) -> float:
     after = df[df["t"] >= t_onset]
     if after.empty:
         return float(t_onset)
+    first = after.iloc[0]
+    # 公式試行のt_onset（CSV/NWBのpull_onset由来）は、押下がNOISE_REMOVE_LIMITフレーム以下だと
+    # cleaned_leverから丸ごと消えていることがある。そのままcleaned_leverを探索すると無関係な
+    # どこか先の押下まで暴走するため、onset行でcleaned_lever=0かつ生のstate_lever=1のときは
+    # 生信号でこの押下の離脱時刻を測る。No Sound Pull/Second Pullのonsetはcleaned_leverの
+    # 立ち上がりから作られる（onset行でcleaned_lever=1）ため、このフォールバックは公式試行
+    # （Success/Short Pull）でしか発動しない。
+    if int(first["cleaned_lever"]) == 0:
+        if int(first["state_lever"]) == 0:
+            # 生信号にもこの時刻の押下が無い（t_onsetがどのイベントとも対応しない）。探索を
+            # 進めても無関係な押下を拾うだけなので、その場を返して呼び出し側で無効扱いさせる。
+            return float(t_onset)
+        release = after[after["state_lever"] == 0]
+        if release.empty:
+            return float(df["t"].iloc[-1])
+        return float(release["t"].iloc[0])
     held = after[after["cleaned_lever"] == 1]
     if held.empty:
         return float(t_onset)
@@ -204,8 +221,13 @@ def extract_trials(cleaned_df: pd.DataFrame, session=None) -> pd.DataFrame:
         t0 = float(ot["start_time"])
         t1 = float(ot["stop_time"])
         outcome = str(ot.get("trial_outcome", "")).lower()
-        trial_type = OUTCOME_TO_TYPE.get(outcome, "No Reaction")
         pull_onset = ot["pull_onset"] if "pull_onset" in ot.index else np.nan
+        if outcome == "success":
+            trial_type = "Success"
+        elif pd.notna(pull_onset):
+            trial_type = "Short Pull"
+        else:
+            trial_type = "No Reaction"
         reward_threshold = ot["pull_duration_for_success"] if "pull_duration_for_success" in ot.index else np.nan
 
         if trial_type == "Success":
@@ -216,10 +238,8 @@ def extract_trials(cleaned_df: pd.DataFrame, session=None) -> pd.DataFrame:
             y, stim, rew = 1, 1, 1
         elif trial_type == "Short Pull":
             y, stim, rew = 1, 1, 0
-            if pd.notna(pull_onset):
-                t1 = max(t1, _action_end_time(df, float(pull_onset)))
+            t1 = max(t1, _action_end_time(df, float(pull_onset)))
         else:
-            trial_type = "No Reaction"
             y, stim, rew = 0, 1, 0
 
         primary_j = nearest_onset(float(pull_onset)) if pd.notna(pull_onset) else None
@@ -291,15 +311,22 @@ def compute_pull_window(trial_df: pd.DataFrame, cleaned_df: pd.DataFrame) -> pd.
 
     `t_start`/`t_end` cannot be used for this: for Success/Short Pull they span the official
     sound-trial window (plus, for Success, the reward phase), not the pull itself. Returns
-    `pull_end`/`pull_duration`, both NaN for trials with no pull (No Reaction) or a missing
-    `t_onset`.
+    `pull_end`/`pull_duration`, both NaN for trials with no pull (No Reaction), a missing
+    `t_onset`, or when no press could be located at `t_onset` in either the cleaned or the
+    raw lever signal.
     """
     pull_end = pd.Series(np.nan, index=trial_df.index, dtype=float)
     has_onset = trial_df["t_onset"].notna() & (trial_df["trial_type"] != "No Reaction")
     for i in trial_df.index[has_onset]:
         t_onset = float(trial_df.loc[i, "t_onset"])
         pull_end.loc[i] = _action_end_time(cleaned_df, t_onset)
-    return pd.DataFrame({"pull_end": pull_end, "pull_duration": pull_end - trial_df["t_onset"]})
+    duration = pull_end - trial_df["t_onset"]
+    # _action_end_time()は押下を特定できないときt_onsetをそのまま返す（duration=0）。
+    # これは実測値ではないのでNaNに落とす。
+    invalid = duration <= 0
+    pull_end[invalid] = np.nan
+    duration[invalid] = np.nan
+    return pd.DataFrame({"pull_end": pull_end, "pull_duration": duration})
 
 
 def add_history(
