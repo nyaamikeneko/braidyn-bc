@@ -78,7 +78,7 @@ DLCで追跡したキーポイントごとに `data`(x, y)・`confidence`・`tim
 | `eye_position` | 1.30 MB | `center_x`/`center_y`の30Hz版 |
 | `pupil_tracking` | 0.65 MB | `diameter`の30Hz版 |
 | `CO2_level`/`air_pressure`/`humidity`/`lever`/`lick`/`lick_rate`/`motion`/`reward`/`room_temp`/`state_lever`/`state_task`/`tone` | 各0.86 MB（計10.3 MB） | `acquisition`の同名チャンネルを30Hzに間引いたもの |
-| `trials` | 0.01 MB | 163試行×7フィールド（`id`/`pull_duration_for_success`/`pull_onset`/`reaction_time`/`start_time`/`stop_time`/`trial_outcome`）。`src/glmhmm_ver4.py`が読む試行情報の本体 |
+| `trials` | 0.01 MB | 163試行×7フィールド（`id`/`pull_duration_for_success`/`pull_onset`/`reaction_time`/`start_time`/`stop_time`/`trial_outcome`）。`src/glmhmm_ver4.py`が読む試行情報の本体。各フィールドの意味は[下記](#trial_outcome-と報酬条件の解釈)を参照 |
 
 #### `processing/ophys`（30Hz、54000サンプル/30分）
 
@@ -88,6 +88,18 @@ DLCで追跡したキーポイントごとに `data`(x, y)・`confidence`・`tim
 | `ImageSegmentation` | 7 MB | 44 ROIのマスク・座標定義 |
 
 `src/glmhmm_ver4.py` の13次元モデル（顔特徴＋pupil）と神経活動（`ophys/DfOverF`）が実際に読むのは `processing/downsampled` と `processing/ophys` の2モジュールのみ（計約195MB）。`bdbc_nwb_explorer.read_nwb()` はデフォルト（`downsampled=True`）でこの2モジュールしか読まない（`read_acquisition()`/`read_video_tracking()`/`read_trials()`/`read_roi_dFF()` のいずれも同様）ため、`acquisition`（5kHz生波形、2.3GB）と `processing/behavior`（動画ネイティブレートのキーポイント、302MB）は読み込み経路に一切含まれない。この2つを除いた軽量版NWBを作るユーティリティが `src/nwb_shrink.py`（`strip_to_downsampled_and_ophys()`）で、GINから取得したNWBをローカル(WSL)で軽量化してDriveへ保存する手順が `notebooks/15_gin_fetch_processing_only.ipynb` にある。
+
+### `trial_outcome` と報酬条件の解釈
+
+`trial_outcome`（`success`/`failure`/`miss`）は課題制御システム側が確定させた値で、本リポジトリは判定を行わず読み込むだけである（`src/glmhmm_ver4.py` の `official_sound_trials()`）。同名の列がハッカソンCSV `trials_L1L2.csv` にもあるが、そちらは`miss`と`failure`の使い方がNWBと正反対なので、2つを混ぜてはならない（[CLAUDE.md](../CLAUDE.md)の既知の落とし穴を参照）。`src/glmhmm_ver4.py` は `success` か否かの判定にのみこの列を使い、残り2タイプは `pull_onset` の有無で判別している。
+
+報酬条件の実態は `VG1GC-66` 全日の実測から次のように読み取れる。
+
+- **報酬には「連続接触」で `pull_duration_for_success` 秒ぶん保持することが要る。** 課題側は接触が途切れた時点で試行を確定させる。実測では成功試行340件中、閾値ぶん引き切った時点が cue から1.0秒を超えたものは0件だった。
+- **1.0秒の窓は「離す締め切り」ではなく「保持条件を達成する締め切り」。** 成功試行の90.3%は1.0秒を過ぎてもレバーを握り続けている（引き終わりは平均1.86秒、最大6.87秒）が、条件達成自体は全件0.8秒以内に済んでいる。無反応（NWBの`miss`）試行の `stop_time - start_time` がほぼ厳密に1.0秒なのはこの締め切りそのもの。
+- **`failure` は「引き足りなかった」を意味しない。** 閾値を測定保持時間で下回るのは36.1%にとどまり、残りは行動としては閾値以上引けている。内訳は、接触が1〜2フレーム（33〜67ms）途切れたため連続保持と見なされなかったものが大半（97.2%）で、引き始めが遅く締め切りまでに条件を満たせなかったものが2.8%。この途切れがセンサー由来か握りの微小な緩みかは、このデータからは区別できない（33〜67msは意図的な離して掴み直しには短すぎる）。
+
+したがって `failure` 試行を一律に「引き方の失敗」として扱うと解釈を誤る。`pull_duration` と `pull_duration_for_success`、`reaction_time` を突き合わせれば、締め切り超過／接触途切れ／本当に引き足りない、の3類型に分解できる。
 
 ### GIN版とGoogle Drive版NWBの関係
 
