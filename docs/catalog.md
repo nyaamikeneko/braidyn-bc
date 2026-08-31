@@ -124,7 +124,12 @@ Ver.4。30 Hz 整形のあと試行を切り出し、**HMMは日ごとに独立�
 
 `14` の学習B（顔つき13次元）だけを取り出し、対象個体の全task-day（NWBが揃った14日）で日ごとに独立学習する。状態数はK=3固定（`14`にあったK=2との比較はしない）。学習Aとの比較・LL比較表は行わない。
 
-学習ループの前に、全日を通した trial type 内訳（積み上げ棒）と、刺激タイプ（Success / Short Pull / Second Pull / No Sound Pull）別の pull duration（`t_onset` から実際にレバーが離されるまでの実測保持時間、`t_start`/`t_end` は使わない）の日変化を確認する。
+学習ループの前に、全日を通した trial type 内訳（積み上げ棒）と、刺激タイプ（Success / Short Pull / Second Pull / No Sound Pull）別の pull duration（`t_onset` から実際にレバーが離されるまでの実測保持時間、`t_start`/`t_end` は使わない。両者とも `src/glmhmm_ver4.py` の `compute_pull_window()` が全trial typeについて計算し、`process_session()` 経由で `trial_df` に `pull_end`/`pull_duration` として自動で乗る）の日変化を確認する。`pull_end` が `t_end`（公式試行のウィンドウ終端）を超える行、および `pull_duration` が10秒を超える行は、離脱時刻の探索が別の試行の押下まで迷い込んだ異常値として日ごとの集計から除外している（詳細は[CLAUDE.md](../CLAUDE.md)の既知の落とし穴を参照）。
+
+続けて2つの感度チェックを行う。
+
+- `GAP_FILL_LIMIT`（30Hzレバー信号のギャップ埋め上限フレーム数）を0/1/2で振り、全日プールでpull durationの分布がどれだけ動くかをヒストグラムで比較する。
+- `attach_face_features()` の集計窓（`t_start`〜`t_end`）の長さがtrial_typeごとにどれだけ違うか、その窓長が生の顔特徴量（z-score化前）とどれだけ相関するかを確認する。比較として、`pull_end` を使った窓（`t_onset`〜`pull_end`、No Reactionのみ従来通り）の長さも並べる。
 
 日ごとの学習後は、GLM重み・遷移行列・状態別行動サマリー（action probability・trial-type mix）に加えて、trial type・stimulus・action history・reward history・state posterior・Viterbi pathを試行インデックスを共有軸とする1枚のパネル図（`v4.plot_day_panel`）にまとめて可視化する。trial typeの色分けでNo Reactionを含む5種類の試行タイプを直接区別できるため、stimulus段は`x_stim=1`の区間だけを青塗りする単純な表示にとどめている。
 
