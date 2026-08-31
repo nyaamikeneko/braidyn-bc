@@ -12,14 +12,14 @@
 ### Sub-RQs
 
 #### RQ1: 内部状態の生物学的妥当性 (Biological Validity)
-行動＋表情から定義された内部状態（戦略変化の指標）は、GLM-HMMの学習に一切使っていない皮質活動から独立にデコード可能か？
+行動から定義された内部状態（戦略変化の指標）は、GLM-HMMの学習に一切使っていない皮質活動から独立にデコード可能か？
 * **目的:** 数理モデル上の潜在変数が、学習に使っていないモダリティ（皮質）でも実体を伴う現象であることを検証する。
-* **設計上の注意:** 表情はすでに状態を定義する側の入力に含まれているため、表情に対して同じ検証を行うと循環論法になる。皮質のみが独立検証に使える。
+* **設計上の注意:** 状態の定義に使うのは行動4次元のみで、表情はモデル入力に含めない（[docs/requirements_ver5.md](requirements_ver5.md) 2.2節）。表情を状態定義側に入れると、表情が状態の定義にも検証にも現れる循環になるため。この設計により、皮質と表情の両方を独立検証チャンネルとして使える。
 
 #### RQ2: 学習による表現と結合の変容 (Learning Dynamics) — 主軸
 日をまたいで対応の取れた状態定義（Dynamic GLM-HMM、[docs/requirements_ver5.md](requirements_ver5.md)）のもとで、学習の進行に伴い脳と身体の関係性はどのように変容するか。
 * **情報の質の変化:** 皮質活動が相関する対象は、運動的特徴（顔・身体の瞬間の動き）から内部状態的特徴（HMM状態自体・その事後確率、Action History/Reward Historyのような文脈変数）へとシフトするか？
-* **同期の強化:** 状態確率（行動＋表情由来）と皮質デコード確率の間の「タイムラグ」は縮小し、対応の強さ（Coupling Strength）は増すか？
+* **同期の強化:** 状態確率（行動由来）と皮質デコード確率の間の「タイムラグ」は縮小し、対応の強さ（Coupling Strength）は増すか？
 * **前提:** 現行の「日ごと独立学習」（`notebooks/14_glmhmm_ver4_trials.ipynb` / `16_glmhmm_ver4_faceB_alldays.ipynb`）は状態ラベルが日をまたいで対応しないため、この問いを定量検証できない。Dynamic GLM-HMMへの移行によって初めて検証可能になる。
 
 #### RQ3: ミス試行の質的分解 (Error Mechanism)
@@ -57,7 +57,7 @@
 ## 4. Analysis Framework
 
 1. **Phase 1: Dynamic GLM-HMM学習**
-   行動4次元＋表情9次元（13次元、[docs/requirements_ver5.md](requirements_ver5.md) 4節）を入力に、Day 1–15を貫くDynamic GLM-HMM（GLM重み・遷移行列がセッション間で緩やかに変化）を学習し、日をまたいで対応する状態ラベルと事後確率を得る。
+   行動4次元（Bias / Stimulus / Action History / Reward History、[docs/requirements_ver5.md](requirements_ver5.md) 4.2節）を入力として、Day 1–15を貫くDynamic GLM-HMM（GLM重み・遷移行列がセッション間で緩やかに変化）を学習し、日をまたいで対応する状態ラベルと事後確率を得る。目的変数は二値（Action有無）と4値（課題の試行タイプ: Success / No Reaction / Short Pull / No Sound Pull）の2系統を実装して比較する（同5.1・5.5節）。
 2. **Phase 2: 皮質からの独立デコーディング**
    Phase 1で皮質を一切使わずに得た状態を目的変数とし、皮質活動（44 ROIのΔF/F）を入力とする正則化デコードモデルを構築・精度検証する。表情・行動の情報は混ぜない（リーク防止）。
 3. **Phase 3: Coupling Analysis**

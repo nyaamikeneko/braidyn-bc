@@ -13,14 +13,14 @@ GLM-HMM の仕様は3つあります。**同じモデル名でも、1データ�
 | 立場 | ノート `10` / `11` / `12` が実装している仕様 | ノート `14` / `16` と `src/glmhmm_ver4.py` が実装 | 設計のみ・未実装（対応するノート・srcなし） |
 | 1行の意味 | 0.1 秒の時間ビン | 定義された1試行 | Ver.4と同じ（1試行） |
 | 時系列の扱い | 30 Hz → 10 Hz にビニング。長い無反応は ITI カット | ビニングも ITI カットもしない。試行ウィンドウ外は捨てる | Ver.4と同じ |
-| \(y\) | そのビンにレバー onset があるか | その試行ウィンドウに Action があるか | Ver.4と同じ（Bernoulli主系統、Multinomial拡張は検討中） |
-| History | 前の**時間ビン** \(t-1\) | 前の**試行** \(k-1\) | Ver.4と同じ |
-| 試行タイプ | ビン列なのでタイプ分けしない | Success / No Reaction / Short Pull / Second Pull / No Sound Pull | Ver.4と同じ |
+| \(y\) | そのビンにレバー onset があるか | その試行ウィンドウに Action があるか | **2系統を切り替え可能**。系統A: Ver.4と同じ二値／系統B: 4値カテゴリカル（Success / No Reaction / Short Pull / No Sound Pull） |
+| History | 前の**時間ビン** \(t-1\) | 前の**試行** \(k-1\) | Ver.4と同じ（両系統で共通） |
+| 試行タイプ | ビン列なのでタイプ分けしない | Success / No Reaction / Short Pull / Second Pull / No Sound Pull | Second Pull を独立試行にせず、属する音提示試行に吸収した4タイプ。系統Bではこれがそのまま \(y\) のカテゴリ |
 | 状態推定の単位 | セッション内で1本のHMM | **day単位で独立**に1本のHMM（状態ラベルはdayをまたいで対応しない） | **Day 1–15を貫くDynamic GLM-HMM**（GLM重み・遷移行列がdayをまたいで緩やかに変化し、状態ラベルが対応する） |
 | 皮質活動の扱い | 未使用 | 未使用 | GLM-HMMの入力には使わず、独立の生物学的妥当性検証チャンネルとして使用 |
-| 共通部分 | 30 Hz のギャップ埋め・短引き除去、CSV と NWB の `merge_asof`、入力は Bias / Stimulus / Action History / Reward History | 同左 | 同左（入力13次元＝行動4+顔9はVer.4を継承） |
+| 共通部分 | 30 Hz のギャップ埋め・短引き除去、CSV と NWB の `merge_asof`、入力は Bias / Stimulus / Action History / Reward History | 同左（顔9次元を加えた13次元の拡張あり） | 同左（入力は行動4次元のみ。顔9次元は不採用で、皮質と並ぶ独立検証チャンネルに回す） |
 
-Ver.3 は「時刻ごとの引きやすさ」を、Ver.4 は「試行ごとの戦略」を状態として切り出す想定です。`11` で時間ビンだと状態が運動量に entangle した、という反省が Ver.4 側にあります。Ver.5 は Ver.4 の「日ごと独立学習」だと学習ダイナミクス（[RQ.md](RQ.md) の RQ2）を検証できないという制約を受け、Dynamic GLM-HMM（Cuturela et al. 2024 準拠）で日をまたぐ状態ラベルの対応を確保し、皮質活動を独立検証チャンネルとして統合する拡張。
+Ver.3 は「時刻ごとの引きやすさ」を、Ver.4 は「試行ごとの戦略」を状態として切り出す想定です。`11` で時間ビンだと状態が運動量に entangle した、という反省が Ver.4 側にあります。Ver.5 は Ver.4 の「日ごと独立学習」だと学習ダイナミクス（[RQ.md](RQ.md) の RQ2）を検証できないという制約を受け、Dynamic GLM-HMM（Cuturela et al. 2024 準拠）で日をまたぐ状態ラベルの対応を確保し、皮質活動を独立検証チャンネルとして統合する拡張。あわせて観測モデルを2系統（Ver.4と同じ二値／試行タイプの4値）用意して切り替え可能にし、どちらが状態構造をよく説明するかを比較できるようにする。4値は Success に至る状態と Short Pull に落ちる状態を区別するための拡張。顔特徴は入力から外し、皮質・表情の両方を検証側に置く。皮質解析の主参照は Aloor et al. 2026。
 
 ---
 
@@ -126,10 +126,11 @@ Ver.4。30 Hz 整形のあと試行を切り出し、**HMMは日ごとに独立�
 
 学習ループの前に、全日を通した trial type 内訳（積み上げ棒）と、刺激タイプ（Success / Short Pull / Second Pull / No Sound Pull）別の pull duration（`t_onset` から実際にレバーが離されるまでの実測保持時間、`t_start`/`t_end` は使わない。両者とも `src/glmhmm_ver4.py` の `compute_pull_window()` が全trial typeについて計算し、`process_session()` 経由で `trial_df` に `pull_end`/`pull_duration` として自動で乗る）の日変化を確認する。ギャップ埋めで橋渡しされた保持が公式ウィンドウ終端（`t_end`）を超えて続く少数の試行は日ごとの集計から除外している（保持時間の測り方と関連する落とし穴は[CLAUDE.md](../CLAUDE.md)を参照）。
 
-続けて2つの感度チェックを行う。
+続けて3つの感度チェックを行う。
 
 - `GAP_FILL_LIMIT`（30Hzレバー信号のギャップ埋め上限フレーム数）を0/1/2で振り、全日プールでpull durationの分布がどれだけ動くかをヒストグラムで比較する。
 - `attach_face_features()` の集計窓（`t_start`〜`t_end`）の長さがtrial_typeごとにどれだけ違うか、その窓長が生の顔特徴量（z-score化前）とどれだけ相関するかを確認する。比較として、`pull_end` を使った窓（`t_onset`〜`pull_end`、No Reactionのみ従来通り）の長さも並べる。
+- 上の窓長バイアスに対処するため、集計窓を `v4.face_window_bounds()` の3方式（A `trial`＝現行のセッションタイム基準、B `pull`＝`t_onset`〜`pull_end`、C `onset_fixed`＝pull onset基準の1.0秒固定窓）で切り出し直して比較する。Cは窓長も窓内フレーム数も全試行で揃うので、窓長そのものが集計値に効く経路が閉じた状態の基準になる。窓長・フレーム数の分布、各方式の特徴量と `pull_duration` の相関、trial_typeによる分散説明率 η²、方式間の一致度を出す。
 
 日ごとの学習後は、GLM重み・遷移行列・状態別行動サマリー（action probability・trial-type mix）に加えて、trial type・stimulus・action history・reward history・state posterior・Viterbi pathを試行インデックスを共有軸とする1枚のパネル図（`v4.plot_day_panel`）にまとめて可視化する。trial typeの色分けでNo Reactionを含む5種類の試行タイプを直接区別できるため、stimulus段は`x_stim=1`の区間だけを青塗りする単純な表示にとどめている。
 
