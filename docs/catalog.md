@@ -11,16 +11,20 @@ GLM-HMM の仕様は3つあります。**同じモデル名でも、1データ�
 | | [requirements_glmhmm.md](requirements_glmhmm.md) **Ver.3** | [requirements_ver4.md](requirements_ver4.md) **Ver.4** | [requirements_ver5.md](requirements_ver5.md) **Ver.5** |
 | :--- | :--- | :--- | :--- |
 | 立場 | ノート `10` / `11` / `12` が実装している仕様 | ノート `14` / `16` と `src/glmhmm_ver4.py` が実装 | 設計のみ・未実装（対応するノート・srcなし） |
-| 1行の意味 | 0.1 秒の時間ビン | 定義された1試行 | Ver.4と同じ（1試行） |
-| 時系列の扱い | 30 Hz → 10 Hz にビニング。長い無反応は ITI カット | ビニングも ITI カットもしない。試行ウィンドウ外は捨てる | Ver.4と同じ |
-| \(y\) | そのビンにレバー onset があるか | その試行ウィンドウに Action があるか | **2系統を切り替え可能**。系統A: Ver.4と同じ二値／系統B: 4値カテゴリカル（Success / No Reaction / Short Pull / No Sound Pull） |
-| History | 前の**時間ビン** \(t-1\) | 前の**試行** \(k-1\) | Ver.4と同じ（両系統で共通） |
-| 試行タイプ | ビン列なのでタイプ分けしない | Success / No Reaction / Short Pull / Second Pull / No Sound Pull | Second Pull を独立試行にせず、属する音提示試行に吸収した4タイプ。系統Bではこれがそのまま \(y\) のカテゴリ |
+| 1行の意味 | 0.1 秒の時間ビン | 定義された1試行 | 1試行。ただし**音提示試行のみ**（音提示外の自発押下は系列に入れない） |
+| 時系列の扱い | 30 Hz → 10 Hz にビニング。長い無反応は ITI カット | ビニングも ITI カットもしない。試行ウィンドウ外は捨てる | ビニングしない。音提示試行のウィンドウ外は捨てる（ITI は自発押下レートの記述量としてのみ参照） |
+| \(y\) | そのビンにレバー onset があるか | その試行ウィンドウに Action があるか | **2系統を切り替え可能**。系統A: 二値（cue に応答したか＝No Reaction か否か）／系統B: 3値カテゴリカル（Success / Short Pull / No Reaction） |
+| History | 前の**時間ビン** \(t-1\) | 前の**試行** \(k-1\) | 前の**音提示試行** \(k-1\)（両系統で共通）。系列が変わったので Ver.4 の同名入力とは分布が別物 |
+| 試行タイプ | ビン列なのでタイプ分けしない | Success / No Reaction / Short Pull / Second Pull / No Sound Pull | Success / Short Pull / No Reaction の3タイプ。Second Pull は属する音提示試行に吸収し、No Sound Pull は系列から除外。系統Bではこの3タイプがそのまま \(y\) のカテゴリ |
 | 状態推定の単位 | セッション内で1本のHMM | **day単位で独立**に1本のHMM（状態ラベルはdayをまたいで対応しない） | **Day 1–15を貫くDynamic GLM-HMM**（GLM重み・遷移行列がdayをまたいで緩やかに変化し、状態ラベルが対応する） |
 | 皮質活動の扱い | 未使用 | 未使用 | GLM-HMMの入力には使わず、独立の生物学的妥当性検証チャンネルとして使用 |
-| 共通部分 | 30 Hz のギャップ埋め・短引き除去、CSV と NWB の `merge_asof`、入力は Bias / Stimulus / Action History / Reward History | 同左（顔9次元を加えた13次元の拡張あり） | 同左（入力は行動4次元のみ。顔9次元は不採用で、皮質と並ぶ独立検証チャンネルに回す） |
+| 共通部分 | 30 Hz のギャップ埋め・短引き除去、CSV と NWB の `merge_asof`、入力は Bias / Stimulus / Action History / Reward History | 同左（顔9次元を加えた13次元の拡張あり） | 30 Hz の前処理と `merge_asof` は同左。入力は行動3次元（Bias / Action History / Reward History）で、Stimulus は系列が音提示試行だけになり定数化するため落とす。顔9次元も不採用で、皮質と並ぶ独立検証チャンネルに回す |
 
-Ver.3 は「時刻ごとの引きやすさ」を、Ver.4 は「試行ごとの戦略」を状態として切り出す想定です。`11` で時間ビンだと状態が運動量に entangle した、という反省が Ver.4 側にあります。Ver.5 は Ver.4 の「日ごと独立学習」だと学習ダイナミクス（[RQ.md](RQ.md) の RQ2）を検証できないという制約を受け、Dynamic GLM-HMM（Cuturela et al. 2024 準拠）で日をまたぐ状態ラベルの対応を確保し、皮質活動を独立検証チャンネルとして統合する拡張。あわせて観測モデルを2系統（Ver.4と同じ二値／試行タイプの4値）用意して切り替え可能にし、どちらが状態構造をよく説明するかを比較できるようにする。4値は Success に至る状態と Short Pull に落ちる状態を区別するための拡張。顔特徴は入力から外し、皮質・表情の両方を検証側に置く。皮質解析の主参照は Aloor et al. 2026。
+Ver.3 は「時刻ごとの引きやすさ」を、Ver.4 は「試行ごとの戦略」を状態として切り出す想定です。`11` で時間ビンだと状態が運動量に entangle した、という反省が Ver.4 側にあります。Ver.5 は Ver.4 の「日ごと独立学習」だと学習ダイナミクス（[RQ.md](RQ.md) の RQ2）を検証できないという制約を受け、Dynamic GLM-HMM（Cuturela et al. 2024 準拠）で日をまたぐ状態ラベルの対応を確保し、皮質活動を独立検証チャンネルとして統合する拡張。
+
+Ver.5 は試行系列も変えています。Ver.4 は音提示外の自発押下（No Sound Pull）を1試行1行として持ちますが、この試行は「押下が起きたこと」で定義されるため \(x_{stim}=0\) の行が定義上すべて \(y=1\) になり、Bias と Stimulus の重みが識別されない・Action History が上限に飽和する、といった帰結を生みます（実測値は [requirements_ver5.md](requirements_ver5.md) 2.2節）。Ver.5 は系列を音提示試行だけに限ることでこれを構造的に取り除き、Stimulus を入力から落とします。自発押下は捨てるのではなく、状態を事後的に特徴づける記述量として残し、状態依存レートを持つ Poisson emission として明示的にモデル化する拡張を [design_iti_poisson_emission.md](design_iti_poisson_emission.md) に設計だけ用意してあります。
+
+観測モデルは2系統（二値／試行タイプの3値）用意して切り替え可能にし、どちらが状態構造をよく説明するかを比較できるようにする。3値は Success に至る状態と Short Pull に落ちる状態を区別するための拡張。顔特徴は入力から外し、皮質・表情の両方を検証側に置く。皮質解析の主参照は Aloor et al. 2026。
 
 ---
 
@@ -147,4 +151,4 @@ ssm 公式チュートリアル。人工データ。`11` / `12` の API 参照�
 - `src/glmhmm_ver4.py` — Ver.4 パイプライン。
 - [data.md](data.md) — 正式な公開先（DANDI / AWS S3 / GIN）と、共有フォルダの場所・CSV バックアップの手順。
 
-Ver.5（[requirements_ver5.md](requirements_ver5.md)）に対応する `src/` モジュール・ノートブックはまだ無い。設計段階。
+Ver.5（[requirements_ver5.md](requirements_ver5.md)）に対応する `src/` モジュール・ノートブックはまだ無い。設計段階。その先の拡張案として [design_iti_poisson_emission.md](design_iti_poisson_emission.md)（自発押下の状態依存 Poisson emission）があるが、こちらも設計のみ。

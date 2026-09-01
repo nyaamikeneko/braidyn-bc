@@ -14,7 +14,7 @@
 #### RQ1: 内部状態の生物学的妥当性 (Biological Validity)
 行動から定義された内部状態（戦略変化の指標）は、GLM-HMMの学習に一切使っていない皮質活動から独立にデコード可能か？
 * **目的:** 数理モデル上の潜在変数が、学習に使っていないモダリティ（皮質）でも実体を伴う現象であることを検証する。
-* **設計上の注意:** 状態の定義に使うのは行動4次元のみで、表情はモデル入力に含めない（[docs/requirements_ver5.md](requirements_ver5.md) 2.2節）。表情を状態定義側に入れると、表情が状態の定義にも検証にも現れる循環になるため。この設計により、皮質と表情の両方を独立検証チャンネルとして使える。
+* **設計上の注意:** 状態の定義に使うのは行動3次元のみで、表情はモデル入力に含めない（[docs/requirements_ver5.md](requirements_ver5.md) 2.2節）。表情を状態定義側に入れると、表情が状態の定義にも検証にも現れる循環になるため。この設計により、皮質と表情の両方を独立検証チャンネルとして使える。
 
 #### RQ2: 学習による表現と結合の変容 (Learning Dynamics) — 主軸
 日をまたいで対応の取れた状態定義（Dynamic GLM-HMM、[docs/requirements_ver5.md](requirements_ver5.md)）のもとで、学習の進行に伴い脳と身体の関係性はどのように変容するか。
@@ -57,7 +57,9 @@
 ## 4. Analysis Framework
 
 1. **Phase 1: Dynamic GLM-HMM学習**
-   行動4次元（Bias / Stimulus / Action History / Reward History、[docs/requirements_ver5.md](requirements_ver5.md) 4.2節）を入力として、Day 1–15を貫くDynamic GLM-HMM（GLM重み・遷移行列がセッション間で緩やかに変化）を学習し、日をまたいで対応する状態ラベルと事後確率を得る。目的変数は二値（Action有無）と4値（課題の試行タイプ: Success / No Reaction / Short Pull / No Sound Pull）の2系統を実装して比較する（同5.1・5.5節）。
+   行動3次元（Bias / Action History / Reward History、[docs/requirements_ver5.md](requirements_ver5.md) 4.2節）を入力として、Day 1–15を貫くDynamic GLM-HMM（GLM重み・遷移行列がセッション間で緩やかに変化）を学習し、日をまたいで対応する状態ラベルと事後確率を得る。目的変数は二値（cueに応答したか）と3値（課題の試行タイプ: Success / Short Pull / No Reaction）の2系統を実装して比較する（同5.1・5.5節）。
+
+   試行系列は**音提示試行のみ**で構成する（同2.1節）。音提示外の自発押下を1試行として並べると、その試行は「押下が起きたこと」で定義されるため定義上すべてAction有りになり、Stimulus重みの完全分離とAction Historyの飽和を招くため（根拠は同2.2節）。自発押下そのものは、状態を事後的に特徴づける記述量として保持する（同4.3節）。状態依存レートを持つPoisson emissionとしてモデルに戻す拡張は [docs/design_iti_poisson_emission.md](design_iti_poisson_emission.md) に設計のみ用意してあり、RQ3・H3（静かな非従事と衝動的な非従事の区別）に直接効く。
 2. **Phase 2: 皮質からの独立デコーディング**
    Phase 1で皮質を一切使わずに得た状態を目的変数とし、皮質活動（44 ROIのΔF/F）を入力とする正則化デコードモデルを構築・精度検証する。表情・行動の情報は混ぜない（リーク防止）。
 3. **Phase 3: Coupling Analysis**
