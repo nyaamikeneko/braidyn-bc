@@ -116,7 +116,7 @@ flowchart TD
 
 **#12 Hulsey et al. 2024** — Ashwood et al. のGLM-HMMを「無反応」を含む多項emissionへ拡張し、状態占有を外部観測可能な生理指標（瞳孔径・無指示運動）から予測した研究。
 
-- 本リポジトリのVer.4は選択（左/右）を出力とするBernoulli GLM-HMMだが、この論文の多項emission拡張（左/右/無反応）は、Ver.5の7節「Emission拡張の検討」（Success/Short-or-Second Pull/No Reactionを区別する多値出力）が直接参照する先行実装。
+- 本リポジトリのVer.4は選択（左/右）を出力とするBernoulli GLM-HMMだが、この論文の多項emission拡張（左/右/無反応）は、Ver.5の5.1節「系統B: Categorical（3値）」（Success/Short Pull/No Reactionを区別する多値出力）が直接参照する先行実装。
 - 「瞳孔径・無指示運動の試行間変動が最適状態への遷移を予測する」という知見は、本研究のMain RQ「行動の実行の精緻化か、内的な状態調整能力の獲得か」における「身体側の指標が内部状態を先行的に予測しうるか」という問いに、表情以外の身体指標（覚醒度・運動）からの並行的な証拠を与える。
 - 状態遷移の確信度に閾値（posterior probability 0.8）を設けて「不確定な期間」を除外する分析設計は、#6 Aloor et al. 2026 も同じ閾値を採用しており、本リポジトリで状態推定の信頼区間を扱う際の参考になる。
 ### 内部状態と身体データの結合

@@ -30,8 +30,10 @@ braidyn-bc/
 │   ├── data.md               # データ配置と CSV バックアップ
 │   ├── RQ.md                 # 研究質問・仮説
 │   ├── requirements_glmhmm.md    # GLM-HMM 要件 Ver.3（時間ビン）
+│   ├── requirements_glmhmm_legacy_v2.2.md  # GLM-HMM 要件 Ver.3 旧版（v2.2）
 │   ├── requirements_ver4.md      # GLM-HMM 要件 Ver.4（試行単位）
-│   └── requirements_ver5.md      # GLM-HMM 要件 Ver.5（Dynamic GLM-HMM、設計のみ）
+│   ├── requirements_ver5.md      # GLM-HMM 要件 Ver.5（Dynamic GLM-HMM、設計のみ）
+│   └── design_iti_poisson_emission.md  # Ver.5拡張案: 自発押下のPoisson emission化
 ├── reference/                 # 先行文献の要約
 └── .gitignore
 ```
