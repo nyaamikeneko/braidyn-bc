@@ -21,6 +21,7 @@
 * **情報の質の変化:** 皮質活動が相関する対象は、運動的特徴（顔・身体の瞬間の動き）から内部状態的特徴（HMM状態自体・その事後確率、Action History/Reward Historyのような文脈変数）へとシフトするか？
 * **同期の強化:** 状態確率（行動由来）と皮質デコード確率の間の「タイムラグ」は縮小し、対応の強さ（Coupling Strength）は増すか？
 * **前提:** 現行の「日ごと独立学習」（`notebooks/14_glmhmm_ver4_trials.ipynb` / `16_glmhmm_ver4_faceB_alldays.ipynb`）は状態ラベルが日をまたいで対応しないため、この問いを定量検証できない。Dynamic GLM-HMMへの移行によって初めて検証可能になる。
+* **学習段階の指標:** 成功率を学習の指標に使わない。課題側が報酬閾値 $T_{pull}$ を成功率に応じて上下させる適応規則を持ち、成功率をおよそ80%に保つよう働くため（[docs/data.md](data.md)、[reference/kondo2025_braidynbc_dataset.md](../reference/kondo2025_braidynbc_dataset.md)）。論文自身が学習の指標に使うのはセッション終端の $T_{pull}$（`Tpull_final`）で、その時系列で個体が2クラスタに分かれる。本研究で「学習初期／後期」を定義する際も $T_{pull}$ の軌跡を基準にする。
 
 #### RQ3: ミス試行の質的分解 (Error Mechanism)
 ミス試行（Error Trials）の発生機序は、学習段階によって異なるか？

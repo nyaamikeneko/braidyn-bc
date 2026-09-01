@@ -52,6 +52,7 @@ Ver.5 は試行系列も変えています。Ver.4 は音提示外の自発押�
                          13 は作業用の空ノート
                          14 は Ver.4（試行単位。4 次元と 13 次元）
                           → 16（学習Bのみ・全task-dayに拡張）
+                         17 は Ver.5 の実装前チェック（設計の前提確認）
 ```
 
 - `01` が入口。NWB / CSV の読み方だけ確認する。
@@ -61,6 +62,7 @@ Ver.5 は試行系列も変えています。Ver.4 は音提示外の自発押�
 - `10` が Ver.3 の入力、`11` がその学習。`11` の課題（状態が運動量になる）を受けて `12` が表情を足す。
 - `14` が Ver.4。CSV の試行単位で 4 次元を学習し、NWB があれば顔 9 次元を足して 13 次元も学習する。
 - `16` は `14` の学習B（顔つき13次元）だけを、NWBが揃った全task-dayに拡張したもの。
+- `17` は Ver.5（[requirements_ver5.md](requirements_ver5.md)）に着手する前の前提確認。学習曲線・Short Pullの内訳・皮質デコードの試行数・`ssm` の多値対応を確かめる。
 
 ---
 
@@ -137,6 +139,15 @@ Ver.4。30 Hz 整形のあと試行を切り出し、**HMMは日ごとに独立�
 - 上の窓長バイアスに対処するため、集計窓を `v4.face_window_bounds()` の3方式（A `trial`＝現行のセッションタイム基準、B `pull`＝`t_onset`〜`pull_end`、C `onset_fixed`＝pull onset基準の1.0秒固定窓）で切り出し直して比較する。Cは窓長も窓内フレーム数も全試行で揃うので、窓長そのものが集計値に効く経路が閉じた状態の基準になる。窓長・フレーム数の分布、各方式の特徴量と `pull_duration` の相関、trial_typeによる分散説明率 η²、方式間の一致度を出す。
 
 日ごとの学習後は、GLM重み・遷移行列・状態別行動サマリー（action probability・trial-type mix）に加えて、trial type・stimulus・action history・reward history・state posterior・Viterbi pathを試行インデックスを共有軸とする1枚のパネル図（`v4.plot_day_panel`）にまとめて可視化する。trial typeの色分けでNo Reactionを含む5種類の試行タイプを直接区別できるため、stimulus段は`x_stim=1`の区間だけを青塗りする単純な表示にとどめている。
+
+### 17_ver5_pre_implementation_checks.ipynb
+
+[requirements_ver5.md](requirements_ver5.md) の設計が前提としている事柄を、実装に着手する前に行動データだけで確かめるノート。Ver.5本体の実装ではない。Ver.4の試行テーブルから音提示試行のみを取り出してVer.5の系列（2359試行・14 day）を作り直し、4件を確認する。
+
+- **日別の学習曲線と報酬閾値の推移**: No Reaction率・Success率・`pull_duration_for_success` のday変化と、day indexに対する単調傾向（Spearman）。セッションレベルでは試行密度・ITI時間比率・日内3分割のNo Reaction率も出す。
+- **Short Pullの3類型分解**: 締め切り（No Reaction試行の窓長中央値から実測）を使い、`too_short`（測定保持時間が閾値未満）/ `deadline`（引き始めの遅れで締め切り超過）/ `dropout`（閾値以上引けており接触途切れ）に分ける。その上で、ラベル系列のlag-1自己相関とruns test（Wald–Wolfowitz、day別z値をStoufferで合成）で時間的まとまりを測り、3次元入力からの予測可能性を5-fold CVの対数損失で切片モデルと比べる。系統A（`yA`）を基準にして、系統Bが追加で説明しようとしている境界に状態が捉えうる構造があるかを見る。
+- **皮質デコードの試行数見積もり**: Ver.5 5.4節Step(1)相当の静的GLM-HMM（K=3・3次元入力・day単位の系列）を学習し、6.1節の $P(z)\geq0.8$ 残存率と、6.4節のday内バランシング（状態×試行タイプ）後に何試行使えるかをday別に数える。
+- **`ssm` の多値対応の確認**: `InputDrivenObservations(C=3)` で系統Bの静的フィットが回るかと、`C=2` に潰した版が系統A（`v4.train_glmhmm_map`）と同じlog probabilityに一致するか（符号化とパラメータ化の対応確認）。
 
 ### 2b Input Driven Observations (GLM-HMM).ipynb
 
