@@ -1,8 +1,8 @@
 # 先行文献まとめ
 
-[reference/README.md](README.md) の一覧にある14本の先行文献を、1ファイルに集約したものです。論文間・本リポジトリとの関連性は [reference/relations.md](relations.md) を参照してください。
+[reference/README.md](README.md) の一覧にある16本の先行文献を、1ファイルに集約したものです。論文間・本リポジトリとの関連性は [reference/relations.md](relations.md) を参照してください。
 
-論文PDFを [sources/](sources/) に保存している8本（#1, #2, #3, #4, #6, #7, #8, #12）は個別ファイルがあり、要旨（原文PDFに基づく箇条書き）とモデル定義・メソッドの詳細はそちらに記載しています。ここでは書誌情報と要約のみを示します。PDF未保存の6本（#5, #9, #10, #11, #13, #14）は、この一覧が唯一の情報源です。
+論文PDFを [sources/](sources/) に保存している9本（#1, #2, #3, #4, #6, #7, #8, #9, #14）は個別ファイルがあり、要旨（原文PDFに基づく箇条書き）とモデル定義・メソッドの詳細はそちらに記載しています。ここでは書誌情報と要約のみを示します。PDF未保存の7本（#5, #10, #11, #12, #13, #15, #16）は、この一覧が唯一の情報源です。
 
 ---
 
@@ -170,7 +170,29 @@ Cazettes, F. et al. — Nature Neuroscience (2025). DOI: [10.1038/s41593-025-020
 
 ---
 
-## 8. Inferring internal states across mice and monkeys using facial features
+## 8. Spontaneous movements and their relationship to neural activity fluctuate with latent engagement states
+
+*自発運動と神経活動の関係は潜在的な従事状態によって変動する*
+
+Yin, C. (尹超群), Melin, M. D. et al., Churchland, A. K. — Neuron 113, 3048–3063 (2025). DOI: [10.1016/j.neuron.2025.06.001](https://doi.org/10.1016/j.neuron.2025.06.001) — 個別ファイル: [yin2025_engagement_states.md](yin2025_engagement_states.md)（原本PDFあり）
+
+![Figure 1](images/yin2025_engagement_states_fig1.jpg)
+
+### 要約
+
+- **問題**
+  - 皮質ニューロンの試行間変動が大きいため、動物の運動を制限する、あるいは多数試行を平均するという2つの対処法が使われてきたが、前者は自然な意思決定から乖離し、後者は神経活動-行動関係が実は状態依存でありうることを見落とす。行動レベルで知られている従事（engaged）/非従事（disengaged）状態の変動が、皮質全体の神経活動や自発運動とどう関係するかは不明だった。
+- **手法**
+  - 聴覚弁別課題を行う頭部固定マウス4匹の広視野カルシウムイメージングデータに、Ashwood et al. (2022) 準拠の3状態Bernoulli GLM-HMMを適用し、各試行を従事状態・非従事状態（左右バイアス2つ）に分類。
+  - リッジ回帰による線形符号化モデル（タスク変数・指示運動・無指示運動を回帰子とする）を従事/非従事状態ごとに別々に学習し、状態間で神経活動の説明分散（cvR²）を比較。
+  - DeepLabCutで27部位の体動を追跡し、motion energy（運動量）とTask-Independent Movement（TIM、タスク変数から予測される定型軌跡と実軌跡のずれ）という2指標を対比。視覚課題マウス6匹・自由行動ラットのデータでもTIM-成績相関を検証。
+- **結果**
+  - 従事/非従事状態間で試行平均神経活動はほぼ同じだが、試行間分散は非従事状態で有意に高く、一次運動野・体性感覚野で顕著。この差は線形符号化モデルの無指示運動（特にタスク非依存成分）の説明力の違いに由来し、タスク変数の説明力自体は状態間で変わらない。
+  - 運動量（motion energy）は従事・非従事状態間で差がない一方、TIM（運動の時間的定型性の乱れ）は非従事状態で有意に高く、P(engaged)や成績と強く相関する。TIMは瞳孔径よりも成績・従事度との相関が強く、別モダリティの課題・別種（ラット）でも再現された。
+
+---
+
+## 9. Inferring internal states across mice and monkeys using facial features
 
 *顔特徴を用いたマウスとサルにまたがる内部状態の推定*
 
@@ -192,7 +214,7 @@ Tlaie, A. et al. — Nature Communications 16, 5168 (2025). DOI: [10.1038/s41467
 
 ---
 
-## 9. Spontaneous behaviour is structured by reinforcement without explicit reward
+## 10. Spontaneous behaviour is structured by reinforcement without explicit reward
 
 *自発行動は明示的な報酬なしに強化によって構造化される*
 
@@ -215,7 +237,7 @@ Markowitz, J. E. et al., Linderman, S. W., Datta, S. R. — Nature 614(7946), 10
 
 ---
 
-## 10. How learned expectations shape brain-wide responses
+## 11. How learned expectations shape brain-wide responses
 
 *学習された期待は脳全体の応答をどのように形作るか*
 
@@ -240,7 +262,29 @@ Liu, A., Schartner, M., International Brain Laboratory, Fiete, I. — bioRxiv pr
 
 ---
 
-## 11. Exploiting correlations across trials and behavioral sessions to improve neural decoding
+## 12. Hidden Markov models for the stimulus-response relationships of multistate neural systems
+
+*多状態神経系の刺激-応答関係のための隠れマルコフモデル*
+
+Escola, S., Fontanini, A., Katz, D., Paninski, L. — Neural Computation 23(5), 1071–1132 (2011). DOI: [10.1162/NECO_a_00118](https://doi.org/10.1162/NECO_a_00118)
+
+### 要約
+
+- **問題**
+  - 視床のtonic/burstモードや皮質のUP/DOWN状態など、多くの神経系が複数の発火状態を行き来することが知られていたが、標準的なGLM（一般化線形モデル）は刺激-応答関係を単一の固定した重みで表現するため、この種の状態依存性を捉えられなかった。
+- **手法**
+  - 状態ごとに異なる刺激フィルタ $k_n$ を持つGLMを状態依存の観測モデルとして組み込んだHMMを提案（GLM-HMMという名称は用いていないが、後のAshwood et al. 2022らのGLM-HMMの直接の起源にあたる定式化）。
+  - 状態遷移確率も刺激・自身のスパイク履歴に依存させることができ、非ホモジニアスかつ点過程（非Poisson）の観測にも対応する枠組みとして、伝統的HMMを拡張。
+  - Baum-Welch EMアルゴリズムを点過程データ・刺激依存の遷移密度/観測密度に合わせて改変して推定。E-stepは標準的なforward-backward再帰、M-stepはモデルにいくつかの制約を置くことで分離可能な凹最適化問題に帰着させる。
+  - シミュレーションデータ（視床のtonic/burst細胞、感覚野のattentive/ignoring細胞を模したモデル）でパラメータ回収を検証した後、ラット味覚野の多電極スパイクデータ（Jones et al. 2007、4種の呈味刺激・424試行）に適用し、スパイク履歴依存性を組み込んだ拡張を行う。
+- **結果**
+  - シミュレーションデータでは、真のパラメータと隠れ状態系列をほぼ完全に回収できた。
+  - 味覚野データでは、スパイク履歴情報を含めることでcross-validated log-likelihoodが有意に改善し、単純なHMM・PSTH（peri-stimulus time histogram）モデルのいずれよりも優れた当てはまりを示した。
+  - 状態空間を再定義することで、多状態モデルとヒストグラム（PSTH）モデルの中間に位置するハイブリッドモデルも実装できることを示した。
+
+---
+
+## 13. Exploiting correlations across trials and behavioral sessions to improve neural decoding
 
 *試行間・行動セッション間の相関を活用した神経デコーディングの改善*
 
@@ -263,7 +307,7 @@ Zhang, Y., Lyu, H., Hurwitz, C. ... Pouget, A., Varol, E., Paninski, L. — Neur
 
 ---
 
-## 12. Decision-making dynamics are predicted by arousal and uninstructed movements
+## 14. Decision-making dynamics are predicted by arousal and uninstructed movements
 
 *意思決定のダイナミクスは覚醒度と無指示運動から予測できる*
 
@@ -287,7 +331,7 @@ Hulsey, D., Zumwalt, K., Mazzucato, L., McCormick, D. A., Jaramillo, S. — Cell
 
 ---
 
-## 13. A reservoir of foraging decision variables in the mouse brain
+## 15. A reservoir of foraging decision variables in the mouse brain
 
 *マウス脳内における採食意思決定変数の貯蔵庫*
 
@@ -312,7 +356,7 @@ Cazettes, F. et al. — Nature Neuroscience 26(5), 840–849 (2023). DOI: [10.10
 
 ---
 
-## 14. Hidden Markov models reveal behavioral state dynamics in depth-related locomotion in mice
+## 16. Hidden Markov models reveal behavioral state dynamics in depth-related locomotion in mice
 
 *隠れマルコフモデルはマウスの奥行き関連移動行動における行動状態動態を明らかにする*
 
