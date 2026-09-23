@@ -1,0 +1,22 @@
+{
+  "system:feed-refresh:C:\\Users\\dmasu\\braidyn-bc": {
+    "taskId": "system:feed-refresh:C:\\Users\\dmasu\\braidyn-bc",
+    "lastRunAt": "2026-08-31T14:00:00.000Z",
+    "lastRunResult": "success",
+    "lastRunDurationMs": 3,
+    "lastErrorMessage": null,
+    "consecutiveFailures": 0,
+    "totalRuns": 4,
+    "nextScheduledAt": "2026-08-31T15:00:00.000Z"
+  },
+  "system:google-calendar-sync": {
+    "taskId": "system:google-calendar-sync",
+    "lastRunAt": "2026-08-31T14:00:00.000Z",
+    "lastRunResult": "success",
+    "lastRunDurationMs": 3,
+    "lastErrorMessage": null,
+    "consecutiveFailures": 0,
+    "totalRuns": 4,
+    "nextScheduledAt": "2026-08-31T15:00:00.000Z"
+  }
+}
