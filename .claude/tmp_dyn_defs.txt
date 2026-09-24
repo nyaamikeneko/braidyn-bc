@@ -22,4 +22,295 @@
 168: def get_states_order(w, sessInd, stimCol=[1]):
 200: def softplus(x):
 220: def softplus_deriv(x):
-234: def reshapeP_M1_to_M2(P, N):
+234: def reshapeP_M1_to_M2(P, N):614|    def fit(self, x, y, present, initP, initpi, initW, sigma=0, alpha=0, A=None, sessInd=None, maxIter=250, tol=1e-3, model_type='standard',  L2penaltyW=0, priorDirP = [10,1], fit_init_states=False):
+615|        '''
+616|        Fitting function based on EM algorithm. Algorithm: observation probabilities phi are calculated with previous parameters for all sessions, then 
+617|        forward and backward passes are done for each session to obtain gamma and zeta, then weights are optimized for one particular session at a time using gamma and zeta,
+618|        then after all weights are optimized (in consecutive increasing order of session), and lastly the transition matrix is updated based on zeta
+619|
+620|        See Methods of bioRxiv paper for more information.
+621|
+622|        Parameters
+623|        ----------
+624|        x: T x D numpy array
+625|            design matrix
+626|        y : T x 1 numpy vector 
+627|            vector of observations with values 0,1,..,C-1
+628|        present: T x 1 numpy vector
+629|            0 means missing data and 1 means present
+630|        initP :k x k numpy array
+631|            initial matrix of transition probabilities
+632|        initpi: k x 1 numpy vector
+633|            initial k x 1 vector of state probabilities for t=1.
+634|        initW: n x k x d x c numpy array
+635|            initial weight matrix
+636|        sigma: k x d numpy array
+637|            hyperparameter governing the variability of the weights across sessions
+638|            if one is 0, then all are 0 (=standard GLM-HMM)
+639|        alpha: float
+640|            hyperparameter governing the variability of the transition matrix across sessions
+641|        sessInd: list of int
+642|            indices of each session start, together with last session end + 1
+643|        maxIter : int
+644|            The maximum number of iterations of EM to allow. The default is 300.
+645|        tol : float
+646|            The tolerance value for the loglikelihood to allow early stopping of EM. The default is 1e-3.
+647|        model_type: str
+648|            if 'standard': weights and transition matrix are constant across sessions
+649|            if 'partial': transition matrix constant across sesssions but weights vary across sessions
+650|            if 'dynamic': both weights and transition matrix vary across sessions
+651|        L2penaltyW: float
+652|            strength of L2 penatly term on weights (default=0)
+653|        priorDirP: list of length 2
+654|            diagonal and off diagonal terms for Dirichlet prior (+1) on transition matrix 
+655|        fit_init_states: Boolean (default=False)
+656|            whether to fit or not distribution of first latent in every session
+657|            if not, it's assumed uniform
+658|            
+659|        Returns
+660|        -------
+661|        p: k x k numpy array
+662|            fitted probability transition matrix
+663|        w: T x k x d x c numpy array
+664|            fitteed weight matrix
+665|        pi: K numpy vector
+666|            fixed / fitted distribution of first latent state in every session 
+667|        ll: float
+668|            marginal log-likelihood of the data p(y)
+669|        '''
+670|
+671|        # number of datapoints
+672|        T = x.shape[0]
+673|
+674|        # initialize weights and transition matrix
+675|        w = np.copy(initW)
+676|        p = np.copy(initP)
+677|        pi = np.copy(initpi)
+678|
+679|        ll = np.zeros((maxIter)).astype(float) 
+680|
+681|        if model_type == 'dynamic':
+682|            # checking that A (only used for dynamic model) is a transition matrix
+683|            if (A.shape != (self.K, self.K)):
+684|                raise Exception("Global P should be an array of shape (k,k)")
+685|            else:
+686|                for i in range(0, self.K):
+687|                    if (abs(A[i,:].sum() - 1) > 1e-3):
+688|                        raise Exception(f'Global P row {i} does not sum up to 1')
+689|                    
+690|        sess = len(sessInd)-1 # total number of sessions
+691|
+692|        if (fit_init_states==True and sess<20):
+693|            raise Exception("Should not fit init states when less than 20 sessions due to high uncertainty")
+694|
+695|        for iter in range(maxIter):
+696|            if (iter%50==0):
+697|                print(iter)
+698|                
+699|            # calculate observation probabilities given parameters from previous iteration
+700|            phi = self.observation_probability(x, w)
+701|
+702|            # E-step for all sessions
+703|            alpha_forward, ct, ll[iter] = self.forward_pass(y, present, p, pi, phi, startSessInd=sessInd[:-1])
+704|            beta = self.backward_pass(y, present, p, phi, ct, startSessInd=sessInd[:-1])
+705|            gamma, zeta = self.posteriorLatents_EM(y, present, p, phi, alpha_forward, beta, ct, startSessInd=sessInd[:-1])
+706|            
+707|            # M-step for each session
+708|            for s in range(0,sess):
+709|
+710|                if model_type in ['partial','dynamic','dynamic-different-prior']: # models with weights varying across sessions
+711|
+712|                    for k in range(0,self.K):
+713|                        prevW = w[sessInd[s-1],k,:,1] if s!=0 else None #  d x c matrix of previous session weights
+714|                        nextW = w[sessInd[s+1],k,:,1] if s!=sess-1 else None #  d x c matrix of next session weights
+715|                        w_flat = np.ndarray.flatten(w[sessInd[s],k,:,1]) # flatten weights for optimization 
+716|                        opt_val = lambda w: self.value_weight_loss_function(w, x[sessInd[s]:sessInd[s+1]], y[sessInd[s]:sessInd[s+1]], present[sessInd[s]:sessInd[s+1]], gamma[sessInd[s]:sessInd[s+1],k], prevW, nextW, sigma[k,:], model_type=model_type, L2penaltyW=L2penaltyW)
+717|                        opt_grad = lambda w: self.grad_weight_loss_function(w, x[sessInd[s]:sessInd[s+1]], y[sessInd[s]:sessInd[s+1]], present[sessInd[s]:sessInd[s+1]], gamma[sessInd[s]:sessInd[s+1],k], prevW, nextW, sigma[k,:], model_type=model_type, L2penaltyW=L2penaltyW)
+718|                        optimized = minimize(opt_val, w_flat, jac=opt_grad, method='L-BFGS-B')
+719|                        w[sessInd[s]:sessInd[s+1],k,:,1] = optimized.x # updating weight w for current session
+720|
+721|                # M-step for session-varying transition matrix P  - closed form update (dynamic model)
+722|                if model_type == 'dynamic':
+723|                    for i in range(0, self.K):
+724|                        for j in range(0, self.K):
+725|                            p[sessInd[s]:sessInd[s+1],i,j] = (zeta[sessInd[s]:sessInd[s+1]-1,i,j].sum() + alpha * A[i,j])/(zeta[sessInd[s]:sessInd[s+1]-1,i,:].sum() + alpha) 
+726|                
+727|                elif model_type == 'dynamic-different-prior': # prior on P for consecutive sessions (Nature Comms Review)            
+728|                    for i in range(0, self.K):
+729|                        for j in range(0, self.K):
+730|                            if s == 0: # using previously CV global prior alpha=2
+731|                                p[sessInd[s]:sessInd[s+1],i,j] = (zeta[sessInd[s]:sessInd[s+1]-1,i,j].sum() + 2 * A[i,j])/(zeta[sessInd[s]:sessInd[s+1]-1,i,:].sum() + 2)
+732|                            else: # ignoring backward dependency
+733|                                p[sessInd[s]:sessInd[s+1],i,j] = (zeta[sessInd[s]:sessInd[s+1]-1,i,j].sum() + alpha * p[sessInd[s-1],i,j])/(zeta[sessInd[s]:sessInd[s+1]-1,i,:].sum() + alpha)
+734|
+735|            if model_type == 'standard': # optimizing a single set of weights over all sessions
+736|                for k in range(0,self.K):
+737|                    prevW = None #  d x c matrix of previous session weights
+738|                    nextW = None #  d x c matrix of next session weights
+739|                    w_flat = np.ndarray.flatten(w[0,k,:,1]) # flatten weights for optimization 
+740|                    opt_val = lambda w: self.value_weight_loss_function(w, x, y, present, gamma[:,k], prevW, nextW, sigma[k,:], model_type=model_type, L2penaltyW=L2penaltyW)
+741|                    opt_grad = lambda w: self.grad_weight_loss_function(w, x, y, present, gamma[:,k], prevW, nextW, sigma[k,:], model_type=model_type, L2penaltyW=L2penaltyW)
+742|                    optimized = minimize(opt_val, w_flat, jac=opt_grad, method='L-BFGS-B')
+743|                    w[:,k,:,1] = optimized.x # updating weights w
+744|
+745|            # M-step for transition matrix P (when static across session) - closed form update (standard and partial model)
+746|            if model_type in ['standard','partial']:          
+747|                for i in range(0, self.K):
+748|                    for j in range(0, self.K):
+749|                        if priorDirP is not None:
+750|                            p[:,i,j] = (zeta[:,i,j].sum() + priorDirP[i!=j]) / (zeta[:,i,:].sum() + priorDirP[i!=j] + priorDirP[i==j] * (self.K-1) ) # added prior of Dirichlet(11,2,2..,2)
+751|                        else:
+752|                            p[:,i,j] = zeta[:,i,j].sum() / zeta[:,i,:].sum()
+753|                
+754|            if (fit_init_states==True):
+755|                # initial distribution of latents
+756|                pi = gamma[sessInd[:-1],:].sum(axis=0) 
+757|                pi = pi / pi.sum() # normalize
+758|                    
+759|            # check if stopping early
+760|            if (iter >= 10 and ll[iter] - ll[iter-1] < tol):
+761|                break
+762|
+763|        return p, pi.reshape((self.K)), w, ll
+764|
+765|    def evaluate(self, x, y, sessInd, presentTest, p, pi, w):
+766|        ''' 
+767|        function that computes per session test log-likelihood and test accuracy 
+768|        (only using the test set data)
+769|
+770|        Parameters
+771|        ----------
+772|        x: T x D numpy array
+773|            design matrix
+774|        y : T x 1 numpy vector 
+775|            vector of observations with values 0,1,..,C-1
+776|        sessInd: list of int
+777|            indices of each session start, together with last session end + 1
+778|        presentTtest: T x 1 numpy vector
+779|            0 means data not present in test set and 1 means present 
+780|        p: T x k x k numpy array
+
+====
+
+765|    def evaluate(self, x, y, sessInd, presentTest, p, pi, w):
+766|        ''' 
+767|        function that computes per session test log-likelihood and test accuracy 
+768|        (only using the test set data)
+769|
+770|        Parameters
+771|        ----------
+772|        x: T x D numpy array
+773|            design matrix
+774|        y : T x 1 numpy vector 
+775|            vector of observations with values 0,1,..,C-1
+776|        sessInd: list of int
+777|            indices of each session start, together with last session end + 1
+778|        presentTtest: T x 1 numpy vector
+779|            0 means data not present in test set and 1 means present 
+780|        p: T x k x k numpy array
+781|            fitted probability transition matrix
+782|        pi : k x 1 numpy vector
+783|            fixed / fitted k x 1 vector of state probabilities for t=1.
+784|        w: T x k x d x c numpy array
+785|            fitted weight matrix
+786|
+787|        Returns
+788|        -------
+789|        llTest_per_session: sess numpy vector
+790|            average test log-likelihood per trial on the computed for each session separately 
+791|        llTest: float
+792|            average test log-likelihood per trial for all sessions
+793|        accuracyTest: float
+794|            percentage of correct predictions of actual observed choices y (by hard assigning choice in model)
+795|        '''
+796|
+797|        N = x.shape[0]
+798|
+799|        present = np.ones((N))
+800|        phi = self.observation_probability(x=x, w=w)
+801|
+802|        alpha, ct, ll = self.forward_pass(y, present, p, pi, phi, sessInd[:-1])
+803|        beta = self.backward_pass(y, present, p, phi, ct, sessInd[:-1])
+804|        gamma, _ = self.posteriorLatents_EM(y, present, p, phi, alpha, beta, ct, sessInd[:-1])
+805|
+806|        sess = len(sessInd) - 1
+807|        llTest_per_session = np.zeros((sess))
+808|        for s in range(sess):
+809|            ct_session = ct[sessInd[s]:sessInd[s+1]]
+810|            presentTest_session = presentTest[sessInd[s]:sessInd[s+1]]
+811|            Ntest_session = presentTest_session.sum() # number of trials in test in this session
+812|            llTest_per_session[s] = np.sum(np.log(ct_session[np.argwhere(presentTest_session==1)])) / Ntest_session # average test log-like per session
+813|
+814|        Ntest = presentTest.sum() # number of trials in test     
+815|        llTest = np.sum(np.log(ct[np.argwhere(presentTest==1)])) / Ntest # average test log-likelihood per trial
+816|
+817|        gammaTest = gamma[np.argwhere(presentTest==1)].reshape((Ntest, self.K))
+818|        phiTest = phi[np.argwhere(presentTest==1)].reshape((Ntest, self.K, self.C))
+819|        yTest = y[np.argwhere(presentTest==1)].reshape((Ntest,))
+820|        pChoice = np.zeros((gammaTest.shape[0], self.C)) # p(y_t | x_t, w_t)
+821|        pChoice[:,1] = np.sum(np.multiply(gammaTest, phiTest[:,:,1]), axis=1) # p(y_t | x_t, w_t) = sum over k of gamma(z_t=k) * p (y_t|z_t=k, z_t, w_t)
+822|        pChoice[:,0] = 1 - pChoice[:,1]
+823|        choiceHard = np.argmax(pChoice, axis=1) # predicted choice of animal
+824|
+825|        Nwrong = np.logical_xor(choiceHard, yTest).sum()
+826|        accuracyTest = (Ntest - Nwrong) / Ntest * 100 # correct predictions on observed y
+827|            
+828|        return llTest_per_session, llTest, accuracyTest 
+829|
+830|    def posterior_likelihood_of_each_state(self, p, pi, w, x, y, present, sessInd, sortedStateInd=None):
+831|        ''' 
+832|        function that gives posterior likelihood of being in each hidden state given the data and model parameters
+833|
+834|        Parameters
+835|        ----------
+836|        p: T x k x k numpy array
+837|            fitted probability transition matrix
+838|        pi : k x 1 numpy vector
+839|            initial k x 1 vector of state probabilities for t=1.
+840|        w: T x k x d x c numpy array
+841|            fitteed weight matrix
+842|        x: T x D numpy array
+843|            design matrix
+844|        y : T x 1 numpy vector 
+845|            vector of observations with values 0,1,..,C-1
+846|        present: T x 1 numpy vector
+847|            0 means missing data and 1 means present
+848|        sessInd: list of int
+849|            indices of each session start, together with last session end + 1
+850|        sortedStateInd: numpy array
+851|            contains reordering permutation of states, or None if no state reordering
+852|        
+853|        
+854|        Returns
+855|        -------
+856|        gamma: T x k numpy array
+857|            matrix of marginal posterior of latents given all observations p(z_t | y_1:T)
+858|            = likelihood of being in each state given the data
+859|        '''
+860|
+861|        if (sortedStateInd is not None):
+862|        # permute states
+863|            w = w[:,sortedStateInd,:,:]
+864|            p = p[:,sortedStateInd,:][:,:,sortedStateInd]
+865|
+866|        T = x.shape[0]
+867|
+868|        if sessInd is None:
+869|            sessInd = [0, T] 
+870|
+871|        phi = self.observation_probability(x, w)
+872|
+873|        # E-step for all sessions
+874|        alpha_forward, ct, _ = self.forward_pass(y, present, p, pi, phi, startSessInd=sessInd[:-1])
+875|        beta = self.backward_pass(y, present, p, phi, ct, startSessInd=sessInd[:-1])
+876|        gamma, _ = self.posteriorLatents_EM(y, present, p, phi, alpha_forward, beta, ct, startSessInd=sessInd[:-1])
+877|        
+878|        return gamma
+879|
+880|    
+881|  
+882|
+883|        
+
+====
+

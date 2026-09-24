@@ -1,0 +1,19 @@
+221|    '''
+222|    Derivative of softplus function
+223|
+224|    d/dx log (1 + exp(x)) = exp(x) / (1 + exp(x))
+225|    
+226|    '''
+227|
+228|    # avoiding overflow by separating in two different cases
+229|    if (x > 0):
+230|        return 1/(1+math.exp(-x))
+231|    else:
+232|        return math.exp(x)/(1+math.exp(x))
+233|    
+234|def reshapeP_M1_to_M2(P, N):
+235|    '''
+236|    function reshaping transition matrix of shape (K,K) to shape (N,K,K) 
+237|    
+238|    '''
+239|    return np.repeat(P[np.newaxis,...], N, axis=0)
