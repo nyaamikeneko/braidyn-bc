@@ -1,0 +1,476 @@
+
+========== PAGE 17 ==========
+Method Details
+Dynamic GLM-HMM
+The dynamic GLM-HMM characterizes time-varying behavioral strategies by allowing the transition ma-
+trix P s and the state-dependent GLM weights {ws
+k}k to vary per-session s for each state k. An animal’s
+binary choice ys
+t ∈{0,1} at trial t in session s (where 0 and 1 correspond to leftward and rightward
+choices, respectively) is dependent on the current state via a latent variable zs
+t . More precisely, the
+probability of a choice ys
+t is a linear combination of the task covariate vector xs
+t and the state-specific
+GLM weights passed through a logit function:
+p(ys
+t ∣xs
+t,zs
+t = k) = exp(−(1 −ys
+t )ws
+k ⋅xs
+t)
+1 + exp(−ws
+k ⋅xs
+t)
+(Figure 1A).
+The D-element vector xs
+t contains task variables that are thought to affect an animal’s choice, such as
+the signed stimulus contrast, a bias term, the previous rewarded choice, and the previous choice. The
+larger the absolute value of a specific weight, the more the animal relies on that corresponding variable
+when making a choice. The sign of the weight represents the direction of this effect towards one side
+compared to the other.
+The K ×K session-specific transition matrix P s defines the probability of transitioning between discrete
+states in consecutive trials during session s:
+P s
+i,j ∶= p(zs
+t = j∣zs
+t−1 = i), for all i,j ∈{1,...,K},
+where K is the total number of hidden states. Note that the transition between states has the Markov
+property, meaning that the current state only depends on the previous one. Moreover, each row of the
+transition matrix sums up to 1 and all its entries are non-negative. The first latent state for each session
+s is drawn uniformly by zs
+1 ∼U({1,2,...,K}).
+The weights vary across sessions according to a Gaussian prior,
+ws
+k,d ∼N(ws−1
+k,d ,σ2
+k,d),
+(1)
+where σk,d is a positive hyperparameter that determines the variability of the weights across sessions
+for state k and task variable d. A larger σk,d implies a larger session-to-session change for the weights
+{ws
+k,d}s.
+Each row of the transition matrix varies across sessions according to a Dirichlet prior,
+P s
+i
+i.i.d.
+∼Dir(αAi + 1),
+(2)
+where A is the inferred global transition matrix, and α is a non-negative scalar hyperparameter that
+governs the intensity of the Dirichlet distribution. When α is large, the session-specific transition matri-
+ces P s are all close to the global transition matrix A. Note that this prior was chosen for closed-form
+optimization and does not impose temporal continuity or smoothness in the transition matrix across
+session.
+In the limit case when all σk,d ↓0 and α →∞, the transition matrices P s are all equal to the global
+matrix A, and the weights are all constant across sessions, hence our method becomes equivalent to
+the standard GLM-HMM (Bolkan et al., 2022).
+17
+.
+CC-BY-NC-ND 4.0 International license
+available under a 
+(which was not certified by peer review) is the author/funder, who has granted bioRxiv a license to display the preprint in perpetuity. It is made 
+The copyright holder for this preprint
+this version posted September 10, 2025. 
+; 
+https://doi.org/10.1101/2024.11.30.626182
+doi: 
+bioRxiv preprint 
+
+========== PAGE 18 ==========
+Inference of dynamic GLM-HMM parameters
+MAP estimation
+The goal of the dynamic GLM-HMM inference procedure is to fit the model parameters using Maximum
+A Posteriori (MAP) estimation, given a set of fixed hyperparameters K,{σk,d}, α. This entails learning
+the session-specific transition matrices P s and weights {ws
+k,d}, collectively labeled as θ. This was
+implemented with a variation of the Expectation-Maximization (EM) algorithm, similarly to other previous
+adaptations for fitting input-output HMMs (Bengio & Frasconi, 1994; Escola et al., 2011; Calhoun et al.,
+2019; Ashwood et al., 2022).
+The EM algorithm maximizes the log-likelihood of the data and can be extended to maximize the log-
+posterior of the parameters given the data, where the data is denoted by
+D = {ys
+t ,xs
+t ∣for all trials t and sessions s}. Using Bayes’ rule, the log-posterior can be computed up to
+an irrelevant constant by:
+log p(θ∣D) = log p(D∣θ) + log p(θ)
+= ∑
+s
+log
+⎛
+⎜
+⎝
+∑
+zs
+1∶Ts
+p(ys
+1∶Ts,zs
+1∶Ts∣θ,xs
+1∶Ts)
+⎞
+⎟
+⎠
++ log p({θs}s),
+(3)
+where the sum over zs
+1∶Ts is over all possible latent states in session s.
+The log-prior on the parameters for a session s (given that the parameters from all other sessions are
+fixed) can be computed using Equation 1 and 2:
+log p(θs) = log p(P s,ws∣ws−1,ws+1l,{σk,d},α,A)
+=
+K
+∑
+i=1
+log Dir(P s
+i ;αAi + 1) + ∑
+k,d
+log N(ws
+k,d;ws−1
+k,d ,σ2
+k,d) + log N(ws
+k,d;ws+1
+k,d ,σ2
+k,d).
+(4)
+Expectation-Maximization algorithm
+The EM algorithm maximizes the log-posterior in Equation 3 by alternating between an Expectation
+step (E-step) and a Maximization step (M-step) for multiple iterations (Bishop, 2006; Bengio & Fras-
+coni, 1994). The sum in Equation 3 is not directly optimized since it involves an exponential number of
+terms O(KTs) that arise due to the summation over all possible latents z1∶Ts in a session s. Instead,
+the EM algorithm provides an efficient way around that by maximizing at every M-step w.r.t to θ a quan-
+tity Q(θ,θold), which is known as the "Expected Complete-Data Log-Likelihood" (ECLL). The ECLL,
+together with the prior on the parameters, provides a lower bound on the log-posterior:
+log p(D∣θ) ≥Q(θ,θold)
+Ô⇒log p(θ∣D) ≥Q(θ,θold) + log p(θ),
+where θold are the parameters from the previous E-M iteration and θ are the parameters of the current
+iteration that are being optimized (Bishop, 2006; Bengio & Frasconi, 1994). Thus, maximizing at every
+M-step the ECLL together with the prior guarantees that the log-posterior increases as a function of the
+parameters θ.
+In particular, our inference procedure performs an E-step and an M-step for each session (in which the
+18
+.
+CC-BY-NC-ND 4.0 International license
+available under a 
+(which was not certified by peer review) is the author/funder, who has granted bioRxiv a license to display the preprint in perpetuity. It is made 
+The copyright holder for this preprint
+this version posted September 10, 2025. 
+; 
+https://doi.org/10.1101/2024.11.30.626182
+doi: 
+bioRxiv preprint 
+
+========== PAGE 21 ==========
+where ˆβ(zs
+Ts) = 1.
+Maximization step
+After running the forward-backward algorithm, Equation 5, 6, 7, 8, 9 together give the ECLL for each
+session. Then, we maximize with respect to the session-specific parameters, θs = {ws,P s}, the per-
+session ECLL together with the log-prior, which is given by Equation 4. Note that the ECLL written as
+in Equation 5 contains weight terms ws (in the observation probabilities ϕ) and transition matrix terms
+P s that are added together. This means that optimization is done independently for P s and ws.
+Firstly, we maximize with respect to the per-session transition matrix P s the function
+L(P s) ∶=
+Ts
+∑
+t=2
+∑
+zs
+t−1,zs
+t
+ζ(zs
+t−1,zs
+t )log Pzs
+t−1,zs
+t +
+K
+∑
+i=1
+log Dir(P s
+i ;αAi),
+which results in the unique closed-form update of the transition matrix:
+P s
+i,j =
+∑Ts
+t=2 ζ(zs
+t−1 = i,zs
+t = j) + αAi,j
+∑K
+l=1 (∑Ts
+t=2 ζ(zs
+t−1 = i,zs
+t = l) + αAi,l)
+.
+To do so, we use the Lagrange multipliers method since each row of the transition matrix is con-
+strained to sum up to 1. Note that the term containing p(zs
+1) in Equation 5 is not optimized since
+the prior on the first latent state of any session is the uniform distribution on all the possible states,
+zs
+1 ∼U({1,2,...,K}).
+Secondly, we maximize with respect to the per-session weights ws the function
+L(ws) =
+K
+∑
+k=1
+Ts
+∑
+t=1
+γ(zs
+t = k)log e−(1 −yt)ws
+k ⋅xs
+t
+1 + e−ws
+k ⋅xs
+t
++
+D
+∑
+d=1
+log N(ws
+k,d;ws−1
+k,d ,σ2
+k,d) + log N(ws
+k,d;ws+1
+k,d ,σ2
+k,d) ,
+where for the first session, s = 1, we only have one prior term coming from the next session, and for the
+last session, s = S, we only have one prior term coming from the previous session. Since there is no
+closed-form update for the weights, we use scipy.optimize.minimize with a quasi-Newton optimization
+algorithm called ’BFGS’ to find the weights ws that (locally) maximize the above function (Virtanen
+et al., 2020).
+Cross-validation and model performance
+To decide the number of states in the model K, and the hyperparameters σ and α dictating the variability
+of the weights and transition matrix, respectively, we implemented a 5-fold cross-validation procedure
+to find the best-fitting models. We set σk,d = σ for all states and features to avoid very long fitting times.
+Model performance is quantified through the marginal log-likelihood of test data,
+Ltest(θtrain) ∶= log p(Ytest∣xtest,θtrain), given the parameters obtained by fitting the model to the train-
+ing set, θtrain = {Ptrain,wtrain}. For each session, 80% of trials (randomly selected in consecutive
+blocks of 10) belong in the train set, whereas the other 20 % of trials belong to the test set. The test
+log-likelihood for a model is then obtained by averaging the test log-likelihoods across the 5 different
+splits. We normalize the test log-likelihood for each session by the total number of trials during that
+21
+.
+CC-BY-NC-ND 4.0 International license
+available under a 
+(which was not certified by peer review) is the author/funder, who has granted bioRxiv a license to display the preprint in perpetuity. It is made 
+The copyright holder for this preprint
+this version posted September 10, 2025. 
+; 
+https://doi.org/10.1101/2024.11.30.626182
+doi: 
+bioRxiv preprint 
+
+========== PAGE 22 ==========
+session, and then multiply it with the average session length to get the “average test log-like (session)”
+used in Figure 2B, 3E, 4A,B, 5A.
+We can compute the marginal log-likelihood for any set of parameters θ during the forward pass of the
+forward-backward algorithm:
+L(θ) ∶= log p(Y ∣X,θ) =
+S
+∑
+s=1
+log p(ys
+1∶Ts∣X,θ) =
+S
+∑
+s=1
+Ts
+∑
+t=1
+log p(ys
+t ∣ys
+1∶t−1,X,θ) =
+S
+∑
+s=1
+Ts
+∑
+t=1
+log cs
+t.
+The hyperparameters that led to highest model performance across animals are σ ≈3.2 and α ≈2. Note
+that we chose K = 3 for our final models since there was not a substantial difference in performance
+when extending to K = 4 or K = 5 states.
+Multi-stage fitting procedure and initialization
+When fitting our method to data from each animal individually, we initialize the parameters from the
+global standard GLM-HMM fitted parameters across all mice. This approach allows us to avoid cum-
+bersome fitting procedures that require many random initialization for the time-varying parameters.
+Moreover, this choice of initialization is consistent with the idea that individual animal fits should be
+relatively close to the global average fit.
+The obtain the static, global transition matrix A, we first fit the dynamic GLM-HMM with a constant
+transition matrix across sessions and time-varying weights, with the initialization described above. We
+then use the fit transition matrix A for the dynamic prior on the time-varying transition matrix as in
+Equation 2.
+Our multi-stage fitting and initialization procedure is summarized below:
+For each number of states K ∈{1,2,3,4,5} do:
+Fit standard GLM-HMM to data from all animals together:
+For init ∈{1,2,...,20} ∶
+Initialize K-state standard GLM-HMM from noisy parameters
+Run EM algorithm until parameter convergence
+Find K-state model with parameters W ′ and P ′ that performs best on the test set
+Fit dynamic GLM-HMM with dynamic weights and static transition matrix for each animal:
+For σ ∈{10−3,10−2.5,10−2,⋯,102.5,103} ∶
+Initialize dynamic GLM-HMM using fitted static global parameters W ′ and P ′
+Run EM algorithm until parameter convergence
+Find σ′ that corresponds to best performance on the test set
+Let recovered parameters from best-fitting model be W ′′ and A
+Fit dynamic GLM-HMM with dynamic weights and dynamic transition matrix for each animal:
+For α ∈{2 ∗10−1,2 ∗10−0.5,⋯2 ∗105} ∶
+Initialize K-state dynamic GLM-HMM from previous fit parameters W ′′ and A
+Use previously found hyperparameter σ′ and A for the dynamic priors
+Run EM algorithm until parameter convergence
+Find α′ that corresponds to best performance on the test set
+Find number of states K that corresponds to best performance on the test set
+22
+.
+CC-BY-NC-ND 4.0 International license
+available under a 
+(which was not certified by peer review) is the author/funder, who has granted bioRxiv a license to display the preprint in perpetuity. It is made 
+The copyright holder for this preprint
+this version posted September 10, 2025. 
+; 
+https://doi.org/10.1101/2024.11.30.626182
+doi: 
+bioRxiv preprint 
+
+========== PAGE 24 ==========
+A
+B
+C
+E
+D
+F
+Supplemental Figure 1:
+Dynamic GLM-HMM recovers true parameters on simulated data. A. Test log-
+likelihood (average per session) as a function of hyperparameter σ for dynamic GLM-HMM models with 1, 2,
+and 3 states, respectively. B. True constant transition matrix. C. Recovered static transition matrix for best-fitting
+two-state model with σ = 0.1. D. Test log-likelihood (session) as a function of transition matrix hyperparameter α
+for two-state dynamic GLM-HMM with time-varying parameters. E. True and fit sensory weights (top) and bias
+weights (bottom) for the two-state models with different values of σ. F. True and recovered dynamic transition
+matrix for the best-fitting 2-state model with α = 100.
+HMM performs substantially better for the three-state model compared to the two-state one, which
+results in a mismatch between the inferred number of states and the true one. Since the standard GLM-
+HMM attempts to capture dynamic weights through a set of constant ones, we posit that the method
+will often overestimate the number of states when animals use behavioral strategies that evolve over
+time. This is a significant limitation of the standard GLM-HMM that our method improves upon.
+The recovered static transition matrix for the two-state model closely matches the true one (Supplemen-
+tal Figure 1B,C). The recovered weights for the best-fitting two-state model (σ ≈0.1) also agree with
+the true ones, hence validating our inference procedure (Supplemental Figure 1E). Note that σ smaller
+than the optimal one leads to an underestimation of the variance in the recovered weights, whereas
+a σ larger than the optimal one overestimates the variance of the weight and results in over-fitting
+(Supplemental Figure 1E). At σ = 0, dynamic GLM-HMM uses constant weights across sessions, being
+equivalent to a standard GLM-HMM. Note that very large values of σ result in recovered weights close to
+the maximum likelihood estimator for each session since the prior has little to no effect (Bishop, 2006).
+In either extreme, the recovered weights do not match the true weights, emphasizing the importance of
+choosing an appropriate drifting parameter σ.
+24
+.
+CC-BY-NC-ND 4.0 International license
+available under a 
+(which was not certified by peer review) is the author/funder, who has granted bioRxiv a license to display the preprint in perpetuity. It is made 
+The copyright holder for this preprint
+this version posted September 10, 2025. 
+; 
+https://doi.org/10.1101/2024.11.30.626182
+doi: 
+bioRxiv preprint 
+
+========== PAGE 25 ==========
+A
+C
+B
+true
+true
+true
+fitted
+fitted
+fitted
+true
+true
+true
+fitted
+fitted
+fitted
+Supplemental Figure 2: Dynamic GLM-HMM can flexibly use different number of states across sessions.
+A. True 3 x 3 transition matrices used for simulating data during first 10 sessions (left) and after the first 10
+sessions (right). B. True vs fitted bias weights (top) and sensory weights (bottom) for the 3 states as a function of
+session number. C. % trials spent in each state as a function of session number for the true and fitted parameters.
+Secondly, we apply our method to simulated data when the true transition matrix is non-stationary.
+For the dynamic prior on the session-specific transition matrices, we use the above estimate of the
+global transition matrix A (Supplemental Figure 1C). By cross-validation, we find the optimal intensity
+hyperparameter α to be approximately 100, which aligns with the true α used for simulating the true
+dynamic transition matrix (Supplemental Figure 1D). Importantly, the recovered dynamic transition ma-
+trix closely matches the true one, confirming that our method can recover all dynamic parameters well
+(Supplemental Figure 1F).
+Last but not least, we apply our method to a different simulated dataset in which an imagined animal
+only employs a single unbiased strategy during the first 10 sessions (Supplemental Figure 2). The
+transition matrix initially has probabilities close to 1 of transitioning to state 1 from every state, which
+corresponds to 100% of trials spent in state 1 during the first 10 sessions (Supplemental Figure 2A,C).
+Later on, the transition matrix changes drastically to have high probabilities on all the diagonal elements,
+which correspond to long blocks of consecutive trials and a similar number of trials spent in each state
+(Supplemental Figure 2A,C). Given the same amount of trials as in a real IBL experiment, we are able
+to recover the true parameters and state occupancies across sessions (Supplemental Figure 2B,C).
+Comparison between dynamic GLM-HMM and diHMM
+We performed a comparison of the log-likelihood under our 3-state dynamic GLM-HMM and the dy-
+namic infinite semi-Markov model from Bruijns et al. (2023). The two models fits used the same train-
+test splits of the data across 20 different IBL animals. Note that Bruijns et al. (2023) use distinct inputs
+for the left and right sensory cues in order to characterize differences in performance on one side com-
+pared to the other, whereas we use the signed stimulus contrast that captures the performance on both
+sides together. We find that 3-state dynamic GLM-HMM performs significantly better (p < 0.05) on the
+majority of sessions during learning (Supplemental Figure 3A).
+25
+.
+CC-BY-NC-ND 4.0 International license
+available under a 
+(which was not certified by peer review) is the author/funder, who has granted bioRxiv a license to display the preprint in perpetuity. It is made 
+The copyright holder for this preprint
+this version posted September 10, 2025. 
+; 
+https://doi.org/10.1101/2024.11.30.626182
+doi: 
+bioRxiv preprint 
+
+========== PAGE 26 ==========
+A
+C
+D
+E
+*
+B
+Supplemental Figure 3:
+Dynamic 3-state GLM-HMM achieves better performance. A. Average test log-
+likelihood across 20 animals as a function of session number for our best-fitting 3-state dynamic model compared
+to best fits from Bruijns et al. (2023). A star for any session means that our model performed significantly better
+on that session (paired t-test, p < 0.05). B. % correct prediction of animals’ choices for best 1-state dynamic
+GLM-HMM vs 3-state one, where each point represents a different animal (the mean is shown in black) C. Log-
+likelihood (per session), averaged across sessions and animals (in black) or individually for each animal (in gray)
+for our best-fitting 3-state dynamic model and a control model, in which all parameters are identical to the best-
+fitting ones except the stimulus weights in biased states 2 and 3, which were enforced to be static and are set
+to the mean of the corresponding time-varying weights in the fully dynamic model. The 3-state dynamic model
+performed significantly better than the control (paired t-test, p < 0.05). D. ∆test log-likelihood (averaged per
+session) as a function of hyperparameter α for models with 2 and 3 states, respectively, averaged across all
+animals, and compared to 1 state model performance. The red rectangle encloses the best-fitting model (K = 3
+and α = 2). E. Average log-likelihood per trial for classic GLM, fit to data across all animals, as a function of tanh
+transformation coefficient p. The red rectangle represents the choice of p = 5 for all other analysis in the paper.
+Trial history is not an important regressor for choice behavior
+We modeled animals’ choices using four task inputs: the signed stimulus contrast (positive for the right
+side and negative for the left side), an offset or bias, the animal’s choice on the previous trial, and the
+rewarded side of the previous trial. A large weight on the animal’s previous choice reflects a strategy
+termed “perseveration”, in which the animal tends to repeat the previous choice irrespective of the
+rewarded side. A large weight on the rewarded side of the previous trial reflects a strategy known as
+“win-stay, lose-switch”, in which the animal repeats a choice if it was previously rewarded and switches
+otherwise.
+For the example mouse, the history-dependent weights are substantially smaller than the bias and
+stimulus weights (Supplemental Figure 4A). On average across animals, both the previous choice and
+previous correct side weights are consistently close to 0 across all states, suggesting that these inputs
+are not important in determining the state-dependent strategies (Supplemental Figure 4B).
+26
+.
+CC-BY-NC-ND 4.0 International license
+available under a 
+(which was not certified by peer review) is the author/funder, who has granted bioRxiv a license to display the preprint in perpetuity. It is made 
+The copyright holder for this preprint
+this version posted September 10, 2025. 
+; 
+https://doi.org/10.1101/2024.11.30.626182
+doi: 
+bioRxiv preprint 
