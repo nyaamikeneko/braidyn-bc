@@ -1,0 +1,25 @@
+
+##### dynamic_glmhmm.py 883 lines
+10: class dynamic_GLMHMM():
+
+##### fit_cluster_dynamicGLMHMM.py 81 lines
+
+##### analysis_utils.py 558 lines
+17: def split_data(N, sessInd, folds=5, blocks=10, random_state=1):
+73: def fit_eval_CV_partial_model(K, x, y, sessInd, presentTrain, presentTest, sigmaList=[0.01, 0.1, 1, 10, 100], maxiter=300, glmhmmW=None, glmhmmP=None, glmhmmpi=None, L2penaltyW=0, priorDirP = None, fit_init_states=False):
+174: def fit_eval_CV_dynamic_model_reverse(K, x, y, sessInd, presentTrain, presentTest, alphaList=[0, 1, 10, 100, 1000, 10000], maxiter=200, dglmhmmW=None, dglmhmmP=None, partial_glmhmmpi=None, bestSigma=None, L2penaltyW=0, fit_init_states=False, model_type='dynamic'):
+274: def fit_eval_CV_dynamic_model(K, x, y, sessInd, presentTrain, presentTest, alphaList=[0, 1, 10, 100, 1000, 10000], maxiter=200, partial_glmhmmW=None, globalP=None, partial_glmhmmpi=None, bestSigma=None, L2penaltyW=0, fit_init_states=False, model_type='dynamic'):
+377: def fit_eval_CV_2Dsigmas(K, x, y, sessInd, presentTrain, presentTest, sigmaList=[0.01, 0.1, 1, 10, 100], maxiter=300, glmhmmW=None, glmhmmP=None, L2penaltyW=1, priorDirP = [10,1], stimCol=None, fit_init_states=False):
+484: def accuracy_states_sessions(gamma, phi, y, correctSide, sessInd):
+533: def soft_occupancy_states_sessions(gamma, sessInd):
+
+##### utils.py 239 lines
+9: def reshapeObs(y):
+29: def reshapeSigma(sigma, K, D):
+66: def reshape_parameters_session_to_trials(w, p, sessInd):
+95: def reshapeWeights(w, oldSessInd, newSessInd, standardGLMHMM=False):
+135: def reshapeTransitionMatrix(p, oldSessInd, newSessInd):
+168: def get_states_order(w, sessInd, stimCol=[1]):
+200: def softplus(x):
+220: def softplus_deriv(x):
+234: def reshapeP_M1_to_M2(P, N):

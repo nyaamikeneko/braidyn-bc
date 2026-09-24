@@ -1,0 +1,396 @@
+--- cell 2 images 0 ---
+cwd: /mnt/c/Users/dmasu/braidyn-bc
+
+--- cell 3 images 0 ---
+dynamic_glmhmm: /mnt/c/Users/dmasu/braidyn-bc/external/dynamic_glmhmm/code/dynamic_glmhmm.py
+
+--- cell 4 images 0 ---
+環境: ローカル (WSL)
+DATA_CSV_ROOT: /mnt/g/マイドライブ/braidyn-bc-backup/hackathon_data
+DATA_CSV_BACKUP_ROOT: /mnt/g/マイドライブ/braidyn-bc-backup/hackathon_data
+キャッシュから読み込み: data/cache/ver5_trials_VG1GC-66.pkl
+note18 keys: ['final_fixed', 'final_reset', 'sigA_fixed', 'sigA_reset', 'sigB_fixed', 'std_fixed', 'std_reset']
+note19 keys: ['dyn_folds', 'partial_folds']
+
+--- cell 6 images 0 ---
+N=2359  D=3  sessions=14  K=3  sigma=1
+day別試行数: [np.int64(76), np.int64(156), np.int64(103), np.int64(183), np.int64(318), np.int64(157), np.int64(153), np.int64(72), np.int64(155), np.int64(233), np.int64(233), np.int64(126), np.int64(231), np.int64(163)]
+foldごとのtest試行数: [548, 510, 479, 402, 420]
+
+--- cell 8 images 0 ---
+[cache] partial fold 0: test LL -0.4229
+[cache] partial fold 1: test LL -0.4245
+[cache] partial fold 2: test LL -0.4302
+[cache] partial fold 3: test LL -0.4366
+[cache] partial fold 4: test LL -0.3971
+このノートの partial σ=1  test LL -0.4223 ± 0.0060
+ノート18の partial σ=1     test LL -0.4201 ± 0.0059
+
+--- cell 10 images 0 ---
+[cache] dynamic fold 0: -0.4482 -0.4453 -0.4320 -0.4240 -0.4221 -0.4220 -0.4217
+[cache] dynamic fold 1: -0.4386 -0.4369 -0.4342 -0.4240 -0.4234 -0.4233 -0.4231
+[cache] dynamic fold 2: -0.4500 -0.4506 -0.4408 -0.4302 -0.4293 -0.4294 -0.4292
+[cache] dynamic fold 3: -0.4604 -0.4524 -0.4412 -0.4359 -0.4351 -0.4351 -0.4354
+[cache] dynamic fold 4: -0.4078 -0.4089 -0.4005 -0.3970 -0.3963 -0.3964 -0.3965
+
+--- cell 12 images 1 ---
+kappa  test_ll     se  delta_vs_inf
+    0  -0.4410 0.0080       -0.0198
+    1  -0.4388 0.0071       -0.0176
+   10  -0.4297 0.0067       -0.0085
+  100  -0.4222 0.0060       -0.0010
+ 1000  -0.4212 0.0060       -0.0000
+10000  -0.4212 0.0059       -0.0000
+  inf  -0.4212 0.0059        0.0000
+/tmp/ipykernel_1091/1583788983.py:32: UserWarning: Glyph 65288 (\N{FULLWIDTH LEFT PARENTHESIS}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/1583788983.py:32: UserWarning: Glyph 21491 (\N{CJK UNIFIED IDEOGRAPH-53F3}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/1583788983.py:32: UserWarning: Glyph 31471 (\N{CJK UNIFIED IDEOGRAPH-7AEF}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/1583788983.py:32: UserWarning: Glyph 12364 (\N{HIRAGANA LETTER GA}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/1583788983.py:32: UserWarning: Glyph 65309 (\N{FULLWIDTH EQUALS SIGN}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/1583788983.py:32: UserWarning: Glyph 36983 (\N{CJK UNIFIED IDEOGRAPH-9077}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/1583788983.py:32: UserWarning: Glyph 31227 (\N{CJK UNIFIED IDEOGRAPH-79FB}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/1583788983.py:32: UserWarning: Glyph 34892 (\N{CJK UNIFIED IDEOGRAPH-884C}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/1583788983.py:32: UserWarning: Glyph 21015 (\N{CJK UNIFIED IDEOGRAPH-5217}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/1583788983.py:32: UserWarning: Glyph 12434 (\N{HIRAGANA LETTER WO}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/1583788983.py:32: UserWarning: Glyph 12391 (\N{HIRAGANA LETTER DE}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/1583788983.py:32: UserWarning: Glyph 20998 (\N{CJK UNIFIED IDEOGRAPH-5206}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/1583788983.py:32: UserWarning: Glyph 12369 (\N{HIRAGANA LETTER KE}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/1583788983.py:32: UserWarning: Glyph 12394 (\N{HIRAGANA LETTER NA}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/1583788983.py:32: UserWarning: Glyph 12356 (\N{HIRAGANA LETTER I}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/1583788983.py:32: UserWarning: Glyph 65289 (\N{FULLWIDTH RIGHT PARENTHESIS}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/1583788983.py:32: UserWarning: Glyph 23550 (\N{CJK UNIFIED IDEOGRAPH-5BFE}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/1583788983.py:32: UserWarning: Glyph 25968 (\N{CJK UNIFIED IDEOGRAPH-6570}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/1583788983.py:32: UserWarning: Glyph 23588 (\N{CJK UNIFIED IDEOGRAPH-5C24}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/1583788983.py:32: UserWarning: Glyph 24230 (\N{CJK UNIFIED IDEOGRAPH-5EA6}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/1583788983.py:32: UserWarning: Glyph 35430 (\N{CJK UNIFIED IDEOGRAPH-8A66}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/1583788983.py:32: UserWarning: Glyph 19979 (\N{CJK UNIFIED IDEOGRAPH-4E0B}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/1583788983.py:32: UserWarning: Glyph 12370 (\N{HIRAGANA LETTER GE}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/1583788983.py:32: UserWarning: Glyph 12427 (\N{HIRAGANA LETTER RU}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/1583788983.py:32: UserWarning: Glyph 12392 (\N{HIRAGANA LETTER TO}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel
+--- cell 14 images 0 ---
+κ=    0  通過 0/5
+κ=    1  通過 2/5
+κ=   10  通過 3/5
+κ=  100  通過 5/5
+κ= 1000  通過 5/5
+κ=10000  通過 5/5
+κ=  inf  通過 5/5
+kappa  fold  pass  finite  absorb_days clock  same_order
+    0     0 False    True            3     —       False
+    0     1 False    True            3     —       False
+    0     2 False    True            4     —       False
+    0     3 False    True            5     —       False
+    0     4 False    True            5     —       False
+    1     0  True    True            0     —       False
+    1     1  True    True            0     —       False
+    1     2 False    True            4     —       False
+    1     3 False    True            2     —       False
+    1     4 False    True            3     —       False
+   10     0  True    True            0     —       False
+   10     1  True    True            0     —       False
+   10     2 False    True            1     —       False
+   10     3  True    True            0     —       False
+   10     4 False    True            3     —       False
+  100     0  True    True            0     —       False
+  100     1  True    True            0     —       False
+  100     2  True    True            0     —       False
+  100     3  True    True            0     —       False
+  100     4  True    True            0     —       False
+ 1000     0  True    True            0     —       False
+ 1000     1  True    True            0     —       False
+ 1000     2  True    True            0     —       False
+ 1000     3  True    True            0     —       False
+ 1000     4  True    True            0     —       False
+10000     0  True    True            0     —       False
+10000     1  True    True            0     —       False
+10000     2  True    True            0     —       False
+10000     3  True    True            0     —       False
+10000     4  True    True            0     —       False
+  inf     0  True    True            0     —       False
+  inf     1  True    True            0     —       False
+  inf     2  True    True            0     —       False
+  inf     3  True    True            0     —       False
+  inf     4  True    True            0     —       False
+状態別の day 内位置（fold 0）:
+kappa                               pos
+    0 0.49±0.27 / 0.52±0.29 / 0.44±0.28
+    1 0.50±0.28 / 0.52±0.29 / 0.45±0.28
+   10 0.55±0.30 / 0.49±0.29 / 0.50±0.28
+  100 0.56±0.25 / 0.50±0.29 / 0.48±0.30
+ 1000 0.56±0.26 / 0.49±0.29 / 0.50±0.29
+10000 0.57±0.26 / 0.49±0.29 / 0.50±0.29
+  inf 0.59±0.25 / 0.49±0.29 / 0.49±0.29
+
+--- cell 15 images 2 ---
+/tmp/ipykernel_1091/2836392056.py:24: UserWarning: Glyph 12394 (\N{HIRAGANA LETTER NA}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/2836392056.py:24: UserWarning: Glyph 12375 (\N{HIRAGANA LETTER SI}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/2836392056.py:24: UserWarning: Glyph 21560 (\N{CJK UNIFIED IDEOGRAPH-5438}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/2836392056.py:24: UserWarning: Glyph 21454 (\N{CJK UNIFIED IDEOGRAPH-53CE}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/2836392056.py:24: UserWarning: Glyph 34892 (\N{CJK UNIFIED IDEOGRAPH-884C}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/2836392056.py:24: UserWarning: Glyph 26178 (\N{CJK UNIFIED IDEOGRAPH-6642}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/2836392056.py:24: UserWarning: Glyph 35336 (\N{CJK UNIFIED IDEOGRAPH-8A08}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/2836392056.py:24: UserWarning: Glyph 21270 (\N{CJK UNIFIED IDEOGRAPH-5316}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/2836392056.py:24: UserWarning: Glyph 21516 (\N{CJK UNIFIED IDEOGRAPH-540C}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/2836392056.py:24: UserWarning: Glyph 19968 (\N{CJK UNIFIED IDEOGRAPH-4E00}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/2836392056.py:24: UserWarning: Glyph 12475 (\N{KATAKANA LETTER SE}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/2836392056.py:24: UserWarning: Glyph 12464 (\N{KATAKANA LETTER GU}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/2836392056.py:24: UserWarning: Glyph 12513 (\N{KATAKANA LETTER ME}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/2836392056.py:24: UserWarning: Glyph 12531 (\N{KATAKANA LETTER N}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/2836392056.py:24: UserWarning: Glyph 12488 (\N{KATAKANA LETTER TO}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/2836392056.py:24: UserWarning: Glyph 38918 (\N{CJK UNIFIED IDEOGRAPH-9806}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/2836392056.py:24: UserWarning: Glyph 12391 (\N{HIRAGANA LETTER DE}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/2836392056.py:24: UserWarning: Glyph 12356 (\N{HIRAGANA LETTER I}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/2836392056.py:24: UserWarning: Glyph 36864 (\N{CJK UNIFIED IDEOGRAPH-9000}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/2836392056.py:24: UserWarning: Glyph 12481 (\N{KATAKANA LETTER TI}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/2836392056.py:24: UserWarning: Glyph 12455 (\N{KATAKANA LETTER SMALL E}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/2836392056.py:24: UserWarning: Glyph 12483 (\N{KATAKANA LETTER SMALL TU}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/2836392056.py:24: UserWarning: Glyph 12463 (\N{KATAKANA LETTER KU}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/2836392056.py:24: UserWarning: Glyph 12434 (\N{HIRAGANA LETTER WO}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/2836392056.py:24: UserWarning: Glyph 33853 (\N{CJK UNIFIED IDEOGRAPH-843D}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/2836392056.py:24: UserWarning: Glyph 12392 (\N{HIRAGANA LETTER TO}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/2836392056.py:24: UserWarning: Glyph 12383 (\N{HIRAGANA LETTER TA}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/2836392056.py:24: User
+--- cell 17 images 0 ---
+全データ partial の行和（正規化前）: [0.99931 0.9999  0.99806]
+正規化後の対角: [0.955 0.984 0.919]
+最終パラメータ NaN: False
+
+--- cell 19 images 1 ---
+[κ=inf]
+  1状態が90%以上のday: 6/14  (最頻状態占有率の中央値 0.759)
+  day内の状態切り替え: 合計 29 回 / day中央値 1  / day別 [4, 1, 0, 1, 1, 0, 3, 1, 1, 2, 6, 0, 6, 3]
+  state run長: 中央値 32 試行 / 最大 244
+  p_max 平均 0.710 / P(z)>=0.8 残存率 0.333
+  day内の正規化位置（状態別 平均±sd）:
+    state 0: n= 455  pos 0.505 ± 0.314
+    state 1: n=1794  pos 0.485 ± 0.278
+    state 2: n= 110  pos 0.655 ± 0.297
+  |W| の最大 2.67
+
+/tmp/ipykernel_1091/654781534.py:72: UserWarning: Glyph 20869 (\N{CJK UNIFIED IDEOGRAPH-5185}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/654781534.py:72: UserWarning: Glyph 12398 (\N{HIRAGANA LETTER NO}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/654781534.py:72: UserWarning: Glyph 20301 (\N{CJK UNIFIED IDEOGRAPH-4F4D}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/654781534.py:72: UserWarning: Glyph 32622 (\N{CJK UNIFIED IDEOGRAPH-7F6E}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/654781534.py:72: UserWarning: Glyph 65288 (\N{FULLWIDTH LEFT PARENTHESIS}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/654781534.py:72: UserWarning: Glyph 21508 (\N{CJK UNIFIED IDEOGRAPH-5404}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/654781534.py:72: UserWarning: Glyph 12434 (\N{HIRAGANA LETTER WO}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/654781534.py:72: UserWarning: Glyph 20998 (\N{CJK UNIFIED IDEOGRAPH-5206}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/654781534.py:72: UserWarning: Glyph 21106 (\N{CJK UNIFIED IDEOGRAPH-5272}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/654781534.py:72: UserWarning: Glyph 12375 (\N{HIRAGANA LETTER SI}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/654781534.py:72: UserWarning: Glyph 12289 (\N{IDEOGRAPHIC COMMA}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/654781534.py:72: UserWarning: Glyph 12381 (\N{HIRAGANA LETTER SO}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/654781534.py:72: UserWarning: Glyph 21306 (\N{CJK UNIFIED IDEOGRAPH-533A}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/654781534.py:72: UserWarning: Glyph 38291 (\N{CJK UNIFIED IDEOGRAPH-9593}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/654781534.py:72: UserWarning: Glyph 26368 (\N{CJK UNIFIED IDEOGRAPH-6700}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/654781534.py:72: UserWarning: Glyph 38971 (\N{CJK UNIFIED IDEOGRAPH-983B}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/654781534.py:72: UserWarning: Glyph 29366 (\N{CJK UNIFIED IDEOGRAPH-72B6}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/654781534.py:72: UserWarning: Glyph 24907 (\N{CJK UNIFIED IDEOGRAPH-614B}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/654781534.py:72: UserWarning: Glyph 65289 (\N{FULLWIDTH RIGHT PARENTHESIS}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/654781534.py:72: UserWarning: Glyph 20006 (\N{CJK UNIFIED IDEOGRAPH-4E26}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/654781534.py:72: UserWarning: Glyph 12403 (\N{HIRAGANA LETTER BI}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/654781534.py:72: UserWarning: Glyph 21344 (\N{CJK UNIFIED IDEOGRAPH-5360}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/654781534.py:72: UserWarning: Glyph 26377 (\N{CJK UNIFIED IDEOGRAPH-6709}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/654781534.py:72: UserWarning: Glyph 29575 (\N{CJK UNIFIED IDEOGRAPH-7387}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/654781534.py:72: UserWarning: Glyph 30772 (\N{CJK UNIFIED IDEO
+--- cell 20 images 2 ---
+/tmp/ipykernel_1091/3302712756.py:22: UserWarning: Glyph 33258 (\N{CJK UNIFIED IDEOGRAPH-81EA}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/3302712756.py:22: UserWarning: Glyph 24049 (\N{CJK UNIFIED IDEOGRAPH-5DF1}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/3302712756.py:22: UserWarning: Glyph 36983 (\N{CJK UNIFIED IDEOGRAPH-9077}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/3302712756.py:22: UserWarning: Glyph 31227 (\N{CJK UNIFIED IDEOGRAPH-79FB}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/3302712756.py:22: UserWarning: Glyph 30906 (\N{CJK UNIFIED IDEOGRAPH-78BA}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/3302712756.py:22: UserWarning: Glyph 29575 (\N{CJK UNIFIED IDEOGRAPH-7387}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/3302712756.py:22: UserWarning: Glyph 21029 (\N{CJK UNIFIED IDEOGRAPH-5225}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/3302712756.py:22: UserWarning: Glyph 12398 (\N{HIRAGANA LETTER NO}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/3302712756.py:22: UserWarning: Glyph 65288 (\N{FULLWIDTH LEFT PARENTHESIS}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/3302712756.py:22: UserWarning: Glyph 23455 (\N{CJK UNIFIED IDEOGRAPH-5B9F}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/3302712756.py:22: UserWarning: Glyph 32218 (\N{CJK UNIFIED IDEOGRAPH-7DDA}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/3302712756.py:22: UserWarning: Glyph 65289 (\N{FULLWIDTH RIGHT PARENTHESIS}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/3302712756.py:22: UserWarning: Glyph 12392 (\N{HIRAGANA LETTER TO}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/3302712756.py:22: UserWarning: Glyph 20840 (\N{CJK UNIFIED IDEOGRAPH-5168}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/3302712756.py:22: UserWarning: Glyph 20849 (\N{CJK UNIFIED IDEOGRAPH-5171}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/3302712756.py:22: UserWarning: Glyph 36890 (\N{CJK UNIFIED IDEOGRAPH-901A}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/3302712756.py:22: UserWarning: Glyph 23550 (\N{CJK UNIFIED IDEOGRAPH-5BFE}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/3302712756.py:22: UserWarning: Glyph 35282 (\N{CJK UNIFIED IDEOGRAPH-89D2}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/3302712756.py:22: UserWarning: Glyph 30772 (\N{CJK UNIFIED IDEOGRAPH-7834}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/mnt/c/Users/dmasu/braidyn-bc/.venv-wsl/lib/python3.12/site-packages/IPython/core/pylabtools.py:158: UserWarning: Glyph 33258 (\N{CJK UNIFIED IDEOGRAPH-81EA}) missing from font(s) DejaVu Sans.
+  fig.canvas.print_figure(bytes_io, **kw)
+/mnt/c/Users/dmasu/braidyn-bc/.venv-wsl/lib/python3.12/site-packages/IPython/core/pylabtools.py:158: UserWarning: Glyph 24049 (\N{CJK UNIFIED IDEOGRAPH-5DF1}) missing from font(s) DejaVu Sans.
+  fig.canvas.print_figure(bytes_io, **kw)
+/mnt/c/Users/dmasu/braidyn-bc/.venv-wsl/lib/python3.12/site-packages/IPython/core/pylabtools.py:158: UserWarning: Glyph 36983 (\N{CJK UNIFIED IDEOGRAPH-9077}) missing from font(s) DejaVu Sans.
+  fig.canvas.print_figure(bytes_io, **kw)
+/mnt/c/Users/dmasu/braidyn-bc/.venv-wsl/lib/python3.12/site-packages/IPython/core/pylabtools.py:158: UserWarning: Glyph 31227 (\N{CJK UNIFIED IDEOGRAPH-79FB}) missing from font(s) DejaVu Sans.
+  fig.canvas.print_figure(bytes_io, **kw)
+/mnt/c/Users/dmasu/braidyn-bc/.venv-wsl/lib/python3.12/site-packages/IPython/core/pylabtools.py:158: UserWarning: Glyph 30906 (\N{CJK UNIFIED IDEOGRAPH-78BA}) missing from font(s) DejaVu Sans.
+  fig.canvas.
+--- cell 22 images 1 ---
+P(z)>=0.8 残存率 0.333
+  task_day  n_all  n_kept  min_cell  usable_balanced
+ task-day1     76      16         0                0
+ task-day3    156      35         0                0
+ task-day4    103       0         0                0
+ task-day5    183       0         0                0
+ task-day6    318     163         0                0
+ task-day7    157      85         0                0
+ task-day8    153      83         0                0
+ task-day9     72       0         0                0
+task-day10    155      79         0                0
+task-day11    233      16         0                0
+task-day12    233     109         3               36
+task-day13    126      39         0                0
+task-day14    231      52         0                0
+task-day15    163     108         0                0
+balanced 使用可能試行: 全 day 計 36 / min_cell=0 の day 13/14
+/tmp/ipykernel_1091/3230466879.py:43: UserWarning: Glyph 35430 (\N{CJK UNIFIED IDEOGRAPH-8A66}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/3230466879.py:43: UserWarning: Glyph 34892 (\N{CJK UNIFIED IDEOGRAPH-884C}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/3230466879.py:43: UserWarning: Glyph 25968 (\N{CJK UNIFIED IDEOGRAPH-6570}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/3230466879.py:43: UserWarning: Glyph 30906 (\N{CJK UNIFIED IDEOGRAPH-78BA}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/3230466879.py:43: UserWarning: Glyph 20449 (\N{CJK UNIFIED IDEOGRAPH-4FE1}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/3230466879.py:43: UserWarning: Glyph 24230 (\N{CJK UNIFIED IDEOGRAPH-5EA6}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/3230466879.py:43: UserWarning: Glyph 12391 (\N{HIRAGANA LETTER DE}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/3230466879.py:43: UserWarning: Glyph 27531 (\N{CJK UNIFIED IDEOGRAPH-6B8B}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/3230466879.py:43: UserWarning: Glyph 12427 (\N{HIRAGANA LETTER RU}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/3230466879.py:43: UserWarning: Glyph 38899 (\N{CJK UNIFIED IDEOGRAPH-97F3}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/3230466879.py:43: UserWarning: Glyph 25552 (\N{CJK UNIFIED IDEOGRAPH-63D0}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/3230466879.py:43: UserWarning: Glyph 31034 (\N{CJK UNIFIED IDEOGRAPH-793A}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/3230466879.py:43: UserWarning: Glyph 29366 (\N{CJK UNIFIED IDEOGRAPH-72B6}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/3230466879.py:43: UserWarning: Glyph 24907 (\N{CJK UNIFIED IDEOGRAPH-614B}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/3230466879.py:43: UserWarning: Glyph 12479 (\N{KATAKANA LETTER TA}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/3230466879.py:43: UserWarning: Glyph 12452 (\N{KATAKANA LETTER I}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/3230466879.py:43: UserWarning: Glyph 12503 (\N{KATAKANA LETTER PU}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/3230466879.py:43: UserWarning: Glyph 12434 (\N{HIRAGANA LETTER WO}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/3230466879.py:43: UserWarning: Glyph 37347 (\N{CJK UNIFIED IDEOGRAPH-91E3}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/3230466879.py:43: UserWarning: Glyph 12426 (\N{HIRAGANA LETTER RI}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_1091/3230466879.py:43: UserWarning: Glyph 21512 (\N{CJK UNIFIED IDEOGRAPH-5408}) missing from font(s) DejaVu Sans.
+  fig.tight_layout()
+/tmp/ipykernel_109
+--- cell 24 images 0 ---
+========================================================================
+選択 κ = inf   候補 = ['100', '1000', '10000', 'inf']
+kappa  test_ll     se  delta_vs_inf
+    0  -0.4410 0.0080       -0.0198
+    1  -0.4388 0.0071       -0.0176
+   10  -0.4297 0.0067       -0.0085
+  100  -0.4222 0.0060       -0.0010
+ 1000  -0.4212 0.0060       -0.0000
+10000  -0.4212 0.0059       -0.0000
+  inf  -0.4212 0.0059        0.0000
+1状態≥90% の day: 6/14
+切り替え合計 29 / P(z)≥0.8 0.333
+balanced 試行 36
+========================================================================
